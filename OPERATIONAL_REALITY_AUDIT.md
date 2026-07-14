@@ -51,3 +51,7 @@ Direct Runtime execution on this repository with `RuntimeConfiguration.load({"ca
 DJConnect integration cannot be proven from this repository and remains blocked: no released TDE version can be pinned and no DJConnect repository has been selected. No cross-repository invocation, evidence ingestion or release gate exists here.
 
 See [IMPLEMENTATION_INVENTORY.md](IMPLEMENTATION_INVENTORY.md), [PRODUCT_SURFACE_MATRIX.md](PRODUCT_SURFACE_MATRIX.md), [CAPABILITY_REALITY_MATRIX.md](CAPABILITY_REALITY_MATRIX.md), [TEST_REALITY_REPORT.md](TEST_REALITY_REPORT.md), [RELEASE_REALITY_REPORT.md](RELEASE_REALITY_REPORT.md), [DOCUMENTATION_IMPLEMENTATION_GAP.md](DOCUMENTATION_IMPLEMENTATION_GAP.md), and [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).
+
+## Recovery reference
+
+Recovery Prompt P0-1 resolves the two P0 findings that this audit identified: the installed Code Size CLI dispatch now exposes actual Runtime execution/evidence, and Runtime Qualification blocks empty or incomplete execution evidence. The audit decision remains `TDE_PRODUCT_PARTIALLY_OPERATIONAL`, because release, persisted query and the remaining recovery gaps are outside that focused increment.

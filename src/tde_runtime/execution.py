@@ -1,36 +1,159 @@
-"""Sequential, dependency-aware coordinator for registered capabilities."""
+"""Sequential, registry-driven coordinator for registered capability execution."""
+
 from __future__ import annotations
+
 from time import perf_counter
 from typing import Any
-from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
-from .complexity import analyze as analyze_complexity
-from .maintainability import derive as derive_maintainability
-from .dependency_health import discover as discover_dependencies
+
+from .code_size import ADAPTER_ID, CAPABILITY_ID, CAPABILITY_VERSION, analyze
+from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
+from .dependency_health import CAPABILITY_ID as DEPENDENCY_CAPABILITY_ID, CAPABILITY_VERSION as DEPENDENCY_CAPABILITY_VERSION, discover as discover_dependencies
+from .maintainability import CAPABILITY_ID as MAINTAINABILITY_CAPABILITY_ID, CAPABILITY_VERSION as MAINTAINABILITY_CAPABILITY_VERSION, derive as derive_maintainability
+from .registries import AdapterRegistry, CapabilityRegistry
+
 
 class CapabilityExecutionEngine:
-    states=("PLANNED","READY","RUNNING","COMPLETED","FAILED","BLOCKED","SKIPPED","NOT_SUPPORTED")
+    """Plans and records capability work; Runtime only consumes its canonical output."""
+
+    states = ("PLANNED", "READY", "RUNNING", "COMPLETED", "FAILED", "BLOCKED", "SKIPPED", "NOT_SUPPORTED")
+
+    def __init__(self, capability_registry: CapabilityRegistry | None = None,
+                 adapter_registry: AdapterRegistry | None = None) -> None:
+        self._capability_registry = capability_registry or CapabilityRegistry()
+        self._adapter_registry = adapter_registry or AdapterRegistry()
+
     def plan(self, context: Any) -> dict[str, Any]:
-        requested=context.configuration.get("executionOptions",{}).get("capabilities",{})
-        enabled=[key for key,value in requested.items() if value.get("enabled")]
-        order=[item for item in ("code_size","complexity","maintainability","dependency_health") if item in enabled or (item in {"code_size","complexity"} and "maintainability" in enabled)]
-        return {"state":"PLANNED","capabilities":order,"parallelReady":True,"retries":"NONE"}
+        requested = context.execution_options.get("capabilities", {})
+        available = {item["id"]: item for item in self._capability_registry.discover()}
+        enabled = [identifier for identifier, settings in requested.items() if settings.get("enabled")]
+        requested_plan = [identifier for identifier in enabled if identifier in available]
+        planned = [identifier for identifier in (CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID, MAINTAINABILITY_CAPABILITY_ID, DEPENDENCY_CAPABILITY_ID)
+                   if identifier in requested_plan or (identifier in {CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID} and MAINTAINABILITY_CAPABILITY_ID in requested_plan)]
+        unsupported = [identifier for identifier in enabled if identifier not in available]
+        adapters = {item["id"] for item in self._adapter_registry.discover()}
+        planned_adapters = [adapter for identifier, adapter in ((CAPABILITY_ID, ADAPTER_ID), (COMPLEXITY_CAPABILITY_ID, COMPLEXITY_ADAPTER_ID))
+                            if identifier in planned and adapter in adapters]
+        return {
+            "state": "PLANNED",
+            "capabilities": planned,
+            "unsupportedCapabilities": unsupported,
+            "plannedAdapters": planned_adapters,
+            "parallelReady": True,
+            "retries": "NONE",
+        }
+
     def execute(self, context: Any) -> dict[str, Any]:
-        started=perf_counter(); plan=self.plan(context); requested=context.configuration.get("executionOptions",{}).get("capabilities",{})
-        # Existing capability implementations remain isolated; only this engine coordinates them.
-        if not plan["capabilities"]: result={"executedWorkItems":0,"measurements":[],"findings":[],"capabilityResults":[]}
-        elif requested.get("dependency_health",{}).get("enabled"):
-            item=discover_dependencies(context.repository_root); result={"executedWorkItems":1,"measurements":item["measurements"],"findings":item["findings"],"capabilityResults":[{"capabilityId":"dependency_health","capabilityVersion":"0.1.0","status":"VALID","completeness":1,"qualificationApplicable":True}]}
-        elif requested.get("maintainability",{}).get("enabled"):
-            code=self._code(context,analyze(context.repository_root)); complexity=analyze_complexity(context.repository_root); derived=derive_maintainability(code,{"measurements":complexity.get("measurements",[])})
-            result={"executedWorkItems":3,"measurements":code["measurements"]+complexity.get("measurements",[])+derived.get("measurements",[]),"findings":code["findings"]+complexity.get("findings",[]),"capabilityResults":code["capabilityResults"]+[{"capabilityId":"complexity","status":complexity["status"],"completeness":1,"qualificationApplicable":True},{"capabilityId":"maintainability","status":derived["status"],"completeness":1,"qualificationApplicable":True}]}
-        elif requested.get("complexity",{}).get("enabled"):
-            item=analyze_complexity(context.repository_root); result={"executedWorkItems":1,"measurements":item.get("measurements",[]),"findings":item.get("findings",[]),"capabilityResults":[{"capabilityId":"complexity","status":item["status"],"completeness":1,"qualificationApplicable":True}]}
-        else: result=self._code(context,analyze(context.repository_root))
-        result["executionEvidence"]={"executionId":context.execution_id,"plannedCapabilities":plan["capabilities"],"executedCapabilities":[x["capabilityId"] for x in result["capabilityResults"]],"executionOrder":plan["capabilities"],"durationMs":int((perf_counter()-started)*1000),"state":"COMPLETED","limitations":[]}
-        return result
-    def _code(self,context:Any,result:dict[str,Any])->dict[str,Any]:
-        if result["status"]!="VALID": return {"executedWorkItems":1,"measurements":[],"findings":[],"capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"BLOCKED","completeness":0,"qualificationApplicable":False,"limitations":result["limitations"]}]}
-        metrics=[]; names={"files":"file_count","code":"code_lines","comment":"comment_lines","blank":"blank_lines","source":"source_lines","test":"test_lines","generated":"generated_lines","vendor":"vendor_lines","documentation":"documentation_lines"}
-        for key,value in result["totals"].items():
-            if key in names: metrics.append({"measurementId":f"code_size.repository.{key}","capabilityId":CAPABILITY_ID,"metricKey":f"code_size.{names[key]}","value":value,"unit":"files" if key=="files" else "lines","scope":"repository","targetEntityId":context.repository_id,"aggregation":"sum"})
-        return {"executedWorkItems":1,"measurements":metrics,"findings":[],"capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"VALID","adapterIds":[result["adapter"]["id"]],"completeness":1,"qualificationApplicable":True}]}
+        started = perf_counter()
+        plan = self.plan(context)
+        evidence = self._execution_evidence(context, plan)
+        measurements: list[dict[str, Any]] = []
+        findings: list[dict[str, Any]] = []
+        capability_results: list[dict[str, Any]] = []
+
+        for identifier in plan["capabilities"]:
+            normalized = self._dispatch(identifier, context, measurements)
+            measurements.extend(normalized["measurements"])
+            findings.extend(normalized["findings"])
+            capability_results.extend(normalized["capabilityResults"])
+            result = normalized["capabilityResults"][-1]
+            adapter_ids = result.get("adapterIds", [])
+            state = "COMPLETED" if result["status"] == "VALID" else "BLOCKED"
+            if state == "COMPLETED":
+                evidence["executedCapabilities"].append(identifier)
+                evidence["executedAdapters"].extend(adapter_ids)
+            else:
+                evidence["blockedCapabilities"].append(identifier)
+                evidence["limitations"].extend(result.get("limitations", []))
+            evidence["workItems"].append({"capabilityId": identifier, "adapterId": adapter_ids[0] if adapter_ids else None,
+                                            "state": state, "durationMs": result["executionTiming"]["durationMs"]})
+
+        evidence["unsupportedCapabilities"].extend(plan["unsupportedCapabilities"])
+        evidence["durationMs"] = int((perf_counter() - started) * 1000)
+        evidence["state"] = "COMPLETED" if evidence["executedCapabilities"] else "BLOCKED"
+        return {
+            "executedWorkItems": len(evidence["workItems"]),
+            "measurements": measurements,
+            "findings": findings,
+            "capabilityResults": capability_results,
+            "executionEvidence": evidence,
+        }
+
+    def _dispatch(self, identifier: str, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
+        started = perf_counter()
+        timeout = int(context.execution_options.get("timeout", 60))
+        if identifier == CAPABILITY_ID:
+            result = analyze(context.repository_root, timeout)
+            duration = int((perf_counter() - started) * 1000)
+            return self._code_size_result(context, result, duration) if result["status"] == "VALID" else self._blocked(CAPABILITY_ID, CAPABILITY_VERSION, [ADAPTER_ID], result["limitations"], duration)
+        if identifier == COMPLEXITY_CAPABILITY_ID:
+            result = analyze_complexity(context.repository_root, timeout)
+            duration = int((perf_counter() - started) * 1000)
+            if result["status"] != "VALID":
+                return self._blocked(COMPLEXITY_CAPABILITY_ID, COMPLEXITY_CAPABILITY_VERSION, [COMPLEXITY_ADAPTER_ID], result["limitations"], duration)
+            capability = {"capabilityId": COMPLEXITY_CAPABILITY_ID, "capabilityVersion": COMPLEXITY_CAPABILITY_VERSION,
+                          "status": "VALID", "adapterIds": [COMPLEXITY_ADAPTER_ID], "completeness": 1,
+                          "qualificationApplicable": True, "executionTiming": {"durationMs": duration}}
+            return {"measurements": result.get("measurements", []), "findings": result.get("findings", []), "capabilityResults": [capability]}
+        if identifier == DEPENDENCY_CAPABILITY_ID:
+            result = discover_dependencies(context.repository_root)
+            duration = int((perf_counter() - started) * 1000)
+            capability = {"capabilityId": DEPENDENCY_CAPABILITY_ID, "capabilityVersion": DEPENDENCY_CAPABILITY_VERSION,
+                          "status": "VALID", "adapterIds": [], "completeness": 1, "qualificationApplicable": True,
+                          "executionTiming": {"durationMs": duration}}
+            return {"measurements": result["measurements"], "findings": result["findings"], "capabilityResults": [capability]}
+        code = {"measurements": measurements}
+        complexity = {"measurements": [item for item in measurements if item.get("capabilityId") == COMPLEXITY_CAPABILITY_ID]}
+        result = derive_maintainability(code, complexity)
+        duration = int((perf_counter() - started) * 1000)
+        if result["status"] != "VALID":
+            return self._blocked(MAINTAINABILITY_CAPABILITY_ID, MAINTAINABILITY_CAPABILITY_VERSION, [], result["limitations"], duration)
+        capability = {"capabilityId": MAINTAINABILITY_CAPABILITY_ID, "capabilityVersion": MAINTAINABILITY_CAPABILITY_VERSION,
+                      "status": "VALID", "adapterIds": [], "completeness": 1, "qualificationApplicable": True,
+                      "executionTiming": {"durationMs": duration}}
+        return {"measurements": result["measurements"], "findings": result["findings"], "capabilityResults": [capability]}
+
+    @staticmethod
+    def _blocked(identifier: str, version: str, adapter_ids: list[str], limitations: list[dict[str, Any]], duration: int) -> dict[str, Any]:
+        return {"measurements": [], "findings": [], "capabilityResults": [{"capabilityId": identifier, "capabilityVersion": version,
+                "status": "BLOCKED", "adapterIds": adapter_ids, "completeness": 0, "qualificationApplicable": False,
+                "limitations": limitations, "executionTiming": {"durationMs": duration}}]}
+
+    @staticmethod
+    def _execution_evidence(context: Any, plan: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "executionId": context.execution_id,
+            "plannedCapabilities": plan["capabilities"],
+            "executedCapabilities": [],
+            "skippedCapabilities": [],
+            "blockedCapabilities": [],
+            "unsupportedCapabilities": [],
+            "plannedAdapters": plan["plannedAdapters"],
+            "executedAdapters": [],
+            "workItems": [],
+            "executionGraph": {"nodes": plan["capabilities"], "edges": []},
+            "durationMs": 0,
+            "state": "PLANNED",
+            "limitations": [],
+        }
+
+    @staticmethod
+    def _code_size_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:
+        names = {"files": "file_count", "code": "code_lines", "comment": "comment_lines", "blank": "blank_lines",
+                 "source": "source_lines", "test": "test_lines", "generated": "generated_lines",
+                 "vendor": "vendor_lines", "documentation": "documentation_lines"}
+        measurements = [
+            {"measurementId": f"code_size.repository.{key}", "capabilityId": CAPABILITY_ID,
+             "metricKey": f"code_size.{names[key]}", "value": value, "unit": "files" if key == "files" else "lines",
+             "scope": "repository", "targetEntityId": context.repository_id, "aggregation": "sum",
+             "sourceAdapterId": result["adapter"]["id"], "sourceToolId": "cloc"}
+            for key, value in result["totals"].items() if key in names
+        ]
+        measurements.append({"measurementId": "code_size.repository.test_ratio", "capabilityId": CAPABILITY_ID,
+                             "metricKey": "code_size.test_to_source_ratio", "value": result["testToSourceRatio"],
+                             "unit": "ratio", "scope": "repository", "targetEntityId": context.repository_id,
+                             "aggregation": "ratio", "sourceAdapterId": result["adapter"]["id"], "sourceToolId": "cloc"})
+        return {"measurements": measurements, "findings": [], "capabilityResults": [
+            {"capabilityId": CAPABILITY_ID, "capabilityVersion": CAPABILITY_VERSION, "status": "VALID",
+             "adapterIds": [result["adapter"]["id"]], "completeness": 1, "qualificationApplicable": True,
+             "executionTiming": {"durationMs": duration}}
+        ]}

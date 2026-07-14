@@ -12,10 +12,6 @@ from .configuration import RuntimeConfiguration
 from .models import RuntimeContext, RuntimeQualification, RuntimeResult, StageResult, StageStatus, utc_now
 from .registries import AdapterRegistry, CapabilityRegistry, PolicyRegistry
 from .policy import PolicyEngine, PolicyError
-from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
-from .complexity import analyze as analyze_complexity
-from .maintainability import derive as derive_maintainability
-from .dependency_health import discover as discover_dependencies
 from .query import QueryEngine
 from .execution import CapabilityExecutionEngine
 from .runtime_qualification import RuntimeQualificationEngine
@@ -40,6 +36,7 @@ class Runtime:
         self._capability_registry = capability_registry or CapabilityRegistry()
         self._adapter_registry = adapter_registry or AdapterRegistry()
         self._policy_engine = policy_engine or PolicyEngine()
+        self._execution_engine = CapabilityExecutionEngine(self._capability_registry, self._adapter_registry)
 
     def execute(self, repository_root: str | Path,
                 configuration: RuntimeConfiguration | dict[str, Any] | None = None) -> RuntimeResult:
@@ -86,14 +83,14 @@ class Runtime:
             "language-detection": lambda: {"languages": []},
             "capability-planning": lambda: {"capabilities": list(self._capability_registry.discover())},
             "adapter-planning": lambda: {"adapters": list(self._adapter_registry.discover())},
-            "execution-planning": lambda: CapabilityExecutionEngine().plan(context),
+            "execution-planning": lambda: self._execution_engine.plan(context),
             "execution-context": lambda: {"executionId": context.execution_id},
-            "pipeline-execution": lambda: CapabilityExecutionEngine().execute(context),
+            "pipeline-execution": lambda: self._execution_engine.execute(context),
             "normalization": lambda: values.get("pipeline-execution", {"measurements": [], "findings": []}),
-            "validation": lambda: self._validation(context),
+            "validation": lambda: self._validation(context, values.get("pipeline-execution", {})),
             "policy-evaluation": lambda: self._policy(context, values.get("normalization", {})),
             "qualification": lambda: self._qualification(values.get("policy-evaluation", {})),
-            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context)), values.get("normalization", {}), values.get("policy-evaluation", {})),
+            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context, values.get("pipeline-execution", {}))), values.get("normalization", {}), values.get("policy-evaluation", {})),
             "reporting": lambda: self._report(context, values),
         }
         outputs = handlers[identifier]()
@@ -115,37 +112,14 @@ class Runtime:
         return {"status": decision, "policyDecision": decision, "policy": policy_evidence.get("policy"),
                 "triggeredRules": policy_evidence.get("triggeredRules", [])}
 
-    def _execute_capabilities(self, context: RuntimeContext) -> dict[str, Any]:
-        requested = context.configuration.get("executionOptions", {}).get("capabilities", {})
-        enabled = requested.get(CAPABILITY_ID, {}).get("enabled", False)
-        complexity_enabled = requested.get("complexity", {}).get("enabled", False)
-        maintainability_enabled = requested.get("maintainability", {}).get("enabled", False)
-        dependency_enabled = requested.get("dependency_health", {}).get("enabled", False)
-        if dependency_enabled:
-            result=discover_dependencies(context.repository_root); return {"executedWorkItems":1,"measurements":result["measurements"],"findings":result["findings"],"capabilityResults":[{"capabilityId":"dependency_health","capabilityVersion":"0.1.0","status":"VALID","adapterIds":["dependency_health.declarative"],"completeness":1,"qualificationApplicable":True}]}
-        if maintainability_enabled:
-            code_result=analyze(context.repository_root); complexity_result=analyze_complexity(context.repository_root)
-            code=self._code_size_result(context, code_result); complexity={"measurements":complexity_result.get("measurements",[])}; derived=derive_maintainability(code,complexity)
-            return {"executedWorkItems":3,"measurements":code["measurements"]+complexity["measurements"]+derived.get("measurements",[]),"findings":code["findings"]+complexity_result.get("findings",[]),"capabilityResults":[code["capabilityResults"][0],{"capabilityId":"complexity","capabilityVersion":"0.1.0","status":complexity_result["status"],"adapterIds":["complexity.radon"],"completeness":1,"qualificationApplicable":True},{"capabilityId":"maintainability","capabilityVersion":"0.1.0","status":derived["status"],"adapterIds":[],"completeness":1,"qualificationApplicable":True,"limitations":derived.get("limitations",[])}]}
-        if not enabled and not complexity_enabled: return {"executedWorkItems": 0, "measurements": [], "findings": [], "capabilityResults": []}
-        if complexity_enabled and not enabled:
-            result=analyze_complexity(context.repository_root); return {"executedWorkItems":1,"measurements":result.get("measurements",[]),"findings":result.get("findings",[]),"capabilityResults":[{"capabilityId":"complexity","capabilityVersion":"0.1.0","status":result["status"],"adapterIds":["complexity.radon"],"completeness":1,"qualificationApplicable":True,"limitations":result.get("limitations",[])}]}
-        result = analyze(context.repository_root, int(context.execution_options.get("timeout", 60)))
-        if result["status"] != "VALID": return {"executedWorkItems": 1, "measurements": [], "findings": [], "capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"BLOCKED","completeness":0,"qualificationApplicable":False,"limitations":result["limitations"]}]}
-        return self._code_size_result(context, result)
-
-    def _code_size_result(self, context: RuntimeContext, result: dict[str, Any]) -> dict[str, Any]:
-        measurements=[]
-        for key, value in result["totals"].items():
-            if key in {"files","code","comment","blank","source","test","generated","vendor","documentation"}: measurements.append({"measurementId":f"code_size.repository.{key}","capabilityId":CAPABILITY_ID,"metricKey":f"code_size.{ {'files':'file_count','code':'code_lines','comment':'comment_lines','blank':'blank_lines','source':'source_lines','test':'test_lines','generated':'generated_lines','vendor':'vendor_lines','documentation':'documentation_lines'}[key] }","value":value,"unit":"lines" if key!='files' else "files","scope":"repository","targetEntityId":context.repository_id,"aggregation":"sum","sourceAdapterId":result["adapter"]["id"],"sourceToolId":"cloc"})
-        measurements.append({"measurementId":"code_size.repository.test_ratio","capabilityId":CAPABILITY_ID,"metricKey":"code_size.test_to_source_ratio","value":result["testToSourceRatio"],"unit":"ratio","scope":"repository","targetEntityId":context.repository_id,"aggregation":"ratio","sourceAdapterId":result["adapter"]["id"],"sourceToolId":"cloc"})
-        return {"executedWorkItems":1,"measurements":measurements,"findings":[],"capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"VALID","adapterIds":[result["adapter"]["id"]],"completeness":1,"qualificationApplicable":True}],"adapter":result["adapter"],"analyzer":result["analyzer"],"rawOutputHash":result["rawOutputHash"],"languages":result["languages"],"files":result["files"],"testToSourceRatio":result["testToSourceRatio"]}
-
     @staticmethod
-    def _validation(context: RuntimeContext) -> dict[str, Any]:
+    def _validation(context: RuntimeContext, execution: dict[str, Any]) -> dict[str, Any]:
+        execution_evidence = execution.get("executionEvidence", {})
+        executed = execution_evidence.get("executedCapabilities", [])
         return {"status": "VALID", "schema": "VALID", "candidateIdentity": "VALID",
                 "repositoryIdentity": "VALID", "adapter": "VALID", "analyzer": "VALID",
-                "completeness": "COMPLETE", "integrity": "VALID", "warnings": [], "errors": []}
+                "completeness": "COMPLETE" if executed else "INCOMPLETE", "integrity": "VALID",
+                "warnings": [] if executed else ["no capability was executed"], "errors": []}
 
     @staticmethod
     def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any]) -> dict[str, Any]:
@@ -157,14 +131,19 @@ class Runtime:
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
+                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 
     @staticmethod
     def _report(context: RuntimeContext, values: dict[str, Any]) -> dict[str, Any]:
+        execution = values.get("pipeline-execution", {}).get("executionEvidence", {})
         return {"runtimeSummary": {"status": "RUNTIME_READY", "runtimeVersion": context.runtime_version},
-                "executionSummary": {"executionId": context.execution_id, "workItems": 0},
+                "executionSummary": {"executionId": context.execution_id, "workItems": len(execution.get("workItems", [])),
+                                     "plannedCapabilities": execution.get("plannedCapabilities", []),
+                                     "executedCapabilities": execution.get("executedCapabilities", []),
+                                     "plannedAdapters": execution.get("plannedAdapters", []),
+                                     "executedAdapters": execution.get("executedAdapters", [])},
                 "qualification": values.get("qualification", {}),
-                "environment": {"schemaVersion": context.schema_version, "capabilities": 0, "adapters": 0,
+                "environment": {"schemaVersion": context.schema_version, "capabilities": len(execution.get("plannedCapabilities", [])), "adapters": len(execution.get("plannedAdapters", [])),
                                 "policies": len(PolicyRegistry().discover())}}

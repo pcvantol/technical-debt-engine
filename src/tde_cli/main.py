@@ -113,8 +113,12 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
     result = Runtime().execute(target, configuration)
     payload = {"command": command, "runtime": result.report["runtimeSummary"],
                "execution": result.report["executionSummary"], "environment": result.report["environment"], "qualification": result.report["qualification"],
-               "validation": result.validation, "evidenceId": result.evidence["integrity"]["contentDigest"]}
-    return (ExitCode.BLOCKED if result.report["qualification"]["status"] == "BLOCKED" else ExitCode.SUCCESS), payload
+               "runtimeQualification": result.evidence["runtimeQualification"], "validation": result.validation,
+               "evidence": result.evidence, "evidenceId": result.evidence["integrity"]["contentDigest"]}
+    blocked = result.report["qualification"]["status"] == "BLOCKED" or (
+        command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED"
+    )
+    return (ExitCode.BLOCKED if blocked else ExitCode.SUCCESS), payload
 
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int:
