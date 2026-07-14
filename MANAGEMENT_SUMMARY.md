@@ -19,3 +19,5 @@ Prompt 6 establishes the Adapter SDK as the only supported extension mechanism b
 Prompt 7 implements the first executable Runtime Foundation. It provides a stable Python API for generic orchestration, execution context, empty registries, runtime validation, empty-capability evidence, runtime-ready qualification, and runtime summary reporting. It intentionally adds no CLI, capability, adapter, or analyzer behavior.
 
 Prompt 8 implements the first executable `tde` CLI as a thin Runtime consumer. It provides command metadata, generated help, version reporting, configuration loading, logging, human/JSON presentation, and canonical exit codes. Only generic `validate` and `inspect` invoke the Runtime Foundation; all capability-facing routes remain explicitly not implemented.
+
+Prompt 9 delivers the first Code Size vertical slice with `cloc 2.10` as an explicitly installed native analyzer. It is validated through Runtime and CLI integration, canonical normalized evidence, deterministic classification, and automated fixtures. The result remains observational and macOS-validated only; cross-platform qualification and configurable thresholds remain future work.
