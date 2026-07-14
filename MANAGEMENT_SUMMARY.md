@@ -21,3 +21,5 @@ Prompt 7 implements the first executable Runtime Foundation. It provides a stabl
 Prompt 8 implements the first executable `tde` CLI as a thin Runtime consumer. It provides command metadata, generated help, version reporting, configuration loading, logging, human/JSON presentation, and canonical exit codes. Only generic `validate` and `inspect` invoke the Runtime Foundation; all capability-facing routes remain explicitly not implemented.
 
 Prompt 9 delivers the first Code Size vertical slice with `cloc 2.10` as an explicitly installed native analyzer. It is validated through Runtime and CLI integration, canonical normalized evidence, deterministic classification, and automated fixtures. The result remains observational and macOS-validated only; cross-platform qualification and configurable thresholds remain future work.
+
+Prompt 10 adds the Complexity reference capability with Python/Radon 6.0.1. It demonstrates a second analyzer adapter normalizing into the same evidence model, with planned analyzer selections for the remaining language roadmap. It is validated, not yet cross-platform or multi-language qualified.

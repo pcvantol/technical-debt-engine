@@ -11,7 +11,7 @@ Registration requires the complete [capability contract](CAPABILITY_CONTRACT.md)
 | ID | Version | Status | Category | Required adapters | Languages | Metrics / reports | Qualification |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `code_size` | 0.1.0 | VALIDATED | Measurement | `code_size.cloc` | cloc-supported languages | `code_size.*`; summary | Observational PASS |
-| `complexity` | 0.x | PLANNED | Measurement | TBD | Python, C#, Swift, JavaScript, TypeScript, C, C++ | `complexity.*`; findings | Supported when implemented |
+| `complexity` | 0.1.0 | VALIDATED | Measurement | `complexity.radon` | Python implemented; others planned | `complexity.cyclomatic.*`; findings | Observational PASS |
 | `maintainability` | 0.x | PLANNED | Measurement | TBD | Adapter-defined | `maintainability.*`; summary | Supported when implemented |
 | `duplication` | 0.x | PLANNED | Measurement | TBD | Adapter-defined | `duplication.*`; findings | Supported when implemented |
 | `dependency_health` | 0.x | PLANNED | Measurement | TBD | Adapter-defined | `dependency.*`; findings | Supported when implemented |

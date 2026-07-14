@@ -12,5 +12,6 @@ The registry is the sole source for adapter discovery. The runtime has no hardco
 | `swift.tooling` | 0.x | PLANNED | Language / Metric | Swift tooling | Swift; future declared capabilities |
 | `javascript.eslint` | 0.x | PLANNED | Language / Metric | ESLint | JavaScript, TypeScript; future declared capabilities |
 | `code_size.cloc` | 0.1.0 | VALIDATED | Metric | cloc 2.10+ | cloc-supported languages; Code Size |
+| `complexity.radon` | 0.1.0 | VALIDATED | Metric | Radon 6.0.1 | Python; Complexity |
 
 All entries are declarations only. No adapter, analyzer invocation, or executable registration exists.
