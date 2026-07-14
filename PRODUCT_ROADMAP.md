@@ -22,8 +22,8 @@ The 2026-07-14 Operational Reality Audit classifies current main as `TDE_PRODUCT
 
 ### Platform Evolution
 
-- Evidence Store / Query integration and reporting completion — priority gap closure
-- Parallel and distributed execution, remote query API, cloud evidence store — planned
+- Evidence Store / Query integration and reporting completion — priority gap closure; see [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md)
+- Parallel and distributed execution, remote query API, cloud evidence store — planned; persistence evolution remains local-first and JSON-authoritative
 - Package distribution, public release, IDE integration — planned only after qualification; target lifecycle and ordering are defined by [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md)
 
 ### Innovation Lab
