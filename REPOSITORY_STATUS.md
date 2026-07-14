@@ -3,11 +3,12 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | ENGINEERING_WORKFLOW_ALIGNMENT |
+| Status | AI_NATIVE_ENGINEERING_METHOD |
 | Canonical CLI | `tde` |
 | Runtime | Not implemented |
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | One prompt → one reviewable pull request |
+| Engineering method | Established by Prompt 2 |
 
-The repository contains the Generation 1 product foundation and mandatory engineering-workflow documentation only. Prompt 1.5 produces its focused reviewable pull request with this increment; Prompt 2 must not begin before that pull request exists. Merge remains a separate decision.
+Product Bootstrap and Engineering Workflow Alignment are complete. The AI-Native Engineering Method is established by this Prompt 2 increment; runtime implementation has not started. Prompt 2's focused reviewable pull request is required before a subsequent canonical prompt begins. Merge remains a separate decision.
