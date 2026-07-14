@@ -9,6 +9,7 @@
 | 3 | Canonical Runtime Architecture | Complete |
 | 4 | Canonical Domain and Evidence Schemas | Complete |
 | 5 | Capability Contracts and Qualification Policy | Complete |
-| 6 | Adapter SDK | Active |
+| 6 | Adapter SDK | Complete |
+| 7 | Runtime Foundation | Active |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
