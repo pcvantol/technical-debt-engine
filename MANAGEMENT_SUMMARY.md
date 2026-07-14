@@ -53,3 +53,5 @@ Prompt 23 adds evidence-based, fail-closed Software Assurance through `tde assur
 Prompt 24 adds Trusted Delivery through `tde trusted-delivery`: immutable candidate, manifest, workflow, artifact and runtime-evidence validation with Software Assurance as informational evidence. It creates no workflow, artifact, package or release.
 
 Prompt 25 performs the first Release Qualification. The Generation 1 candidate is `RELEASE_BLOCKED`: it has immutable identity and a canonical manifest, but no immutable workflow, dependency provenance, release artifacts/checksums, or platform certification. No publication occurred.
+
+Prompt 26 performs the first formal Release Certification. It concludes `RELEASE_NOT_CERTIFIED`: Release Engineering is architecturally coherent, but workflow execution, dependency provenance, artifact integrity, reporting and platform certification remain objective blockers.
