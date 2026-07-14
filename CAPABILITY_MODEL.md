@@ -29,3 +29,5 @@ A capability is a named, independently evolvable measurement or decision functio
 Generation 1 intends independent adapters for Python, C#, Swift, JavaScript, TypeScript, C, and C++. An adapter is selected through repository discovery and language detection; no adapter is privileged by a consumer or CI system. Additional language adapters remain independent extensions of the same capability contract.
 
 Capabilities must publish their input assumptions, canonical output mapping, and compatibility impact before they become stable.
+
+The canonical lifecycle, registry, discovery, dependency, validation, qualification, configuration, and versioning contracts are defined in [CAPABILITY_CONTRACT.md](CAPABILITY_CONTRACT.md) and its linked capability documents. These contracts introduce no implemented capability.
