@@ -32,11 +32,11 @@ Intentional deviations:
 - TDE has no required status check until its governed workflows exist. The eventual intended check is the Trusted Delivery qualification check; its enforcement is pending a future governance prompt. The current pull-request rule preserves single-maintainer compatibility and does not create an artificial independent-review deadlock.
 - No reusable workflow, release/artifact contract, package, deployment, environment, release secret, signing setup, or broad PAT was created.
 
-## GitHub App authorization — blocker
+## GitHub App authorization
 
-The authenticated OAuth credential can administer this repository but cannot inspect GitHub App installations. `GET /repos/pcvantol/technical-debt-engine/installation` returned HTTP 401 (`A JSON web token could not be decoded`), and `GET /user/installations` returned HTTP 403 because the credential is not a GitHub-App-authorized user access token. Therefore the required Engineering Platform App access cannot be read back or proven.
+Confirmed on 2026-07-14 after the DJConnect Trusted Delivery installation was authorized: the Engineering Platform GitHub App connector's installed-repository read-back returns `pcvantol/technical-debt-engine` (repository ID `1300429609`) with effective `admin`, `maintain`, `push`, `triage`, and `pull` permissions. This is direct evidence that the installed App can read the repository and has the repository scope needed for subsequent Engineering Platform workflows.
 
-Manual action required: sign in as the GitHub App installation owner, open **GitHub avatar → Settings → Applications → Installed GitHub Apps → Configure** for the DJConnect Engineering Platform App, then set repository access to **All repositories** or, under **Only select repositories**, add `pcvantol/technical-debt-engine`. Return an App user/installation token or perform a repository installation read-back proving access and the necessary read permissions. Do not treat public visibility as App authorization.
+The local OAuth credential still cannot call the App-only installation REST endpoint; that limitation does not negate the successful App-connector read-back. No App credential, installation token, or broad PAT was exposed or created.
 
 ## Content and validation
 
@@ -47,6 +47,6 @@ Manual action required: sign in as the GitHub App installation owner, open **Git
 
 ## Final decision
 
-`TDE_REMOTE_REPOSITORY_BLOCKED`
+`TDE_REMOTE_REPOSITORY_INITIALIZED`
 
-The remote repository is otherwise initialized and its settings have been read back. The decision remains blocked until GitHub App repository accessibility is successfully proved.
+The remote repository is initialized, its settings have been read back, and the required GitHub App repository accessibility has been proved.
