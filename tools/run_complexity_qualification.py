@@ -76,16 +76,16 @@ def main() -> int:
         commands = {
             "version": run([tde, "--format", "json", "--version"], env=isolated_env),
             "inspect": run([tde, "--format", "json", "inspect", str(fixture)], expected={0, 3}, env=isolated_env),
-            # A blocking policy result is expected: it proves the analyzer ran
+            # A failing policy result is expected: it proves the analyzer ran
             # and found the fixture's critical symbol.
-            "assess": run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}, env=isolated_env),
+            "assess": run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={2}, env=isolated_env),
             "validate": run([tde, "--format", "json", "validate", str(fixture)], expected={0, 3}, env=isolated_env),
             "query": run([tde, "--format", "json", "query", str(fixture), "--resource", "findings"], env=isolated_env),
             "report": run([tde, "--format", "markdown", "report", "--capability", "complexity", str(fixture)], expected={0, 3}, env=isolated_env),
         }
         dogfood = temporary_path / "technical-debt-engine"
         shutil.copytree(ROOT, dogfood, ignore=shutil.ignore_patterns(".git", ".venv", "venv", "__pycache__", ".tde", "qualification"))
-        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 3}, env=isolated_env)
+        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 2}, env=isolated_env)
         assessment = json.loads(commands["assess"]["_raw"])
         evidence_id = assessment["evidenceId"].removeprefix("sha256:")
         evidence_path = fixture / ".tde" / "evidence" / "evidence" / f"{evidence_id}.json"
