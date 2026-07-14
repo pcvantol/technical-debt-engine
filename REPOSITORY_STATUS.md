@@ -47,7 +47,7 @@ Prompt 9 implements the first Code Size vertical slice through Runtime, registry
 
 Prompt 10 adds validated Python Complexity through `complexity.radon` and preserves registry architecture for other native analyzers. Cross-platform and multi-language qualification remain pending.
 
-Recovery P1-2 completes the public Complexity vertical slice: the installed CLI executes validated Radon 6.0+, normalizes deterministic repository/language/file/symbol evidence and threshold findings, persists verified evidence and serves Query and report only from the Evidence Store. Python/macOS is currently qualified; other languages and platforms remain explicit analyzer limitations.
+Recovery P1-2 completes the public Complexity vertical slice: the installed CLI executes validated Radon 6.0+, normalizes deterministic repository/language/file/symbol evidence and threshold findings, persists verified evidence and serves Query and report only from the Evidence Store. Python/macOS is currently qualified; other languages remain explicit analyzer limitations. P1-3 adds the pending GitHub-hosted installed-wheel qualification matrix for Linux, macOS and Windows; cross-platform qualification is not claimed until that matrix succeeds.
 
 Prompt 13 operationalizes qualification policy. The Runtime now invokes the standalone Policy Engine after normalization, records policy identity, decision, triggered rules, and inputs in evidence, and projects only that output into Qualification. Default and repository/workspace policies are dynamically discovered; custom/organization/cloud policies remain future work.
 

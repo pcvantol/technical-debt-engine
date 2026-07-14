@@ -25,10 +25,23 @@ def _items(value: object) -> tuple[str, ...]:
     return ()
 
 def _relative(root: Path, name: str) -> str:
+    path = Path(name)
+    if not path.is_absolute():
+        return path.as_posix()
     try:
-        return Path(name).resolve().relative_to(root.resolve()).as_posix()
+        return path.resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
-        return Path(name).as_posix()
+        # Radon is expected to report files below the selected root.  Never
+        # preserve an absolute host path in evidence if an analyzer violates
+        # that expectation.
+        return path.name
+
+
+def _portable_native_output(root: Path, data: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Return a stable Radon projection without runner-specific paths."""
+    normalized = {_relative(root, path): symbols for path, symbols in data.items()}
+    ordered = {path: normalized[path] for path in sorted(normalized)}
+    return json.dumps(ordered, sort_keys=True, separators=(",", ":")), ordered
 
 def _thresholds(configuration: Mapping[str, Any]) -> dict[str, int]:
     supplied = configuration.get("thresholds", {})
@@ -55,7 +68,7 @@ def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | No
         if not match or tuple(map(int, match.groups())) < MINIMUM_ANALYZER_VERSION:
             return {"status":"BLOCKED", "limitations":[{"id":"analyzer.radon.unsupported_version","description":f"Radon 6.0+ is required; found {version or 'unknown'}.","cause":"unsupported analyzer version"}]}
         completed = subprocess.run([executable, "cc", "--json", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
-        raw, data = completed.stdout, json.loads(completed.stdout)
+        raw, data = _portable_native_output(root, json.loads(completed.stdout))
     except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError, json.JSONDecodeError) as error:
         return {"status":"BLOCKED", "limitations":[{"id":"analyzer.radon.failed","description":str(error),"cause":"analyzer execution failed"}]}
     try:

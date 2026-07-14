@@ -1,0 +1,8 @@
+capabilities:
+  complexity:
+    enabled: true
+    thresholds:
+      high: 4
+      veryHigh: 5
+      critical: 6
+    ignoredPaths: ignored/**

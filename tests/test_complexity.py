@@ -6,7 +6,7 @@ from unittest.mock import patch
 from pathlib import Path
 from tde_runtime import Runtime, RuntimeConfiguration
 from tde_runtime.code_size import analyze as analyze_code_size
-from tde_runtime.complexity import analyze
+from tde_runtime.complexity import _portable_native_output, analyze
 from tde_cli.main import ExitCode, main
 
 class ComplexityTests(unittest.TestCase):
@@ -44,6 +44,14 @@ class ComplexityTests(unittest.TestCase):
             with patch("tde_runtime.complexity.shutil.which",return_value="radon"), patch("tde_runtime.complexity.subprocess.run") as run:
                 run.return_value.stdout="5.0.0"
                 self.assertEqual("analyzer.radon.unsupported_version",analyze(root)["limitations"][0]["id"])
+
+    def test_native_output_is_relative_and_deterministic(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw, normalized = _portable_native_output(root, {str(root / "nested" / "sample.py"): []})
+            self.assertEqual({"nested/sample.py": []}, normalized)
+            self.assertNotIn(str(root), raw)
+            self.assertEqual("nested/sample.py", _portable_native_output(root, {"nested/sample.py": []})[1].popitem()[0])
 
     def test_configuration_discovery_persistence_query_and_report(self):
         with tempfile.TemporaryDirectory() as directory:

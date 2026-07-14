@@ -1,0 +1,1 @@
+VALUE = "no measurable symbols"

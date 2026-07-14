@@ -64,7 +64,7 @@ class Runtime:
         return QueryEngine().execute(evidence, query)
 
     def _context(self, root: Path, config: RuntimeConfiguration, temporary: Path) -> RuntimeContext:
-        root_digest = sha256(str(root).encode()).hexdigest()[:16]
+        root_digest = self._repository_digest(root)
         return RuntimeContext(
             repository_root=root, repository_id=f"repository.local.{root_digest}",
             candidate={"id": f"candidate.content.{root_digest}", "identityType": "content_digest",
@@ -74,6 +74,21 @@ class Runtime:
             working_directory=root, temporary_directory=temporary,
             execution_options=config.execution_options or {},
         )
+
+    @staticmethod
+    def _repository_digest(root: Path) -> str:
+        """Identify source content independently of an absolute checkout path."""
+        digest = sha256()
+        excluded = {".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist"}
+        for path in sorted(item for item in root.rglob("*") if item.is_file() and not any(part in excluded for part in item.relative_to(root).parts)):
+            relative = path.relative_to(root).as_posix()
+            digest.update(relative.encode("utf-8"))
+            digest.update(b"\0")
+            # Git may materialize text files with CRLF on Windows.  Candidate
+            # identity represents source content, not checkout line endings.
+            digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
+            digest.update(b"\0")
+        return digest.hexdigest()[:16]
 
     def _run_stage(self, identifier: str, context: RuntimeContext,
                    values: dict[str, Any]) -> StageResult:
