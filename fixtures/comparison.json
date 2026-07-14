@@ -1,0 +1,1 @@
+{"comparisonId":"comparison.example","currentEvidenceId":"evidence.current","baselineEvidenceId":"evidence.baseline","schemaCompatibility":"COMPATIBLE","findingTransitions":[{"findingId":"finding.example","transition":"NEW"}],"regressions":["finding.example"],"improvements":[],"status":"VALID"}

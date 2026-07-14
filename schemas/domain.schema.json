@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.technical-debt-engine.dev/domain/1.0.0/schema.json",
+  "title": "TDE domain model",
+  "type": "object",
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9._:-]*$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*\\\\).+$"},
+    "entity": {"type": "object", "required": ["id", "kind"], "properties": {"id": {"$ref": "#/$defs/identifier"}, "kind": {"enum": ["repository", "workspace", "candidate", "file", "module", "type", "function", "dependency", "test_suite"]}, "path": {"$ref": "#/$defs/path"}, "language": {"type": "string"}, "displayName": {"type": "string"}, "qualifiedName": {"type": "string"}, "parentId": {"$ref": "#/$defs/identifier"}, "location": {"type": "object", "properties": {"startLine": {"type": "integer", "minimum": 1}, "endLine": {"type": "integer", "minimum": 1}}}, "extensions": {"$ref": "#/$defs/extensions"}}},
+    "candidate": {"type": "object", "required": ["id", "identityType", "validationStatus"], "properties": {"id": {"$ref": "#/$defs/identifier"}, "identityType": {"enum": ["git_commit", "content_digest", "declared"]}, "value": {"type": "string"}, "validationStatus": {"enum": ["VALID", "INVALID", "UNAVAILABLE"]}}},
+    "limitation": {"type": "object", "required": ["id", "description", "cause"], "properties": {"id": {"$ref": "#/$defs/identifier"}, "capabilityId": {"$ref": "#/$defs/identifier"}, "scope": {"type": "string"}, "impact": {"enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"]}, "description": {"type": "string"}, "cause": {"type": "string"}, "affected": {"type": "array", "items": {"type": "string"}}, "qualificationImpact": {"type": "string"}, "resolutionGuidance": {"type": "string"}}},
+    "extensions": {"type": "object", "propertyNames": {"pattern": "^[a-z][a-z0-9-]*\\.[a-z][a-z0-9-]*$"}, "additionalProperties": true}
+  }
+}
