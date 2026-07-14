@@ -26,5 +26,6 @@
 | 20 | Platform Qualification | Complete |
 | 21 | Platform Certification | Complete |
 | 22 | Platform Release Engineering | Complete |
+| 23 | Software Assurance | Complete |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
