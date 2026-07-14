@@ -5,7 +5,7 @@
 - P0: make `tde assess --capability code-size` execute a real analyzer and produce truthful canonical evidence.
 - P0: fail Runtime Qualification closed for missing selected/required capability evidence.
 - P1: make persisted Evidence Store records queryable and prove baseline/compare on real capability evidence.
-- P1: establish repeatable package dependencies, provenance and an approved release workflow before any release claim.
+- P1: establish repeatable package dependencies, provenance and an approved release workflow before any release claim, following the canonical [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md).
 
 ## Planned
 

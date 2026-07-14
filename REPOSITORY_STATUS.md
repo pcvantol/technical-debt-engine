@@ -42,6 +42,7 @@
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
 | DJConnect Reference Consumer | Blocked: no released TDE CLI and no selected DJConnect repository |
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |
+| Deployment Strategy | Canonical target, distribution, consumer and lifecycle model defined; no deployment implementation or release created |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
@@ -66,6 +67,8 @@ P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI 
 P1-2 completes the remaining persisted-evidence flow for Code Size. An installed CLI assessment automatically persists validated canonical evidence; persisted record identity and integrity are verified before Query or report consumption; Query and Code Size report no longer execute Runtime or consume Runtime memory. The vertical slice is operational on the macOS audit host. Cross-platform analyzer qualification and release evidence remain separate blockers.
 
 P1-4 qualifies the existing Code Size vertical slice on GitHub-hosted Ubuntu, macOS and Windows runners for Python 3.11 and 3.13. Each matrix target installs one candidate wheel into an isolated environment, provisions checksum-verified `cloc 2.10`, executes assessment, persists evidence, reads persisted Query and report output, verifies store integrity and tamper detection, and dogfoods TDE. The six normalized records are analytically equivalent; missing, unsupported and timed-out analyzers fail closed. No release is created.
+
+PD-1 establishes the canonical Deployment Strategy. Generation 1 product targets are PyPI, GitHub Releases, Homebrew, Docker, GitHub Action and the Python Runtime API; distribution execution remains unimplemented and no target is currently published. Generation 2 package-manager and IDE targets are planned; Generation 3 service targets remain research. Runtime Architecture and implementation are unchanged.
 
 G2-GOV-2 establishes the first Prompt Freeze Point rule in current `main`, but its required immutable execution report and final status handoff were not included before PR #39 merged. That historical finalization gap is explicitly deferred to `G2-GOV-4`; it is not repaired retrospectively in this increment.
 
