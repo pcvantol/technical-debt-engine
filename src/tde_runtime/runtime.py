@@ -17,6 +17,7 @@ from .complexity import analyze as analyze_complexity
 from .maintainability import derive as derive_maintainability
 from .dependency_health import discover as discover_dependencies
 from .query import QueryEngine
+from .execution import CapabilityExecutionEngine
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -84,9 +85,9 @@ class Runtime:
             "language-detection": lambda: {"languages": []},
             "capability-planning": lambda: {"capabilities": list(self._capability_registry.discover())},
             "adapter-planning": lambda: {"adapters": list(self._adapter_registry.discover())},
-            "execution-planning": lambda: {"executable": True, "workItems": 0},
+            "execution-planning": lambda: CapabilityExecutionEngine().plan(context),
             "execution-context": lambda: {"executionId": context.execution_id},
-            "pipeline-execution": lambda: self._execute_capabilities(context),
+            "pipeline-execution": lambda: CapabilityExecutionEngine().execute(context),
             "normalization": lambda: values.get("pipeline-execution", {"measurements": [], "findings": []}),
             "validation": lambda: self._validation(context),
             "policy-evaluation": lambda: self._policy(context, values.get("normalization", {})),
