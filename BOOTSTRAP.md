@@ -1,16 +1,48 @@
 # Bootstrap
 
-This is the mandatory entry point for every human or AI engineering session. Start here before interpreting repository work or making changes.
+This is the mandatory entry point for every human or AI engineering session.
+Before reading this file, interpreting repository work, or making changes,
+synchronize with current `main` and verify that synchronization.
+
+## Repository synchronization
+
+Every engineering prompt must execute:
+
+```sh
+git switch main
+git pull --ff-only
+```
+
+If either command fails, stop. Do not begin engineering.
+
+Immediately after synchronization, verify the checked-out branch, current
+`HEAD` commit, repository and working-tree cleanliness, tracking branch, and
+fast-forward status. If any verification fails, stop.
 
 ## Canonical reading order
+
+Only after successful synchronization and verification, read:
 
 1. [BOOTSTRAP.md](BOOTSTRAP.md)
 2. [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md)
 3. [REPOSITORY_STATUS.md](REPOSITORY_STATUS.md)
 4. [MANAGEMENT_SUMMARY.md](MANAGEMENT_SUMMARY.md)
-5. [PROMPT_INDEX.md](PROMPT_INDEX.md)
-6. Current engineering work: the active prompt, its recovery-plan position, and applicable canonical documents.
-7. [ENGINEERING_METHOD.md](ENGINEERING_METHOD.md), [PROMPT_FINALIZATION.md](PROMPT_FINALIZATION.md), [REPOSITORY_HYGIENE.md](REPOSITORY_HYGIENE.md), [PLATFORM_VISION.md](PLATFORM_VISION.md), [PLATFORM_STRATEGY.md](PLATFORM_STRATEGY.md), [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md), and [CANONICAL_SOURCE_HIERARCHY.md](CANONICAL_SOURCE_HIERARCHY.md)
-8. Applicable ADRs in [architecture/adr](architecture/adr), then relevant product architecture and capability documents.
+5. [ROADMAP_INDEX.md](ROADMAP_INDEX.md)
+6. The current active roadmap and backlog named by that index
+7. [PROMPT_INDEX.md](PROMPT_INDEX.md)
+8. Current engineering work: the active prompt, its recovery-plan position, and applicable canonical documents
+9. [ENGINEERING_METHOD.md](ENGINEERING_METHOD.md), [PROMPT_FINALIZATION.md](PROMPT_FINALIZATION.md), [REPOSITORY_HYGIENE.md](REPOSITORY_HYGIENE.md), [PLATFORM_VISION.md](PLATFORM_VISION.md), [PLATFORM_STRATEGY.md](PLATFORM_STRATEGY.md), [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md), and [CANONICAL_SOURCE_HIERARCHY.md](CANONICAL_SOURCE_HIERARCHY.md)
+10. Applicable ADRs in [architecture/adr](architecture/adr), then relevant product architecture and capability documents
 
-Consult [docs/history/prompts](docs/history/prompts) only when historical context is required. The repository must remain self-describing: chat history is never required for engineering continuity. If sources conflict, use the canonical hierarchy; do not infer a replacement architecture. One prompt owns one objective, one increment, and one reviewable Pull Request. A draft Pull Request is not frozen; when it becomes reviewable, the Prompt Freeze Point is reached. Do not continue engineering or add implementation after that point; record any late discovery as Deferred Work for the next prompt. Confirm repository hygiene with `git status --short` before completion.
+Perform the implementation reality check only after this canonical read, then
+plan engineering from current repository contents. Consult
+[docs/history/prompts](docs/history/prompts) only when historical context is
+required. The repository must remain self-describing: chat history is never
+required for engineering continuity. If sources conflict, use the canonical
+hierarchy; current `main` overrides conversation history, historical prompts,
+prompt examples, and AI memory. Do not infer a replacement architecture. One
+prompt owns one objective, one increment, and one reviewable Pull Request. A
+draft Pull Request is not frozen; when it becomes reviewable, the Prompt Freeze
+Point is reached. Do not continue engineering or add implementation after that
+point; record any late discovery as Deferred Work for the next prompt. Confirm
+repository hygiene with `git status --short` before completion.

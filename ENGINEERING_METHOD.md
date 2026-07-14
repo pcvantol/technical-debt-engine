@@ -21,6 +21,7 @@ This is TDE's canonical engineering constitution. It defines how the independent
 | Long-Term Maintainability | Sustain the platform. | Decisions consider future ownership. | Prefer simple, documented contracts. |
 | Vendor Neutrality | Preserve portability. | No vendor controls architecture. | Keep interfaces implementation-neutral. |
 | Human Authority | Retain accountable judgment. | Humans approve governance, merge, and release. | Agents have no merge or release authority. |
+| Repository Synchronization | Begin from accepted current state. | Synchronize and verify `main` before repository reading or planning. | Run `git switch main` and `git pull --ff-only`; stop if either command or verification fails. |
 | Main Is Source of Truth | Ground work in accepted repository state. | Current `main` overrides conversation and historical plans. | Branch work starts from current `main`; history supplies context only. |
 | Operational Reality Is Authoritative | Prevent plan-derived claims. | Observable repository evidence determines current state. | Status and recovery decisions cite executable, testable, or immutable evidence. |
 | Repository-Native Continuity | Make future work self-describing. | Repository contents preserve handoff and immutable history. | Chat history is never required to continue engineering. |
@@ -51,6 +52,23 @@ Current main → Repository Status → Current Engineering Status → Recovery P
 ```
 
 Roadmaps and prompt archives guide context but do not override observable current repository state. [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md) is the primary handoff and is completely replaced by each prompt. Immutable historical context is preserved in [docs/history/prompts](docs/history/prompts).
+
+## Prompt initialization
+
+Repository synchronization is the first engineering step of every prompt:
+
+```text
+Repository Synchronization → Current Main Verification → Canonical Repository Read → Implementation Reality Check → Engineering Planning
+```
+
+The synchronization commands are `git switch main` followed by `git pull
+--ff-only`. Any failure stops engineering. After synchronization, verify the
+checked-out branch, `HEAD`, repository and working-tree cleanliness, tracking
+branch, and fast-forward status. Only then read the canonical repository state
+listed in [BOOTSTRAP.md](BOOTSTRAP.md), perform the implementation reality
+check, and plan the increment. Current `main` overrides conversation history,
+historical prompts, previous AI assumptions, prompt examples, and engineering
+memory.
 
 ## Validation and documentation
 
