@@ -55,6 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
     for identifier, metadata in COMMANDS.items():
         command = subcommands.add_parser(identifier, help=metadata["purpose"], description=metadata["purpose"])
         command.add_argument("target", nargs="?", default=".", help="Repository target (default: current directory).")
+        command.add_argument("--capability", action="append", default=[], help="Enable a registered capability.")
     return parser
 
 
@@ -109,7 +110,14 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     except ValueError as error:
         _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
         return ExitCode.BLOCKED
-    if arguments.command in {"validate", "inspect"}:
+    if arguments.command in {"validate", "inspect", "assess"}:
+        if arguments.command == "assess":
+            if arguments.capability != ["code-size"]:
+                _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only --capability code-size is delivered."}, arguments.format, stream)
+                return ExitCode.NOT_SUPPORTED
+            values = configuration.as_dict()
+            values["capabilities"] = {"code_size": {"enabled": True}}
+            configuration = RuntimeConfiguration.load(values)
         try:
             code, payload = _runtime_result(arguments.command, arguments.target, configuration)
         except ValueError as error:

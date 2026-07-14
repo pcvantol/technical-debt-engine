@@ -16,10 +16,10 @@ class RuntimeFoundationTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.directory.cleanup()
 
-    def test_runtime_initializes_with_empty_registries(self) -> None:
+    def test_runtime_initializes_with_registered_code_size_capability(self) -> None:
         runtime = Runtime()
-        self.assertEqual((), runtime._capability_registry.discover())
-        self.assertEqual((), runtime._adapter_registry.discover())
+        self.assertEqual("code_size", runtime._capability_registry.discover()[0]["id"])
+        self.assertEqual("code_size.cloc", runtime._adapter_registry.discover()[0]["id"])
 
     def test_pipeline_executes_all_generic_stages(self) -> None:
         result = Runtime().execute(self.root)
@@ -56,9 +56,9 @@ class RuntimeFoundationTests(unittest.TestCase):
         self.assertEqual("RUNTIME_READY", result.qualification.value)
         self.assertEqual("RUNTIME_READY", result.report["runtimeSummary"]["status"])
 
-    def test_registries_remain_empty(self) -> None:
-        self.assertEqual((), CapabilityRegistry().discover())
-        self.assertEqual((), AdapterRegistry().discover())
+    def test_registries_discover_code_size_without_runtime_branching(self) -> None:
+        self.assertEqual("code_size", CapabilityRegistry().discover()[0]["id"])
+        self.assertEqual("code_size.cloc", AdapterRegistry().discover()[0]["id"])
 
 
 if __name__ == "__main__":
