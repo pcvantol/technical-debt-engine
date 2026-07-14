@@ -75,6 +75,14 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual("NOT_APPLICABLE", json.loads(output)["qualification"]["status"])
 
+    def test_baseline_and_compare_commands_are_operational(self) -> None:
+        code, output = self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("initial", json.loads(output)["baseline"]["baselineId"])
+        code, output = self.invoke("--format", "json", "compare", str(self.root), "--baseline", "initial")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("VALID", json.loads(output)["comparison"]["status"])
+
 
 if __name__ == "__main__":
     unittest.main()
