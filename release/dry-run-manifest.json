@@ -1,0 +1,12 @@
+{
+  "manifestVersion": "1.0.0",
+  "dryRun": true,
+  "candidate": {"commit": "0fffb94cb68453a5a70db3e70b410207c0ee1bcc", "version": "0.1.0", "profile": "internal"},
+  "runtimeVersion": "0.1.0",
+  "schemaVersion": "1.0.0",
+  "capabilities": {"code_size": "0.1.0", "complexity": "0.1.0", "maintainability": "0.1.0", "dependency_health": "0.1.0"},
+  "adapters": {"code_size.cloc": "0.1.0", "complexity.radon": "0.1.0"},
+  "artifacts": [{"id": "python-wheel", "path": "dry-run-artifacts/technical_debt_engine_runtime-0.1.0-py3-none-any.whl", "sha256": "5de512d82c9b1a40af40de801d992bafca1b62f9ba8970bd8a0cbf9500e76bfd"}],
+  "qualification": "NOT_READY",
+  "limitations": ["no immutable GitHub Actions workflow", "no dependency lock/provenance", "no source archive or reproducibility comparison", "platform and release are not certified"]
+}

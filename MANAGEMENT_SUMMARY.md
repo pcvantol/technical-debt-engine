@@ -55,3 +55,5 @@ Prompt 24 adds Trusted Delivery through `tde trusted-delivery`: immutable candid
 Prompt 25 performs the first Release Qualification. The Generation 1 candidate is `RELEASE_BLOCKED`: it has immutable identity and a canonical manifest, but no immutable workflow, dependency provenance, release artifacts/checksums, or platform certification. No publication occurred.
 
 Prompt 26 performs the first formal Release Certification. It concludes `RELEASE_NOT_CERTIFIED`: Release Engineering is architecturally coherent, but workflow execution, dependency provenance, artifact integrity, reporting and platform certification remain objective blockers.
+
+Prompt 27 performs the first local operational release dry run. It creates one non-published wheel candidate and checksum, but is `RELEASE_DRY_RUN_BLOCKED` because GitHub Actions, dependency provenance, source/reproducibility evidence and certifications remain unavailable.
