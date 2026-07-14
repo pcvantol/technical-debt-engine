@@ -66,7 +66,10 @@ class Runtime:
     def _context(self, root: Path, config: RuntimeConfiguration, temporary: Path) -> RuntimeContext:
         root_digest = self._repository_digest(root)
         return RuntimeContext(
-            repository_root=root, repository_id=f"repository.local.{root_digest}",
+            # Repository identity identifies the checkout; candidate identity identifies
+            # its source content.  Conflating the two makes every source revision an
+            # incompatible baseline and prevents repository-evolution comparisons.
+            repository_root=root, repository_id=f"repository.local.{sha256(str(root).encode()).hexdigest()[:16]}",
             candidate={"id": f"candidate.content.{root_digest}", "identityType": "content_digest",
                        "value": f"sha256:{root_digest}", "validationStatus": "VALID"},
             configuration=config.as_dict(), runtime_version=RUNTIME_VERSION,

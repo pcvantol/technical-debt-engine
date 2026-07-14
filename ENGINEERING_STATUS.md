@@ -2,13 +2,13 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-5` — Policy Qualification on Real Canonical Evidence |
-| Freeze state | `ACTIVE` — finalization records prepared in draft PR #51. |
-| Current branch | `codex/p1-5-policy-qualification` |
-| Current pull request | [#51](https://github.com/pcvantol/technical-debt-engine/pull/51) — draft |
-| Current decision | `POLICY_ENGINE_OPERATIONAL` |
-| Current repository truth | Policy decisions are evaluated from persisted Code Size and Complexity evidence, with deterministic evidence provenance and CLI exit mapping. |
-| Next recommended prompt | Determine after review and merge. |
+| Current prompt | `P1-6` — Baseline & Comparison on Real Persisted Evidence |
+| Freeze state | `ACTIVE` — qualification implementation awaiting review. |
+| Current branch | `main` |
+| Current pull request | None. |
+| Current decision | `BASELINE_COMPARISON_QUALIFIED` |
+| Current repository truth | Immutable baselines and comparisons are derived from and persisted beside validated canonical evidence. Comparison policy evaluation records qualification deltas and persisted Query exposes baselines, comparison summaries, and finding transitions. |
+| Next recommended prompt | Determine after review. |
 
 ## Deferred Work
 

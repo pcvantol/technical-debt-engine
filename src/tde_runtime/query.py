@@ -10,7 +10,12 @@ class QueryEngine:
     def execute(self, evidence: Mapping[str, Any], query: Mapping[str, Any]) -> dict[str, Any]:
         started = perf_counter()
         resource = query.get("resource", "repositories")
-        collections = {"repositories": [evidence.get("repository", {})], "capabilities": evidence.get("capabilityResults", []), "metrics": evidence.get("measurements", []), "findings": evidence.get("findings", []), "policies": [evidence.get("policyEvidence", {})], "qualification": [evidence.get("policyEvidence", {})], "baselines": query.get("baselines", []), "comparisons": query.get("comparisons", []), "trends": query.get("trends", [])}
+        comparisons = list(query.get("comparisons", []))
+        comparison_findings = [
+            {"comparisonId": item.get("comparisonId"), **transition}
+            for item in comparisons for transition in item.get("comparison", {}).get("findingTransitions", [])
+        ]
+        collections = {"repositories": [evidence.get("repository", {})], "capabilities": evidence.get("capabilityResults", []), "metrics": evidence.get("measurements", []), "findings": evidence.get("findings", []), "policies": [evidence.get("policyEvidence", {})], "qualification": [evidence.get("policyEvidence", {})], "baselines": query.get("baselines", []), "comparisons": comparisons, "comparison_findings": comparison_findings, "trends": query.get("trends", [])}
         if resource not in collections: raise ValueError(f"unsupported query resource: {resource}")
         rows = list(collections[resource])
         for key, expected in query.get("filter", {}).items(): rows = [row for row in rows if str(row.get(key)) == str(expected)]

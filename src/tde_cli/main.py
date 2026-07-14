@@ -10,7 +10,7 @@ import sys
 from typing import Any, Sequence, TextIO
 
 from tde_runtime import Runtime, RuntimeConfiguration
-from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine
+from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine, ComparisonRepository
 from tde_runtime.policy import PolicyEngine, PolicyError
 from tde_runtime.trend import TrendEngine
 from tde_runtime.evidence_store import EvidenceStore
@@ -44,8 +44,8 @@ COMMANDS: dict[str, dict[str, str]] = {
     "validate": {"purpose": "Validate runtime configuration and context."},
     "inspect": {"purpose": "Inspect a target and planned Code Size execution."},
     "assess": {"purpose": "Assess a target through selected capabilities."},
-    "baseline": {"purpose": "Create a baseline (not implemented)."},
-    "compare": {"purpose": "Compare evidence (not implemented)."},
+    "baseline": {"purpose": "Create an immutable baseline from persisted canonical evidence."},
+    "compare": {"purpose": "Persist and qualify a canonical comparison against a baseline."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
     "query": {"purpose": "Query canonical engineering evidence."},
     "store": {"purpose": "Persist canonical Runtime evidence."},
@@ -225,23 +225,30 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     if arguments.command in {"baseline", "compare"}:
         location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
         repository = BaselineRepository(Path(arguments.target) / location if not Path(location).is_absolute() else location)
+        comparison_location = repository.location.parent / "comparisons"
+        evidence_store = EvidenceStore(_store_location(arguments, arguments.target))
         try:
             current = Runtime().execute(arguments.target, configuration)
+            persisted_current = evidence_store.persist(current.evidence)
+            current_evidence = evidence_store.retrieve(persisted_current["id"])["evidence"]
             if arguments.command == "baseline":
-                baseline = repository.create(current.evidence, arguments.name)
-                _render({"command": "baseline", "status": "VALID", "baseline": baseline}, arguments.format, stream)
+                baseline = repository.create(current_evidence, arguments.name)
+                _render({"command": "baseline", "status": "VALID", "evidenceStore": persisted_current, "baseline": baseline}, arguments.format, stream)
                 return ExitCode.SUCCESS
             if not arguments.baseline:
                 raise BaselineError("compare requires --baseline")
             baseline = repository.load(arguments.baseline)
-            comparison = ComparisonEngine().compare(current.evidence, baseline)
+            comparison = ComparisonEngine().compare(current_evidence, baseline)
             policy = PolicyEngine().load(current.context.configuration, current.context.repository_root,
                                          current.context.runtime_version, current.context.schema_version)
-            normalized = {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"],
-                          "capabilityResults": current.evidence["capabilityResults"], "comparison": comparison}
+            normalized = {"measurements": current_evidence["measurements"], "findings": current_evidence["findings"],
+                          "capabilityResults": current_evidence["capabilityResults"], "comparison": comparison}
             policy_evidence = PolicyEngine().evaluate(policy, normalized, current.context.configuration)
+            persisted_comparison = ComparisonRepository(comparison_location).persist(comparison, policy_evidence, baseline)
             status = ExitCode.SUCCESS if policy_evidence["decision"] != "BLOCKED" else ExitCode.BLOCKED
-            _render({"command": "compare", "comparison": comparison, "policyEvidence": policy_evidence}, arguments.format, stream)
+            _render({"command": "compare", "evidenceStore": persisted_current, "comparison": comparison,
+                     "comparisonStore": persisted_comparison, "policyEvidence": policy_evidence,
+                     "qualificationDelta": persisted_comparison["qualificationDelta"]}, arguments.format, stream)
             return status
         except (BaselineError, PolicyError, ValueError) as error:
             _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
@@ -267,7 +274,12 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             if not records:
                 raise ValueError("no persisted evidence is available; run assess first")
             evidence = records[-1]["evidence"]
-            response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate})
+            baseline_location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+            baseline_path = Path(arguments.target) / baseline_location if not Path(baseline_location).is_absolute() else Path(baseline_location)
+            comparisons = ComparisonRepository(baseline_path.parent / "comparisons").history()
+            baselines = [BaselineRepository(baseline_path).load(path) for path in sorted(baseline_path.glob("*.json"))] if baseline_path.is_dir() else []
+            response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate,
+                                                  "baselines": baselines, "comparisons": comparisons})
             _render({"command": "query", "evidenceId": evidence["integrity"]["contentDigest"], **response}, arguments.format, stream)
             return ExitCode.SUCCESS
         except (ValueError, PolicyError) as error:
