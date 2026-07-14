@@ -1,0 +1,20 @@
+{
+  "manifestVersion": "1.0.0",
+  "candidate": {
+    "id": "tde-generation-1-f0baf98",
+    "commit": "f0baf98c72ba2c3ed6e10f34f4c6670e32fe6469",
+    "branch": "main",
+    "version": "0.1.0",
+    "profile": "internal"
+  },
+  "runtimeVersion": "0.1.0",
+  "cliVersion": "0.1.0",
+  "schemaVersion": "1.0.0",
+  "capabilities": {"code_size": "0.1.0", "complexity": "0.1.0", "maintainability": "0.1.0", "dependency_health": "0.1.0"},
+  "adapters": {"code_size.cloc": "0.1.0", "complexity.radon": "0.1.0"},
+  "policy": {"id": "tde.generation-1.default", "version": "1.0.0"},
+  "artifacts": [],
+  "checksums": [],
+  "qualification": "NOT_READY",
+  "limitations": ["no immutable workflow", "no release artifacts or checksums", "platform is not certified"]
+}
