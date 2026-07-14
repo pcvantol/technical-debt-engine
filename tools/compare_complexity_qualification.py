@@ -15,7 +15,8 @@ def normalize(value: object) -> object:
         return [normalize(item) for item in value]
     if isinstance(value, dict):
         return {key: normalize(item) for key, item in value.items()
-                if key not in {"executionTiming", "executionId", "qualificationId", "evaluatedAt", "executionDurationMs"}}
+                if key not in {"executionTiming", "executionId", "qualificationId", "evaluatedAt", "executionDurationMs",
+                               "targetEntityId", "measurementId", "qualificationReference"}}
     return value
 
 
