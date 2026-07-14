@@ -1,5 +1,9 @@
 # Roadmap index
 
+## Product navigation
+
+Read product sources in this order: [Platform Vision](PLATFORM_VISION.md) → [Platform Strategy](PLATFORM_STRATEGY.md) → [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md) → [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md) → [Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md) → Product Roadmap → Platform Evolution Backlog. The Platform-named Vision and Strategy are the canonical product equivalents in this repository.
+
 This is navigation for the roadmap and backlog sources that must be read during
 prompt initialization. It does not determine current engineering work; current
 `main`, operational evidence, and [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md)
