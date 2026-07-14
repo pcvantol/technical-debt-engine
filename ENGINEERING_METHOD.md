@@ -24,9 +24,11 @@ This is TDE's canonical engineering constitution. It defines how the independent
 | Operational Reality Is Authoritative | Prevent plan-derived claims. | Observable repository evidence determines current state. | Status and recovery decisions cite executable, testable, or immutable evidence. |
 | Repository-Native Continuity | Make future work self-describing. | Repository contents preserve handoff and immutable history. | Chat history is never required to continue engineering. |
 
-## Lifecycle and definition of done
+## Lifecycle, freeze point, and definition of done
 
 The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request. Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded** for a prompt replaced before merge. Only one prompt may be Active.
+
+The reviewable pull request is the immutable engineering boundary for its prompt. The Prompt Freeze Point is reached immediately when that pull request exists. At the Freeze Point, implementation is complete and engineering stops: no further implementation commits, Runtime changes, test changes, scope expansion, or immediate fixes are permitted. Only the final execution report, current-state updates, prompt archive, and final management summary may be completed after the Freeze Point. Late discoveries are recorded as Deferred Work for a subsequent prompt; they are never added to the frozen pull request. The next engineering increment starts only after merge.
 
 - **IMPLEMENTED:** the scoped change exists; this is not proof of correctness.
 - **VALIDATED:** declared checks have passed; this is not a policy decision.
