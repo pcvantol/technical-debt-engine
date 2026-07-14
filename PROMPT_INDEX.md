@@ -53,7 +53,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | PD-3 | Canonical Dashboard Architecture | [Reviewable — #49](https://github.com/pcvantol/technical-debt-engine/pull/49) |
 | PD-4 | Product Strategy Alignment | [Reviewable — #50](https://github.com/pcvantol/technical-debt-engine/pull/50) |
 | [P1-5](docs/history/prompts/P1-5-policy-qualification.md) | Policy Qualification on Real Canonical Evidence | [Draft — #51](https://github.com/pcvantol/technical-debt-engine/pull/51) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/p1-5-policy-qualification) · [candidate commit](https://github.com/pcvantol/technical-debt-engine/commit/293d61fa70a9ed654aca87988a95c25b4702a2b9) |
-| P1-7 | Build Reproducibility Foundation | Active — `codex/p1-7-build-reproducibility-foundation` |
+| [P1-7](docs/history/prompts/P1-7-build-reproducibility-foundation.md) | Build Reproducibility Foundation | [Reviewable — #54](https://github.com/pcvantol/technical-debt-engine/pull/54) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/p1-7-build-reproducibility-foundation) · [candidate commit](https://github.com/pcvantol/technical-debt-engine/commit/5a99556e63de51cca29da6face552e018084a7cf) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 

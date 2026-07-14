@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from io import BytesIO
 import gzip
 from hashlib import sha256
 import json
@@ -96,14 +97,23 @@ def build(root: Path, output: Path) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     epoch = source_date_epoch(root)
     environment = dict(__import__("os").environ, SOURCE_DATE_EPOCH=str(epoch), PYTHONHASHSEED="0")
-    subprocess.run([sys.executable, "-m", "build", "--no-isolation", "--outdir", str(output), str(root)],
-                   check=True, env=environment)
+    # Setuptools regenerates egg-info manifests.  Build an exact archive of the
+    # committed candidate instead of the checkout so independent builds cannot
+    # contaminate one another or the provenance-bearing source candidate.
+    candidate_sha = git(root, "rev-parse", "HEAD")
+    archive = subprocess.run(["git", "-C", str(root), "archive", "--format=tar", candidate_sha], check=True,
+                             capture_output=True).stdout
+    with TemporaryDirectory(prefix="tde-candidate-") as temporary:
+        candidate_root = Path(temporary)
+        with tarfile.open(fileobj=BytesIO(archive), mode="r:") as source:
+            source.extractall(candidate_root, filter="data")
+        subprocess.run([sys.executable, "-m", "build", "--no-isolation", "--outdir", str(output), str(candidate_root)],
+                       check=True, env=environment)
     artifacts = sorted([*output.glob("*.whl"), *output.glob("*.tar.gz")])
     if len(artifacts) != 2 or not any(item.suffix == ".whl" for item in artifacts) or not any(item.name.endswith(".tar.gz") for item in artifacts):
         raise RuntimeError("builder did not create exactly one wheel and one source distribution")
     for artifact in artifacts:
         normalize_wheel(artifact, epoch) if artifact.suffix == ".whl" else normalize_sdist(artifact, epoch)
-    candidate_sha = git(root, "rev-parse", "HEAD")
     versions = tool_versions()
     build_inputs = {"candidateSha": candidate_sha, "schemaVersion": PROVENANCE_SCHEMA_VERSION,
                     "sourceDateEpoch": epoch, "tools": versions}
