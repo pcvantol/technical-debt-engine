@@ -6,6 +6,7 @@
 | 1 | Generation 1 product bootstrap and documentation foundation | Complete |
 | 1.5 | Engineering Workflow Alignment | Complete |
 | 2 | AI-Native Engineering Method | Complete |
-| 3 | Canonical Runtime Architecture | Active |
+| 3 | Canonical Runtime Architecture | Complete |
+| 4 | Canonical Domain and Evidence Schemas | Active |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.

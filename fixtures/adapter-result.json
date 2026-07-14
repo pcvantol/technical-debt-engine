@@ -1,0 +1,1 @@
+{"adapter":{"id":"adapter.example","version":"1.0.0"},"analyzer":{"id":"tool.example","version":"1.0.0"},"execution":"SUCCESS","rawOutputHash":"sha256:raw","measuredScope":["src"],"completeness":1,"draftMeasurements":[],"draftFindings":[]}

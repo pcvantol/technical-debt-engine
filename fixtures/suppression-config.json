@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0.0","capabilities":["complexity"],"reportFormats":["json","markdown"],"pathRedaction":true,"suppressions":[{"id":"suppression.example","scope":"rule:complexity.example","reason":"Accepted until refactor","owner":"engineering","createdAt":"2026-01-01","expiresAt":"2026-06-01","policyReference":"policy.example"}]}

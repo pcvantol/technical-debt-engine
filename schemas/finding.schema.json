@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.technical-debt-engine.dev/finding/1.0.0/schema.json",
+  "title": "TDE finding model",
+  "type": "object",
+  "required": ["findingId", "capabilityId", "ruleId", "severity", "category", "title", "description", "affectedEntityId", "state", "regression", "confidence", "suppressible"],
+  "properties": {"findingId": {"type": "string"}, "capabilityId": {"type": "string"}, "ruleId": {"type": "string"}, "severity": {"enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNKNOWN"]}, "category": {"enum": ["SIZE", "COMPLEXITY", "MAINTAINABILITY", "DUPLICATION", "DEPENDENCY", "TEST", "ARCHITECTURE", "DOCUMENTATION", "CONFIGURATION", "UNKNOWN"]}, "title": {"type": "string"}, "description": {"type": "string"}, "affectedEntityId": {"type": "string"}, "location": {"type": "object"}, "evidenceReferences": {"type": "array", "items": {"type": "string"}}, "state": {"enum": ["OPEN", "RESOLVED", "SUPPRESSED", "WAIVED"]}, "remediationGuidance": {"type": "string"}, "baselineRelationship": {"enum": ["UNCHANGED", "NEW", "RESOLVED", "MOVED", "MODIFIED", "UNKNOWN"]}, "regression": {"enum": ["REGRESSION", "IMPROVEMENT", "UNCHANGED", "UNKNOWN"]}, "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "suppressible": {"type": "boolean"}, "limitations": {"type": "array", "items": {"$ref": "domain.schema.json#/$defs/limitation"}}},
+  "additionalProperties": false
+}

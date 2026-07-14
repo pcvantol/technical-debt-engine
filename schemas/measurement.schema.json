@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.technical-debt-engine.dev/measurement/1.0.0/schema.json",
+  "title": "TDE measurement model",
+  "type": "object",
+  "required": ["measurementId", "capabilityId", "metricKey", "value", "unit", "scope", "aggregation", "targetEntityId", "sourceAdapterId", "sourceToolId"],
+  "properties": {"measurementId": {"type": "string"}, "capabilityId": {"type": "string"}, "metricKey": {"type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_.]*$"}, "value": {"type": ["number", "string", "boolean"]}, "unit": {"type": "string"}, "scope": {"enum": ["repository", "workspace", "language", "file", "module", "type", "function", "dependency", "test_suite"]}, "targetEntityId": {"type": "string"}, "aggregation": {"enum": ["count", "sum", "mean", "median", "percentile", "maximum", "minimum", "ratio", "percentage", "distribution", "categorical_state"]}, "sourceAdapterId": {"type": "string"}, "sourceToolId": {"type": "string"}, "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "limitations": {"type": "array", "items": {"$ref": "domain.schema.json#/$defs/limitation"}}},
+  "additionalProperties": false
+}
