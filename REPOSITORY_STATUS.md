@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | INTERNAL_RELEASE_BLOCKED |
+| Status | OPERATIONAL_BURN_IN_BLOCKED |
 | Canonical CLI | `tde` |
 | Runtime | Foundation implemented; Policy Engine is the qualification decision layer |
 | Analyzers | Not implemented |
@@ -36,6 +36,7 @@
 | Release Certification | Release process not certified; no publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | Wheel and isolated installation validated; distribution blocked |
+| Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 

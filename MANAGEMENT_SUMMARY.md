@@ -59,3 +59,5 @@ Prompt 26 performs the first formal Release Certification. It concludes `RELEASE
 Prompt 27 performs the first local operational release dry run. It creates one non-published wheel candidate and checksum, but is `RELEASE_DRY_RUN_BLOCKED` because GitHub Actions, dependency provenance, source/reproducibility evidence and certifications remain unavailable.
 
 Prompt 28 validates a local Internal Release 0.1.0 wheel and isolated installation, but concludes `INTERNAL_RELEASE_BLOCKED`: no internal destination, source archive, executable/evidence bundle, or release certification is available. Nothing was published.
+
+Prompt 29 records an Operational Burn-In over the installed internal wheel. Three local runs each for TDE, empty and multi-language repositories produced deterministic normalized evidence, but cross-platform, long-running and release-certification gaps leave the result `OPERATIONAL_BURN_IN_BLOCKED`.
