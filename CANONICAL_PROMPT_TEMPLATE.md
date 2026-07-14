@@ -12,6 +12,8 @@ Every prompt finishes with the following contract:
 >
 > Produce exactly one reviewable Pull Request.
 >
+> Own exactly one engineering objective and increment. Do not expand scope after implementation begins.
+>
 > Treat the reviewable Pull Request as the Prompt Freeze Point. After it exists, do not change implementation, Runtime code, tests, or scope.
 >
 > Update canonical documentation where required.
@@ -30,7 +32,7 @@ Every prompt finishes with the following contract:
 
 ## Freeze contract
 
-The reviewable Pull Request is the immutable boundary of the engineering increment. Once it exists, engineering is complete. The prompt may only create its final Prompt Execution Report, update current repository status records, archive the prompt, report Deferred Work, and stop.
+The reviewable Pull Request is the immutable boundary of the engineering increment. A draft Pull Request may be used before reviewable state to include finalization records in the same Pull Request; it does not reach the Freeze Point. Once the Pull Request becomes reviewable, engineering is complete. The prompt may only create its final Prompt Execution Report, update current repository status records, archive the prompt, report Deferred Work, and stop.
 
 Late discoveries must not be fixed in the frozen Pull Request. Record each one as Deferred Work for a new prompt after merge.
 
@@ -50,6 +52,7 @@ The immutable archive is the Prompt Execution Report. It must include:
 - Created and updated dates
 - Known limitations
 - Freeze reached
+- Prompt completed
 - Pull Request created
 - Engineering stopped
 - Deferred Work

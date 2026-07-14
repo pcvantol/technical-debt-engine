@@ -41,6 +41,8 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | P0-1 | Public CLI Execution and Truthful Runtime Qualification | Complete |
 | [G2-GOV-1](docs/history/prompts/G2-GOV-1-engineering-method-evolution.md) | Engineering Method Evolution: Repository Governance Alignment | [Reviewable — #37](https://github.com/pcvantol/technical-debt-engine/pull/37) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/engineering-method-v2) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/afae54f5f05be85148179cfb3a551c0e18f35c71) |
 | [P1-1](docs/history/prompts/P1-1-complete-code-size-vertical-slice.md) | Complete Code Size Vertical Slice | [Reviewable — #38](https://github.com/pcvantol/technical-debt-engine/pull/38) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/code-size-vertical-slice) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/964ff2aea582c1751485cb050cc4868d51d49f56) |
+| G2-GOV-2 | Engineering Method Evolution: Prompt Finalization Freeze | [Merged — #39](https://github.com/pcvantol/technical-debt-engine/pull/39); immutable finalization record deferred to `G2-GOV-4` |
+| [G2-GOV-3](docs/history/prompts/G2-GOV-3-prompt-ownership-hygiene.md) | Engineering Method Evolution: Prompt Ownership, Freeze Boundary, Repository Hygiene | [Reviewable — #40](https://github.com/pcvantol/technical-debt-engine/pull/40) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/prompt-ownership-hygiene) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/d9e6634e6ed797f84525ee029747f749a8ef9a58) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
@@ -49,3 +51,7 @@ Prompt 32 is an evidence-only audit, not a Generation 2 implementation increment
 Recovery Prompt P0-1 implements only the first P0 recovery slice: installed CLI Code Size execution through the canonical Runtime and fail-closed Runtime Qualification. It does not create a release or advance other recovery milestones.
 
 `G2-GOV-1` establishes repository-native engineering continuity and the prospective immutable archive requirement. It is governance-only and does not alter Runtime, Schema, Capability, or Adapter SDK architecture.
+
+`G2-GOV-2` introduced the initial freeze rule, but PR #39 merged before its finalization record entered the PR. Its missing historical handoff is Deferred Work owned by `G2-GOV-4`.
+
+`G2-GOV-3` establishes prompt ownership, the reviewable-state Freeze Point, Deferred Work fields, and canonical repository hygiene. It is governance-only and does not alter Runtime, implementation, capabilities, schemas, contracts, or the Adapter SDK.

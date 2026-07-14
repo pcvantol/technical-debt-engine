@@ -8,7 +8,8 @@
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
 | Releases | None |
-| Mandatory workflow | One prompt → one reviewable pull request |
+| Mandatory workflow | One prompt → one objective → one engineering increment → one reviewable pull request; reviewable state is the Prompt Freeze Point |
+| Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
 | Engineering method | Established by Prompt 2 |
@@ -58,4 +59,8 @@ Recovery Prompt P0-1 repairs the audited Code Size public execution path. An ins
 
 G2-GOV-1 establishes Engineering Method V2 repository governance. Current `main` and operational reality are authoritative; `ENGINEERING_STATUS.md` is the primary handoff, and prompt archives are immutable prospective repository memory. No product implementation, Runtime Architecture, schema, capability contract, or Adapter SDK was changed.
 
-P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI override, analyzer availability/version checks, repository/language/file evidence, retained raw analyzer output/hash, JSON/Markdown report rendering, Evidence Store persistence and persisted-evidence query. Cross-platform qualification and release evidence remain blockers.
+P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI override, analyzer availability/version checks, repository/language/file evidence, retained raw analyzer output/hash, and JSON/Markdown report rendering. Automatic assessment persistence and persisted-evidence-only query behavior are Deferred Work for `P1-2`; cross-platform qualification and release evidence remain blockers.
+
+G2-GOV-2 establishes the first Prompt Freeze Point rule in current `main`, but its required immutable execution report and final status handoff were not included before PR #39 merged. That historical finalization gap is explicitly deferred to `G2-GOV-4`; it is not repaired retrospectively in this increment.
+
+G2-GOV-3 establishes Engineering Method v2.2. Every prompt owns exactly one objective, one engineering increment, and one reviewable Pull Request. The increment ends when that Pull Request becomes reviewable; merge remains separate. A draft Pull Request may prepare finalization records in the same PR but does not freeze engineering. Repository hygiene is canonical: operating-system artifacts are ignored and removed when safe, while engineering evidence, release evidence, and fixtures remain protected.
