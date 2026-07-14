@@ -18,6 +18,7 @@
 | CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
 | Code Size | Validated by Prompt 9 with cloc 2.10; cross-platform qualification pending |
 | Complexity | Validated by Prompt 10 with Radon 6.0.1 for Python; multi-language pending |
+| Maintainability | Validated derived capability from Code Size and Complexity evidence |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
