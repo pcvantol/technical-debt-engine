@@ -63,6 +63,20 @@ class CodeSizeTests(unittest.TestCase):
         self.assertTrue(any(item["metricKey"] == "code_size.code_lines" for item in response["evidence"]["measurements"]))
         self.assertEqual("QUALIFIED", response["runtimeQualification"]["level"])
 
+    def test_cli_assess_does_not_require_a_git_repository(self) -> None:
+        stream = StringIO()
+        code = main(["--format", "json", "assess", "--capability", "code-size", str(self.root)], stream)
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("QUALIFIED", json.loads(stream.getvalue())["runtimeQualification"]["level"])
+
+    def test_cli_assess_accepts_a_dirty_git_repository(self) -> None:
+        subprocess.run(["git", "init", "--quiet", str(self.root)], check=True)
+        (self.root / "src" / "dirty.py").write_text("value = 2\n", encoding="utf-8")
+        stream = StringIO()
+        code = main(["--format", "json", "assess", "--capability", "code-size", str(self.root)], stream)
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("QUALIFIED", json.loads(stream.getvalue())["runtimeQualification"]["level"])
+
     @unittest.skipUnless(shutil.which("cloc"), "installed CLI integration requires cloc on PATH")
     def test_installed_wheel_assess_executes_code_size(self) -> None:
         repository = Path(__file__).resolve().parents[1]
@@ -78,11 +92,16 @@ class CodeSizeTests(unittest.TestCase):
             wheel = next(wheel_directory.glob("technical_debt_engine_runtime-*.whl"))
             subprocess.run([str(pip), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
             self.assertTrue(tde.is_file(), "wheel installation did not create the tde console script")
-            completed = subprocess.run([str(tde), "--format", "json", "assess", "--capability", "code-size", str(self.root)], check=False, capture_output=True, text=True, env=child_environment)
+            store = temporary_root / "evidence"
+            completed = subprocess.run([str(tde), "--format", "json", "--store-location", str(store), "assess", "--capability", "code-size", str(self.root)], check=False, capture_output=True, text=True, env=child_environment)
             self.assertEqual(ExitCode.SUCCESS, completed.returncode, completed.stderr)
             response = json.loads(completed.stdout)
             self.assertEqual(1, response["execution"]["workItems"])
             self.assertEqual(["code_size"], response["evidence"]["executionEvidence"]["executedCapabilities"])
+            self.assertTrue((store / "evidence").is_dir())
+            queried = subprocess.run([str(tde), "--format", "json", "--store-location", str(store), "query", str(self.root), "--resource", "metrics"], check=False, capture_output=True, text=True, env=child_environment)
+            self.assertEqual(ExitCode.SUCCESS, queried.returncode, queried.stderr)
+            self.assertGreater(json.loads(queried.stdout)["queryEvidence"]["resultCount"], 0)
 
     def test_assess_without_code_size_is_not_supported(self) -> None:
         self.assertEqual(ExitCode.NOT_SUPPORTED, main(["assess", str(self.root)], StringIO()))

@@ -43,6 +43,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [P1-1](docs/history/prompts/P1-1-complete-code-size-vertical-slice.md) | Complete Code Size Vertical Slice | [Reviewable — #38](https://github.com/pcvantol/technical-debt-engine/pull/38) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/code-size-vertical-slice) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/964ff2aea582c1751485cb050cc4868d51d49f56) |
 | G2-GOV-2 | Engineering Method Evolution: Prompt Finalization Freeze | [Merged — #39](https://github.com/pcvantol/technical-debt-engine/pull/39); immutable finalization record deferred to `G2-GOV-4` |
 | [G2-GOV-3](docs/history/prompts/G2-GOV-3-prompt-ownership-hygiene.md) | Engineering Method Evolution: Prompt Ownership, Freeze Boundary, Repository Hygiene | [Reviewable — #40](https://github.com/pcvantol/technical-debt-engine/pull/40) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/prompt-ownership-hygiene) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/d9e6634e6ed797f84525ee029747f749a8ef9a58) |
+| [P1-2](docs/history/prompts/P1-2-code-size-persisted-evidence-flow.md) | Complete Code Size Vertical Slice: Persisted Evidence Flow | [Reviewable — #41](https://github.com/pcvantol/technical-debt-engine/pull/41) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/code-size-evidence-store) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/8fc34936139473d1a0303c0242c9b80381e9b175) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
@@ -55,3 +56,5 @@ Recovery Prompt P0-1 implements only the first P0 recovery slice: installed CLI 
 `G2-GOV-2` introduced the initial freeze rule, but PR #39 merged before its finalization record entered the PR. Its missing historical handoff is Deferred Work owned by `G2-GOV-4`.
 
 `G2-GOV-3` establishes prompt ownership, the reviewable-state Freeze Point, Deferred Work fields, and canonical repository hygiene. It is governance-only and does not alter Runtime, implementation, capabilities, schemas, contracts, or the Adapter SDK.
+
+`P1-2` completes the Code Size persisted-evidence flow: installed CLI assessment persists evidence automatically and integrity-verified persisted evidence is the only source for Code Size Query and report. It is operational on the macOS audit host; cross-platform analyzer qualification is deferred to `P1-3`.
