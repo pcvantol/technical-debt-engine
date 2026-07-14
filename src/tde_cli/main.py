@@ -36,6 +36,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "baseline": {"purpose": "Create a baseline (not implemented)."},
     "compare": {"purpose": "Compare evidence (not implemented)."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
+    "query": {"purpose": "Query canonical engineering evidence."},
     "qualify": {"purpose": "Qualify evidence (not implemented)."},
     "report": {"purpose": "Render reports (not implemented)."},
     "explain": {"purpose": "Explain a result (not implemented)."},
@@ -68,6 +69,10 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--name", help="Immutable baseline name.")
         if identifier == "compare":
             command.add_argument("--baseline", help="Baseline name or JSON path.")
+        if identifier == "query":
+            command.add_argument("--resource", default="repositories", help="Evidence resource.")
+            command.add_argument("--filter", action="append", default=[], metavar="KEY=VALUE")
+            command.add_argument("--aggregate", choices=("count",))
     return parser
 
 
@@ -199,6 +204,16 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             return ExitCode.SUCCESS
         except (ValueError, PolicyError) as error:
             _render({"command": "trend", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
+    if arguments.command == "query":
+        try:
+            filters = dict(item.split("=", 1) for item in arguments.filter)
+            result = Runtime().execute(arguments.target, configuration)
+            response = Runtime().query(result.evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate})
+            _render({"command": "query", **response}, arguments.format, stream)
+            return ExitCode.SUCCESS
+        except (ValueError, PolicyError) as error:
+            _render({"command": "query", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess"}:
         if arguments.command == "assess":

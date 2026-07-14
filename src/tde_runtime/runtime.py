@@ -16,6 +16,7 @@ from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
 from .complexity import analyze as analyze_complexity
 from .maintainability import derive as derive_maintainability
 from .dependency_health import discover as discover_dependencies
+from .query import QueryEngine
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -57,6 +58,10 @@ class Runtime:
             report = values["reporting"]
             qualification = RuntimeQualification.READY if values["qualification"]["status"] != "BLOCKED" else RuntimeQualification.FAILED
             return RuntimeResult(context, tuple(stages), evidence, validation, qualification, report)
+
+    def query(self, evidence: dict[str, Any], query: dict[str, Any]) -> dict[str, Any]:
+        """Public read-only canonical-evidence query entrypoint."""
+        return QueryEngine().execute(evidence, query)
 
     def _context(self, root: Path, config: RuntimeConfiguration, temporary: Path) -> RuntimeContext:
         root_digest = sha256(str(root).encode()).hexdigest()[:16]
