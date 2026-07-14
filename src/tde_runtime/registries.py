@@ -11,3 +11,11 @@ class CapabilityRegistry:
 class AdapterRegistry:
     def discover(self) -> tuple[object, ...]:
         return ({"id": "code_size.cloc", "version": "0.1.0", "analyzer": "cloc"},{"id":"complexity.radon","version":"0.1.0","analyzer":"radon"})
+
+
+class PolicyRegistry:
+    """Discovery boundary for configuration-driven policy files."""
+
+    def discover(self) -> tuple[object, ...]:
+        from .policy import PolicyEngine
+        return PolicyEngine().discover()

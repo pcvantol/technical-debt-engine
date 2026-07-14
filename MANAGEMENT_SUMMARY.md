@@ -25,3 +25,7 @@ Prompt 9 delivers the first Code Size vertical slice with `cloc 2.10` as an expl
 Prompt 10 adds the Complexity reference capability with Python/Radon 6.0.1. It demonstrates a second analyzer adapter normalizing into the same evidence model, with planned analyzer selections for the remaining language roadmap. It is validated, not yet cross-platform or multi-language qualified.
 
 Prompt 11 adds derived Maintainability without a native analyzer, consuming canonical Code Size and Complexity evidence only.
+
+Prompt 12 adds declarative Dependency Health discovery for common manifest formats without package-manager execution or network access.
+
+Prompt 13 makes qualification operational through a standalone, versioned Policy Engine. Policies are dynamically discovered JSON contracts with explicit compatibility; their decisions and triggered rules are preserved as evidence. Qualification now consumes only those policy decisions, keeping capability-specific thresholds outside the Runtime.

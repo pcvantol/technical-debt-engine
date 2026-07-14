@@ -70,6 +70,11 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.BLOCKED, code)
         self.assertEqual("BLOCKED", json.loads(output)["status"])
 
+    def test_policy_override_is_accepted(self) -> None:
+        code, output = self.invoke("--format", "json", "--policy-override", 'dependency.count={"warning":0,"blocking":0}', "inspect", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("NOT_APPLICABLE", json.loads(output)["qualification"]["status"])
+
 
 if __name__ == "__main__":
     unittest.main()

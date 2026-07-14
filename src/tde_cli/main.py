@@ -45,6 +45,8 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--output", help="Output destination (reserved; console is used now).")
     parser.add_argument("--format", choices=("human", "json"), default="human", help="Output format.")
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
+    parser.add_argument("--policy", help="Repository or workspace policy directory.")
+    parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -85,9 +87,9 @@ def _render(value: dict[str, Any], output_format: str, stream: TextIO) -> None:
 def _runtime_result(command: str, target: str, configuration: RuntimeConfiguration) -> tuple[int, dict[str, Any]]:
     result = Runtime().execute(target, configuration)
     payload = {"command": command, "runtime": result.report["runtimeSummary"],
-               "execution": result.report["executionSummary"], "environment": result.report["environment"],
+               "execution": result.report["executionSummary"], "environment": result.report["environment"], "qualification": result.report["qualification"],
                "validation": result.validation, "evidenceId": result.evidence["integrity"]["contentDigest"]}
-    return ExitCode.SUCCESS, payload
+    return (ExitCode.BLOCKED if result.report["qualification"]["status"] == "BLOCKED" else ExitCode.SUCCESS), payload
 
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int:
@@ -110,6 +112,25 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     except ValueError as error:
         _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
         return ExitCode.BLOCKED
+    if arguments.policy or arguments.policy_override:
+        values = configuration.as_dict()
+        policy = dict(values["executionOptions"].get("policy", {}))
+        if arguments.policy:
+            policy["repository"] = arguments.policy
+        overrides = dict(policy.get("overrides", {}))
+        try:
+            for item in arguments.policy_override:
+                rule, raw_value = item.split("=", 1)
+                overrides[rule] = json.loads(raw_value)
+                if not isinstance(overrides[rule], dict):
+                    raise ValueError("override must be a JSON object")
+        except (ValueError, json.JSONDecodeError) as error:
+            _render({"status": "BLOCKED", "reason": f"invalid policy override: {error}"}, arguments.format, stream)
+            return ExitCode.BLOCKED
+        policy["overrides"] = overrides
+        values["policy"] = policy
+        values["executionOptions"].pop("policy", None)
+        configuration = RuntimeConfiguration.load(values)
     if arguments.command in {"validate", "inspect", "assess"}:
         if arguments.command == "assess":
             if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
