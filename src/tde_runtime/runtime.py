@@ -14,6 +14,7 @@ from .registries import AdapterRegistry, CapabilityRegistry
 from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
 from .complexity import analyze as analyze_complexity
 from .maintainability import derive as derive_maintainability
+from .dependency_health import discover as discover_dependencies
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -93,6 +94,9 @@ class Runtime:
         enabled = requested.get(CAPABILITY_ID, {}).get("enabled", False)
         complexity_enabled = requested.get("complexity", {}).get("enabled", False)
         maintainability_enabled = requested.get("maintainability", {}).get("enabled", False)
+        dependency_enabled = requested.get("dependency_health", {}).get("enabled", False)
+        if dependency_enabled:
+            result=discover_dependencies(context.repository_root); return {"executedWorkItems":1,"measurements":result["measurements"],"findings":result["findings"],"capabilityResults":[{"capabilityId":"dependency_health","capabilityVersion":"0.1.0","status":"VALID","adapterIds":["dependency_health.declarative"],"completeness":1,"qualificationApplicable":True}]}
         if maintainability_enabled:
             code_result=analyze(context.repository_root); complexity_result=analyze_complexity(context.repository_root)
             code=self._code_size_result(context, code_result); complexity={"measurements":complexity_result.get("measurements",[])}; derived=derive_maintainability(code,complexity)
