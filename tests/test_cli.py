@@ -101,8 +101,23 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code); self.assertEqual(1, len(json.loads(output)["records"]))
 
     def test_run_command_is_operational(self) -> None:
-        code, output = self.invoke("--format", "json", "run", str(self.root), "--capability", "dependency-health")
+        (self.root / "sample.py").write_text("value = 1\n", encoding="utf-8")
+        code, output = self.invoke("--format", "json", "run", str(self.root), "--capability", "code-size")
         self.assertEqual(ExitCode.SUCCESS, code); self.assertEqual("run", json.loads(output)["command"])
+
+    def test_configuration_discovery_report_and_persisted_query(self) -> None:
+        (self.root / "sample.py").write_text("# comment\nvalue = 1\n", encoding="utf-8")
+        (self.root / ".tde.yml").write_text("schemaVersion: '1.0.0'\ncapabilities:\n  code_size:\n    enabled: true\n", encoding="utf-8")
+        code, output = self.invoke("--format", "json", "assess", str(self.root), "--capability", "code-size")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertTrue(json.loads(output)["evidence"]["measurements"])
+        code, output = self.invoke("--format", "markdown", "report", str(self.root), "--capability", "code-size")
+        self.assertEqual(ExitCode.SUCCESS, code); self.assertIn("# Code Size Report", output)
+        location = self.root / "evidence"
+        code, _ = self.invoke("--format", "json", "--store-location", str(location), "store", str(self.root), "--capability", "code-size")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        code, output = self.invoke("--format", "json", "--store-location", str(location), "query", str(self.root), "--resource", "metrics")
+        self.assertEqual(ExitCode.SUCCESS, code); self.assertGreater(json.loads(output)["queryEvidence"]["resultCount"], 0)
 
     def test_qualify_command_is_operational(self) -> None:
         code, output = self.invoke("--format", "json", "qualify", str(self.root))

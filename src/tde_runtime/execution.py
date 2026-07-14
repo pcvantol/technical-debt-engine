@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from time import perf_counter
 from typing import Any
+from hashlib import sha256
 
 from .code_size import ADAPTER_ID, CAPABILITY_ID, CAPABILITY_VERSION, analyze
 from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
@@ -49,12 +50,14 @@ class CapabilityExecutionEngine:
         measurements: list[dict[str, Any]] = []
         findings: list[dict[str, Any]] = []
         capability_results: list[dict[str, Any]] = []
+        adapter_results: list[dict[str, Any]] = []
 
         for identifier in plan["capabilities"]:
             normalized = self._dispatch(identifier, context, measurements)
             measurements.extend(normalized["measurements"])
             findings.extend(normalized["findings"])
             capability_results.extend(normalized["capabilityResults"])
+            adapter_results.extend(normalized.get("adapterResults", []))
             result = normalized["capabilityResults"][-1]
             adapter_ids = result.get("adapterIds", [])
             state = "COMPLETED" if result["status"] == "VALID" else "BLOCKED"
@@ -75,6 +78,7 @@ class CapabilityExecutionEngine:
             "measurements": measurements,
             "findings": findings,
             "capabilityResults": capability_results,
+            "adapterResults": adapter_results,
             "executionEvidence": evidence,
         }
 
@@ -152,8 +156,28 @@ class CapabilityExecutionEngine:
                              "metricKey": "code_size.test_to_source_ratio", "value": result["testToSourceRatio"],
                              "unit": "ratio", "scope": "repository", "targetEntityId": context.repository_id,
                              "aggregation": "ratio", "sourceAdapterId": result["adapter"]["id"], "sourceToolId": "cloc"})
-        return {"measurements": measurements, "findings": [], "capabilityResults": [
+        for language, totals in result["languages"].items():
+            language_id = f"language.{language.lower().replace(' ', '_')}"
+            for key in ("files", "code", "comment", "blank"):
+                measurements.append({"measurementId": f"code_size.{language_id}.{key}", "capabilityId": CAPABILITY_ID,
+                                     "metricKey": f"code_size.language_{key}", "value": totals[key],
+                                     "unit": "files" if key == "files" else "lines", "scope": "language",
+                                     "targetEntityId": language_id, "aggregation": "sum",
+                                     "sourceAdapterId": result["adapter"]["id"], "sourceToolId": "cloc"})
+        for file in result["files"]:
+            file_id = "file." + sha256(file["path"].encode()).hexdigest()[:16]
+            for key in ("code", "comment", "blank"):
+                measurements.append({"measurementId": f"code_size.{file_id}.{key}", "capabilityId": CAPABILITY_ID,
+                                     "metricKey": f"code_size.file_{key}_lines", "value": file[key], "unit": "lines",
+                                     "scope": "file", "targetEntityId": file_id, "aggregation": "sum",
+                                     "sourceAdapterId": result["adapter"]["id"], "sourceToolId": "cloc"})
+        adapter_result = {"adapter": result["adapter"], "analyzer": result["analyzer"], "execution": "SUCCESS",
+                          "rawOutputHash": result["rawOutputHash"], "rawOutput": result["rawOutput"],
+                          "measuredScope": ["repository", "language", "file"], "completeness": 1,
+                          "draftMeasurements": measurements, "draftFindings": [], "warnings": [], "errors": [],
+                          "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
+        return {"measurements": measurements, "findings": [], "adapterResults": [adapter_result], "capabilityResults": [
             {"capabilityId": CAPABILITY_ID, "capabilityVersion": CAPABILITY_VERSION, "status": "VALID",
              "adapterIds": [result["adapter"]["id"]], "completeness": 1, "qualificationApplicable": True,
-             "executionTiming": {"durationMs": duration}}
+             "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
         ]}

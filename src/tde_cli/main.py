@@ -35,8 +35,8 @@ class ExitCode:
 COMMANDS: dict[str, dict[str, str]] = {
     "help": {"purpose": "Show generated CLI help."},
     "validate": {"purpose": "Validate runtime configuration and context."},
-    "inspect": {"purpose": "Inspect a target through the Runtime foundation."},
-    "assess": {"purpose": "Assess technical debt (not implemented)."},
+    "inspect": {"purpose": "Inspect a target and planned Code Size execution."},
+    "assess": {"purpose": "Assess a target through selected capabilities."},
     "baseline": {"purpose": "Create a baseline (not implemented)."},
     "compare": {"purpose": "Compare evidence (not implemented)."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
@@ -47,7 +47,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "qualify": {"purpose": "Qualify canonical Runtime evidence."},
     "assure": {"purpose": "Assure repository and artifact integrity."},
     "trusted-delivery": {"purpose": "Validate immutable candidate and delivery evidence."},
-    "report": {"purpose": "Render reports (not implemented)."},
+    "report": {"purpose": "Render a Code Size evidence projection."},
     "explain": {"purpose": "Explain a result (not implemented)."},
 }
 
@@ -55,9 +55,9 @@ COMMANDS: dict[str, dict[str, str]] = {
 def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--verbose", action="store_true", help="Enable INFO logging.")
     parser.add_argument("--quiet", action="store_true", help="Suppress non-error logging.")
-    parser.add_argument("--config", help="Path to JSON-compatible .tde.yml configuration.")
+    parser.add_argument("--config", help="Path to repository .tde.yml configuration.")
     parser.add_argument("--output", help="Output destination (reserved; console is used now).")
-    parser.add_argument("--format", choices=("human", "json"), default="human", help="Output format.")
+    parser.add_argument("--format", choices=("human", "json", "markdown"), default="human", help="Output format.")
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
     parser.add_argument("--policy", help="Repository or workspace policy directory.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
@@ -86,14 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _load_configuration(path: str | None) -> RuntimeConfiguration:
-    if path is None:
-        return RuntimeConfiguration.load()
-    try:
-        contents = Path(path).read_text(encoding="utf-8")
-        return RuntimeConfiguration.load(json.loads(contents))
-    except (OSError, json.JSONDecodeError, ValueError) as error:
-        raise ValueError(f"invalid configuration: {error}") from error
+def _load_configuration(path: str | None, target: str) -> RuntimeConfiguration:
+    return RuntimeConfiguration.discover(target, path)
 
 
 def _configure_logging(arguments: argparse.Namespace) -> None:
@@ -104,6 +98,10 @@ def _configure_logging(arguments: argparse.Namespace) -> None:
 def _render(value: dict[str, Any], output_format: str, stream: TextIO) -> None:
     if output_format == "json":
         print(json.dumps(value, sort_keys=True), file=stream)
+        return
+    if output_format == "markdown":
+        for key, item in value.items():
+            print(f"- **{key}:** `{item}`", file=stream)
         return
     for key, item in value.items():
         print(f"{key}: {item}", file=stream)
@@ -119,6 +117,21 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
         command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED"
     )
     return (ExitCode.BLOCKED if blocked else ExitCode.SUCCESS), payload
+
+
+def _render_code_size_report(evidence: dict[str, Any], output_format: str, stream: TextIO) -> None:
+    metrics = {item["metricKey"]: item["value"] for item in evidence.get("measurements", []) if item.get("scope") == "repository"}
+    payload = {"schemaId": "tde.report", "schemaVersion": evidence["schemaVersion"], "evidenceId": evidence["integrity"]["contentDigest"],
+               "format": output_format, "content": {"capability": "code_size", "metrics": metrics,
+               "qualification": evidence["runtimeQualification"]["level"]}}
+    if output_format == "markdown":
+        print("# Code Size Report", file=stream)
+        print("", file=stream)
+        for key, value in sorted(metrics.items()):
+            print(f"- **{key}:** {value}", file=stream)
+        print(f"- **qualification:** {payload['content']['qualification']}", file=stream)
+        return
+    _render(payload, output_format, stream)
 
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int:
@@ -137,7 +150,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         return ExitCode.SUCCESS
     _configure_logging(arguments)
     try:
-        configuration = _load_configuration(arguments.config)
+        configuration = _load_configuration(arguments.config, arguments.target)
     except ValueError as error:
         _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
         return ExitCode.BLOCKED
@@ -173,6 +186,11 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         values["trend"] = {"historyDepth": arguments.history_depth}
         values["executionOptions"].pop("trend", None)
         configuration = RuntimeConfiguration.load(values)
+    if arguments.command in {"assess", "baseline", "compare", "run", "store", "inspect", "validate", "qualify", "report"} and arguments.capability:
+        if arguments.capability != ["code-size"]:
+            _render({"command": arguments.command, "status": "NOT_SUPPORTED", "reason": "This Code Size vertical slice supports only code-size."}, arguments.format, stream)
+            return ExitCode.NOT_SUPPORTED
+        configuration = configuration.with_capability("code_size")
     if arguments.command in {"store", "history"}:
         location = Path(arguments.store_location or ".tde/evidence")
         location = Path(arguments.target) / location if not location.is_absolute() else location
@@ -187,15 +205,6 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         except (ValueError, OSError, json.JSONDecodeError) as error:
             _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
-    if arguments.command in {"assess", "baseline", "compare", "run"} and arguments.capability:
-        if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
-            _render({"command": arguments.command, "status": "NOT_IMPLEMENTED", "reason": "Only validated Generation 1 capabilities are available."}, arguments.format, stream)
-            return ExitCode.NOT_SUPPORTED
-        values = configuration.as_dict()
-        key = {"code-size": "code_size", "dependency-health": "dependency_health"}.get(arguments.capability[0], arguments.capability[0])
-        values["capabilities"] = {key: {"enabled": True}}
-        values["executionOptions"].pop("capabilities", None)
-        configuration = RuntimeConfiguration.load(values)
     if arguments.command in {"baseline", "compare"}:
         location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
         repository = BaselineRepository(Path(arguments.target) / location if not Path(location).is_absolute() else location)
@@ -236,8 +245,15 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     if arguments.command == "query":
         try:
             filters = dict(item.split("=", 1) for item in arguments.filter)
-            result = Runtime().execute(arguments.target, configuration)
-            response = Runtime().query(result.evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate})
+            if arguments.store_location:
+                store = EvidenceStore(Path(arguments.store_location))
+                records = store.history()
+                if not records:
+                    raise ValueError("no persisted evidence is available")
+                evidence = records[-1]["evidence"]
+            else:
+                evidence = Runtime().execute(arguments.target, configuration).evidence
+            response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate})
             _render({"command": "query", **response}, arguments.format, stream)
             return ExitCode.SUCCESS
         except (ValueError, PolicyError) as error:
@@ -252,6 +268,16 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             return ExitCode.SUCCESS if qualification["level"]!="BLOCKED" else ExitCode.BLOCKED
         except ValueError as error:
             _render({"command":"qualify","status":"BLOCKED","reason":str(error)},arguments.format,stream); return ExitCode.BLOCKED
+    if arguments.command == "report":
+        if arguments.capability != ["code-size"]:
+            _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size"}, arguments.format, stream)
+            return ExitCode.NOT_SUPPORTED
+        result = Runtime().execute(arguments.target, configuration)
+        if result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
+            _render({"command": "report", "status": "BLOCKED", "reason": "Code Size evidence is not qualified"}, arguments.format, stream)
+            return ExitCode.BLOCKED
+        _render_code_size_report(result.evidence, arguments.format, stream)
+        return ExitCode.SUCCESS
     if arguments.command == "assure":
         evidence=SoftwareAssurance().assure(arguments.target)
         _render({"command":"assure","assuranceEvidence":evidence},arguments.format,stream)

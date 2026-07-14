@@ -8,11 +8,12 @@ import os
 import shutil
 import subprocess
 import sys
+from unittest.mock import patch
 from pathlib import Path
 
 from tde_cli.main import ExitCode, main
 from tde_runtime import Runtime, RuntimeConfiguration
-from tde_runtime.code_size import classify
+from tde_runtime.code_size import analyze, classify
 
 
 class CodeSizeTests(unittest.TestCase):
@@ -36,6 +37,21 @@ class CodeSizeTests(unittest.TestCase):
         self.assertEqual("VALID", evidence["capabilityResults"][0]["status"])
         self.assertTrue(any(item["metricKey"] == "code_size.code_lines" for item in evidence["measurements"]))
         self.assertEqual("cloc", evidence["capabilityResults"][0]["adapterIds"][0].split(".")[-1])
+        self.assertTrue(evidence["adapterResults"][0]["rawOutputHash"].startswith("sha256:"))
+        self.assertTrue(any(item["scope"] == "language" for item in evidence["measurements"]))
+        self.assertTrue(any(item["scope"] == "file" for item in evidence["measurements"]))
+
+    def test_evidence_digest_is_stable_for_same_repository_and_configuration(self) -> None:
+        configuration = RuntimeConfiguration.load({"capabilities": {"code_size": {"enabled": True}}})
+        first = Runtime().execute(self.root, configuration).evidence["integrity"]["contentDigest"]
+        second = Runtime().execute(self.root, configuration).evidence["integrity"]["contentDigest"]
+        self.assertEqual(first, second)
+
+    def test_missing_analyzer_blocks_without_fabricated_metrics(self) -> None:
+        with patch("tde_runtime.code_size.shutil.which", return_value=None):
+            result = analyze(self.root)
+        self.assertEqual("BLOCKED", result["status"])
+        self.assertIn("analyzer.cloc.unavailable", result["limitations"][0]["id"])
 
     def test_cli_assess_emits_canonical_evidence_fields(self) -> None:
         stream = StringIO(); code = main(["--format", "json", "assess", "--capability", "code-size", str(self.root)], stream)
