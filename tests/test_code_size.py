@@ -53,6 +53,21 @@ class CodeSizeTests(unittest.TestCase):
         self.assertEqual("BLOCKED", result["status"])
         self.assertIn("analyzer.cloc.unavailable", result["limitations"][0]["id"])
 
+    def test_unsupported_analyzer_version_blocks(self) -> None:
+        with patch("tde_runtime.code_size.shutil.which", return_value="/tools/cloc"), \
+             patch("tde_runtime.code_size.subprocess.run") as run:
+            run.return_value.stdout = "2.09"
+            result = analyze(self.root)
+        self.assertEqual("BLOCKED", result["status"])
+        self.assertEqual("analyzer.cloc.unsupported_version", result["limitations"][0]["id"])
+
+    def test_analyzer_timeout_is_a_structured_blocker(self) -> None:
+        with patch("tde_runtime.code_size.shutil.which", return_value="/tools/cloc"), \
+             patch("tde_runtime.code_size.subprocess.run", side_effect=subprocess.TimeoutExpired(["cloc"], 1)):
+            result = analyze(self.root, timeout=1)
+        self.assertEqual("BLOCKED", result["status"])
+        self.assertEqual("analyzer.cloc.failed", result["limitations"][0]["id"])
+
     def test_cli_assess_emits_canonical_evidence_fields(self) -> None:
         stream = StringIO(); code = main(["--format", "json", "assess", "--capability", "code-size", str(self.root)], stream)
         self.assertEqual(ExitCode.SUCCESS, code)
@@ -86,8 +101,9 @@ class CodeSizeTests(unittest.TestCase):
             wheel_directory = temporary_root / "wheel"
             child_environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
             subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True, env=child_environment)
-            pip = environment / "bin" / "pip"
-            tde = environment / "bin" / "tde"
+            executable_directory = environment / ("Scripts" if os.name == "nt" else "bin")
+            pip = executable_directory / ("pip.exe" if os.name == "nt" else "pip")
+            tde = executable_directory / ("tde.exe" if os.name == "nt" else "tde")
             subprocess.run([str(pip), "wheel", "--no-deps", "--wheel-dir", str(wheel_directory), str(repository)], check=True, capture_output=True, text=True, env=child_environment)
             wheel = next(wheel_directory.glob("technical_debt_engine_runtime-*.whl"))
             subprocess.run([str(pip), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
@@ -102,6 +118,9 @@ class CodeSizeTests(unittest.TestCase):
             queried = subprocess.run([str(tde), "--format", "json", "--store-location", str(store), "query", str(self.root), "--resource", "metrics"], check=False, capture_output=True, text=True, env=child_environment)
             self.assertEqual(ExitCode.SUCCESS, queried.returncode, queried.stderr)
             self.assertGreater(json.loads(queried.stdout)["queryEvidence"]["resultCount"], 0)
+            reported = subprocess.run([str(tde), "--format", "markdown", "--store-location", str(store), "report", "--capability", "code-size", str(self.root)], check=False, capture_output=True, text=True, env=child_environment)
+            self.assertEqual(ExitCode.SUCCESS, reported.returncode, reported.stderr)
+            self.assertIn("# Code Size Report", reported.stdout)
 
     def test_assess_without_code_size_is_not_supported(self) -> None:
         self.assertEqual(ExitCode.NOT_SUPPORTED, main(["assess", str(self.root)], StringIO()))
