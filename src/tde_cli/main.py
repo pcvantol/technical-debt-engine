@@ -13,6 +13,7 @@ from tde_runtime import Runtime, RuntimeConfiguration
 from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine
 from tde_runtime.policy import PolicyEngine, PolicyError
 from tde_runtime.trend import TrendEngine
+from tde_runtime.evidence_store import EvidenceStore
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 
 
@@ -37,6 +38,8 @@ COMMANDS: dict[str, dict[str, str]] = {
     "compare": {"purpose": "Compare evidence (not implemented)."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
     "query": {"purpose": "Query canonical engineering evidence."},
+    "store": {"purpose": "Persist canonical Runtime evidence."},
+    "history": {"purpose": "List persisted canonical evidence."},
     "qualify": {"purpose": "Qualify evidence (not implemented)."},
     "report": {"purpose": "Render reports (not implemented)."},
     "explain": {"purpose": "Explain a result (not implemented)."},
@@ -54,6 +57,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
     parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
+    parser.add_argument("--store-location", help="Directory used for canonical evidence storage.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -159,6 +163,20 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         values["trend"] = {"historyDepth": arguments.history_depth}
         values["executionOptions"].pop("trend", None)
         configuration = RuntimeConfiguration.load(values)
+    if arguments.command in {"store", "history"}:
+        location = Path(arguments.store_location or ".tde/evidence")
+        location = Path(arguments.target) / location if not location.is_absolute() else location
+        store = EvidenceStore(location)
+        try:
+            if arguments.command == "history":
+                _render({"command": "history", "records": store.history()}, arguments.format, stream)
+                return ExitCode.SUCCESS
+            record = Runtime().execute(arguments.target, configuration)
+            _render({"command": "store", "record": store.persist(record.evidence)}, arguments.format, stream)
+            return ExitCode.SUCCESS
+        except (ValueError, OSError, json.JSONDecodeError) as error:
+            _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
     if arguments.command in {"assess", "baseline", "compare"} and arguments.capability:
         if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
             _render({"command": arguments.command, "status": "NOT_IMPLEMENTED", "reason": "Only validated Generation 1 capabilities are available."}, arguments.format, stream)

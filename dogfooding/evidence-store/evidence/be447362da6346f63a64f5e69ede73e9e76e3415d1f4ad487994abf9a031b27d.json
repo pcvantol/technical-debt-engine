@@ -1,0 +1,76 @@
+{
+  "candidate": "candidate.content.e2e179e9096aa79d",
+  "evidence": {
+    "candidate": {
+      "id": "candidate.content.e2e179e9096aa79d",
+      "identityType": "content_digest",
+      "validationStatus": "VALID",
+      "value": "sha256:e2e179e9096aa79d"
+    },
+    "capabilityResults": [],
+    "configurationDigest": "sha256:f9030d1cb346e2a50fa15899eac2369096c2bef9c418bd852fd5b7acb3d4fe77",
+    "executionId": "execution.adc3e3e8e89742bfb0cc9931802be7f3",
+    "findings": [],
+    "integrity": {
+      "algorithm": "sha-256",
+      "contentDigest": "sha256:be447362da6346f63a64f5e69ede73e9e76e3415d1f4ad487994abf9a031b27d"
+    },
+    "measurements": [],
+    "policyEvidence": {
+      "decision": "NOT_APPLICABLE",
+      "policy": {
+        "identifier": "tde.generation-1.default",
+        "owner": "TDE policy governance",
+        "scope": "repository",
+        "version": "1.0.0"
+      },
+      "qualificationInputs": {
+        "configuration": {
+          "executionOptions": {
+            "baseline": {},
+            "capabilities": {},
+            "policy": {},
+            "trend": {}
+          },
+          "schemaVersion": "1.0.0"
+        },
+        "findingCount": 0,
+        "limitationCount": 0,
+        "measurementCount": 0
+      },
+      "triggeredRules": []
+    },
+    "repository": {
+      "displayName": "local-repository",
+      "id": "repository.local.e2e179e9096aa79d"
+    },
+    "runtime": {
+      "id": "tde",
+      "version": "0.1.0"
+    },
+    "schemaId": "tde.evidence",
+    "schemaVersion": "1.0.0",
+    "timestamps": {
+      "executedAt": "2026-07-14T13:27:33.298812Z",
+      "generatedAt": "2026-07-14T13:27:33.298812Z"
+    },
+    "validation": {
+      "adapter": "VALID",
+      "analyzer": "VALID",
+      "candidateIdentity": "VALID",
+      "completeness": "COMPLETE",
+      "errors": [],
+      "integrity": "VALID",
+      "repositoryIdentity": "VALID",
+      "schema": "VALID",
+      "status": "VALID",
+      "warnings": []
+    }
+  },
+  "kind": "evidence",
+  "qualification": "NOT_APPLICABLE",
+  "repository": "repository.local.e2e179e9096aa79d",
+  "runtime": "0.1.0",
+  "schema": "1.0.0",
+  "timestamp": "2026-07-14T13:27:33.298812Z"
+}
