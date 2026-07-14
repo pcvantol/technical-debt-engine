@@ -7,3 +7,5 @@ Generation 1 creates the product foundation: capability boundaries, canonical ev
 The repository now uses a mandatory incremental engineering workflow: every canonical prompt is a small, traceable increment that concludes in exactly one independently reviewable pull request. Merging remains an explicit decision after review. This establishes predictable governance before the AI-Native Engineering Method is introduced.
 
 The AI-Native Engineering Method is now established as the canonical engineering constitution. It provides a mandatory session bootstrap, source hierarchy, ADR process, agent roles, program model, and explicit human authority over merge and release. Runtime implementation remains intentionally unstarted.
+
+The Canonical Runtime Architecture now defines the execution pipeline and strict separation between runtime orchestration and adapter measurement. It establishes canonical normalization, validation, qualification, immutable evidence, reporting, and exit-status contracts while preserving project, language, platform, and vendor independence. No runtime, adapter, analyzer, or CLI implementation has been created.
