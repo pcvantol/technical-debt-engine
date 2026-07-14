@@ -17,3 +17,5 @@ Prompt 5 establishes the canonical capability contract and qualification policy 
 Prompt 6 establishes the Adapter SDK as the only supported extension mechanism between the runtime and native analyzers. The SDK specifies isolated adapter behavior, registry-only discovery, local Generation 1 loading, configuration, independent versioning, and explicit compatibility. Registry entries are planned declarations only; no adapter or analyzer invocation exists.
 
 Prompt 7 implements the first executable Runtime Foundation. It provides a stable Python API for generic orchestration, execution context, empty registries, runtime validation, empty-capability evidence, runtime-ready qualification, and runtime summary reporting. It intentionally adds no CLI, capability, adapter, or analyzer behavior.
+
+Prompt 8 implements the first executable `tde` CLI as a thin Runtime consumer. It provides command metadata, generated help, version reporting, configuration loading, logging, human/JSON presentation, and canonical exit codes. Only generic `validate` and `inspect` invoke the Runtime Foundation; all capability-facing routes remain explicitly not implemented.
