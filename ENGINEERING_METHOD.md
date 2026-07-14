@@ -14,6 +14,7 @@ This is TDE's canonical engineering constitution. It defines how the independent
 | Qualification First | Make acceptance explicit. | Policy decides outcome from evidence. | Reject ambiguous or incompatible inputs. |
 | Policy First | Make governance repeatable. | Policies are declared before enforcement. | Do not embed hidden rules. |
 | Incremental Delivery | Keep review meaningful. | One prompt produces one focused PR. | Follow the mandatory workflow. |
+| Prompt Ownership | Keep increments singular and accountable. | One prompt owns one objective, one increment, and one reviewable PR. | Do not expand prompt scope after implementation begins. |
 | Fail Closed | Avoid false assurance. | Unknown or invalid states do not pass. | Surface blockers explicitly. |
 | Immutable Evidence | Preserve traceability. | Published records are never mutated. | Issue new evidence for corrections. |
 | Canonical Sources | Prevent drift. | Higher sources resolve conflict. | Do not create competing documents. |
@@ -23,12 +24,15 @@ This is TDE's canonical engineering constitution. It defines how the independent
 | Main Is Source of Truth | Ground work in accepted repository state. | Current `main` overrides conversation and historical plans. | Branch work starts from current `main`; history supplies context only. |
 | Operational Reality Is Authoritative | Prevent plan-derived claims. | Observable repository evidence determines current state. | Status and recovery decisions cite executable, testable, or immutable evidence. |
 | Repository-Native Continuity | Make future work self-describing. | Repository contents preserve handoff and immutable history. | Chat history is never required to continue engineering. |
+| Repository Hygiene | Keep state observable and reproducible. | The repository is clean at increment completion. | Ignore operating-system artifacts and preserve intentional evidence and fixtures. |
 
 ## Lifecycle, freeze point, and definition of done
 
 The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request. Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded** for a prompt replaced before merge. Only one prompt may be Active.
 
-The reviewable pull request is the immutable engineering boundary for its prompt. The Prompt Freeze Point is reached immediately when that pull request exists. At the Freeze Point, implementation is complete and engineering stops: no further implementation commits, Runtime changes, test changes, scope expansion, or immediate fixes are permitted. Only the final execution report, current-state updates, prompt archive, and final management summary may be completed after the Freeze Point. Late discoveries are recorded as Deferred Work for a subsequent prompt; they are never added to the frozen pull request. The next engineering increment starts only after merge.
+Each prompt owns exactly one engineering objective, one engineering increment, and one reviewable pull request. The increment ends when that reviewable pull request exists; merging is a separate human decision. A draft pull request may be used before reviewable state only to prepare mandatory finalization records in the same pull request. It is not a reviewable pull request and does not reach the Freeze Point.
+
+The reviewable pull request is the immutable engineering boundary for its prompt. The Prompt Freeze Point is reached immediately when the pull request becomes reviewable. At the Freeze Point, implementation is complete and engineering stops: no further implementation commits, Runtime changes, test changes, production-documentation changes, scope expansion, immediate fixes, or next-increment work are permitted. Only the Prompt Execution Report, current-state updates, prompt archive, and final management summary may be completed after the Freeze Point. Late discoveries are recorded as Deferred Work for a subsequent prompt; they are never added to the frozen pull request. The next engineering increment starts only after merge.
 
 - **IMPLEMENTED:** the scoped change exists; this is not proof of correctness.
 - **VALIDATED:** declared checks have passed; this is not a policy decision.
