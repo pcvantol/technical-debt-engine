@@ -51,6 +51,12 @@ class RuntimeFoundationTests(unittest.TestCase):
         self.assertTrue(result.context.execution_id.startswith("execution."))
         self.assertEqual("content_digest", result.context.candidate["identityType"])
 
+    def test_repository_identity_is_independent_of_checkout_path(self) -> None:
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            for directory in (Path(first), Path(second)):
+                (directory / "sample.py").write_text("VALUE = 1\n", encoding="utf-8")
+            self.assertEqual(Runtime._repository_digest(Path(first)), Runtime._repository_digest(Path(second)))
+
     def test_default_and_invalid_configuration(self) -> None:
         configuration = RuntimeConfiguration.load()
         self.assertEqual("1.0.0", configuration.schema_version)
