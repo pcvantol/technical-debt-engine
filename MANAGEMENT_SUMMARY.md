@@ -33,3 +33,5 @@ Prompt 13 makes qualification operational through a standalone, versioned Policy
 Prompt 14 transforms the product from point-in-time assessment to evolution-aware assessment. Immutable baseline snapshots and canonical evidence comparisons now detect metric deltas, finding regressions, improvements, and capability support; Policy Engine integration retains a separate decision layer.
 
 Prompt 15 adds continuous engineering intelligence through normalized, repository-local trend evidence. History, direction, moving averages, capability evolution, and policy history are exposed through `tde trend` while qualification remains owned by the Policy Engine.
+
+Prompt 16 adds the canonical read-only Query Engine, used by Runtime and `tde query` to project canonical engineering evidence without analyzer or evidence mutation.

@@ -19,5 +19,6 @@
 | 13 | Policy Engine Qualification Operationalization | Complete |
 | 14 | Baseline & Comparison Engine | Complete |
 | 15 | Trend Engine | Complete |
+| 16 | Query Engine | Complete |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.

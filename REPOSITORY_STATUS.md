@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | TREND_ENGINE_OPERATIONAL |
+| Status | QUERY_ENGINE_OPERATIONAL |
 | Canonical CLI | `tde` |
 | Runtime | Foundation implemented; Policy Engine is the qualification decision layer |
 | Analyzers | Not implemented |
@@ -23,6 +23,7 @@
 | Policy Engine | Operational with versioned, dynamically discovered policy files and evidence |
 | Baseline & Comparison | Operational immutable baseline persistence and canonical-evidence comparison |
 | Trend Engine | Operational normalized baseline-history aggregation and CLI reporting |
+| Query Engine | Operational versioned, read-only canonical-evidence query layer |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
