@@ -37,3 +37,5 @@ Prompt 15 adds continuous engineering intelligence through normalized, repositor
 Prompt 16 adds the canonical read-only Query Engine, used by Runtime and `tde query` to project canonical engineering evidence without analyzer or evidence mutation.
 
 Prompt 17 adds an immutable, storage-independent Evidence Store with filesystem persistence and history through `tde store` and `tde history`.
+
+Prompt 18 establishes the Capability Execution Engine as the single execution coordinator. Runtime now orchestrates only; `tde run` uses planned, sequential, isolated capability execution with execution evidence.

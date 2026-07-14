@@ -40,6 +40,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "query": {"purpose": "Query canonical engineering evidence."},
     "store": {"purpose": "Persist canonical Runtime evidence."},
     "history": {"purpose": "List persisted canonical evidence."},
+    "run": {"purpose": "Execute registered capabilities through the Execution Engine."},
     "qualify": {"purpose": "Qualify evidence (not implemented)."},
     "report": {"purpose": "Render reports (not implemented)."},
     "explain": {"purpose": "Explain a result (not implemented)."},
@@ -177,7 +178,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         except (ValueError, OSError, json.JSONDecodeError) as error:
             _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
-    if arguments.command in {"assess", "baseline", "compare"} and arguments.capability:
+    if arguments.command in {"assess", "baseline", "compare", "run"} and arguments.capability:
         if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
             _render({"command": arguments.command, "status": "NOT_IMPLEMENTED", "reason": "Only validated Generation 1 capabilities are available."}, arguments.format, stream)
             return ExitCode.NOT_SUPPORTED
@@ -233,8 +234,8 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         except (ValueError, PolicyError) as error:
             _render({"command": "query", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
-    if arguments.command in {"validate", "inspect", "assess"}:
-        if arguments.command == "assess":
+    if arguments.command in {"validate", "inspect", "assess", "run"}:
+        if arguments.command in {"assess", "run"}:
             if not arguments.capability:
                 _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only code-size and complexity are delivered."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
