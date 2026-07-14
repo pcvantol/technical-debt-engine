@@ -45,3 +45,5 @@ Prompt 19 adds Runtime Qualification: evidence-only completeness, confidence, li
 Prompt 20 completes the first Generation 1 platform qualification. The platform is operational for continued internal engineering but partially qualified: reporting, persisted-query integration, empty-evidence confidence hardening, and broader analyzer qualification remain explicit gaps. No release or package has been created.
 
 Prompt 21 performs the first formal platform certification. It concludes `PLATFORM_NOT_CERTIFIED`: the platform is suitable for controlled internal iteration, but empty-evidence qualification, incomplete persisted-query/reporting paths, bounded analyzer qualification, and legacy execution ownership must be resolved before it becomes a certified canonical foundation.
+
+Prompt 22 establishes the package-independent Platform Release Engineering architecture: immutable release planning, artifacts, profiles, manifests, and evidence with GitHub Actions as future execution engine. It creates no package, workflow, publication, or release.
