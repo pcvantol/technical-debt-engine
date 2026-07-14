@@ -5,6 +5,7 @@ from __future__ import annotations
 from hashlib import sha256
 import json
 from pathlib import Path
+import subprocess
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 from typing import Any, Callable
@@ -69,7 +70,7 @@ class Runtime:
             # Repository identity identifies the checkout; candidate identity identifies
             # its source content.  Conflating the two makes every source revision an
             # incompatible baseline and prevents repository-evolution comparisons.
-            repository_root=root, repository_id=f"repository.local.{sha256(str(root).encode()).hexdigest()[:16]}",
+            repository_root=root, repository_id=self._repository_identity(root),
             candidate={"id": f"candidate.content.{root_digest}", "identityType": "content_digest",
                        "value": f"sha256:{root_digest}", "validationStatus": "VALID"},
             configuration=config.as_dict(), runtime_version=RUNTIME_VERSION,
@@ -92,6 +93,20 @@ class Runtime:
             digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
             digest.update(b"\0")
         return digest.hexdigest()[:16]
+
+    @staticmethod
+    def _repository_identity(root: Path) -> str:
+        """Use the Git origin when available; absolute paths are only a local fallback."""
+        try:
+            origin = subprocess.run(
+                ["git", "-C", str(root), "config", "--get", "remote.origin.url"],
+                capture_output=True, text=True, timeout=2, check=False,
+            ).stdout.strip().removesuffix(".git").lower()
+        except (OSError, subprocess.SubprocessError):
+            origin = ""
+        value = origin or str(root)
+        kind = "git" if origin else "local"
+        return f"repository.{kind}.{sha256(value.encode()).hexdigest()[:16]}"
 
     def _run_stage(self, identifier: str, context: RuntimeContext,
                    values: dict[str, Any]) -> StageResult:

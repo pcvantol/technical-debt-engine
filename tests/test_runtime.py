@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import subprocess
 from pathlib import Path
 
 from tde_runtime import Runtime, RuntimeConfiguration
@@ -62,6 +63,13 @@ class RuntimeFoundationTests(unittest.TestCase):
             (Path(first) / "sample.py").write_bytes(b"VALUE = 1\n")
             (Path(second) / "sample.py").write_bytes(b"VALUE = 1\r\n")
             self.assertEqual(Runtime._repository_digest(Path(first)), Runtime._repository_digest(Path(second)))
+
+    def test_repository_identity_uses_git_origin_across_checkouts(self) -> None:
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            for directory in (Path(first), Path(second)):
+                subprocess.run(["git", "init", "--quiet", str(directory)], check=True)
+                subprocess.run(["git", "-C", str(directory), "remote", "add", "origin", "https://github.com/example/tde.git"], check=True)
+            self.assertEqual(Runtime._repository_identity(Path(first)), Runtime._repository_identity(Path(second)))
 
     def test_default_and_invalid_configuration(self) -> None:
         configuration = RuntimeConfiguration.load()
