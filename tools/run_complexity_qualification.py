@@ -68,6 +68,9 @@ def main() -> int:
         python, tde = executable(venv, "python"), executable(venv, "tde")
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "--no-deps", str(wheel)])
         missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}, env={**os.environ, "PATH": str(Path(tde).parent)})
+        # The negative case must not become the persisted record used by the
+        # subsequent Query/report qualification.
+        shutil.rmtree(fixture / ".tde", ignore_errors=True)
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "radon==6.0.1"])
         commands = {
             "version": run([tde, "--format", "json", "--version"]),
