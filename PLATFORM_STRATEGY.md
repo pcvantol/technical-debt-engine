@@ -8,9 +8,17 @@ TDE is an independent capability-based engineering platform for measuring, norma
 
 The product owns the `tde` CLI, configuration contracts, adapters, canonical model, evidence, qualification, reporting, and releases. It does not own consumer runtime internals, prescribe a CI vendor, or become a project-specific dashboard or bespoke integration layer.
 
-## Evolution and releases
+## Generation 2 strategy
 
-Generation 1 establishes contracts and the first runtime capabilities. Evolution favors independent capabilities, stable evidence, explicit policy, and additive compatibility. Releases progress from bootstrap through alpha, beta, and stable according to [RELEASE_STRATEGY.md](RELEASE_STRATEGY.md); stable public releases begin at `1.0.0`.
+Generation 1 is complete and frozen: the Engineering Method, Runtime Architecture, Schema Architecture, Capability Contracts, and Adapter SDK remain canonical foundations. Generation 2 extends them without redesign.
+
+Generation 2 has exactly three engineering programs:
+
+1. **Core Runtime** — independently delivered capabilities and their evidence/qualification contracts.
+2. **Platform Evolution** — additive platform surfaces such as storage, query, execution, distribution, and IDE integration.
+3. **Innovation Lab** — research-only engineering intelligence hypotheses that require promotion before product delivery.
+
+Evolution favors independent capabilities, stable evidence, explicit policy, and additive compatibility. Releases progress according to [RELEASE_STRATEGY.md](RELEASE_STRATEGY.md); no Generation 2 roadmap entry is a release commitment.
 
 ## Governance and long-term vision
 
