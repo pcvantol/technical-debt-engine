@@ -43,3 +43,5 @@ Prompt 18 establishes the Capability Execution Engine as the single execution co
 Prompt 19 adds Runtime Qualification: evidence-only completeness, confidence, limitations and capability support assessment through `tde qualify`, without any consumer release decision.
 
 Prompt 20 completes the first Generation 1 platform qualification. The platform is operational for continued internal engineering but partially qualified: reporting, persisted-query integration, empty-evidence confidence hardening, and broader analyzer qualification remain explicit gaps. No release or package has been created.
+
+Prompt 21 performs the first formal platform certification. It concludes `PLATFORM_NOT_CERTIFIED`: the platform is suitable for controlled internal iteration, but empty-evidence qualification, incomplete persisted-query/reporting paths, bounded analyzer qualification, and legacy execution ownership must be resolved before it becomes a certified canonical foundation.
