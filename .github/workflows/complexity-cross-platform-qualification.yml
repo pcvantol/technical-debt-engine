@@ -64,7 +64,7 @@ jobs:
           pattern: complexity-qualification-*
           path: qualification-artifacts
           merge-multiple: true
-      - run: cp qualification-artifacts/*.json qualification/ && python tools/compare_complexity_qualification.py
+      - run: mkdir -p qualification && cp qualification-artifacts/*.json qualification/ && python tools/compare_complexity_qualification.py
       - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: complexity-cross-platform-summary
