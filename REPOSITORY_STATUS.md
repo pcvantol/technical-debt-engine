@@ -19,7 +19,7 @@
 | Adapter SDK | Established by Prompt 6; no adapters implemented |
 | Runtime foundation | Implemented by Prompt 7; no CLI or capabilities |
 | CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
-| Code Size | Public `tde assess --capability code-size` validated through an installed wheel with host `cloc 2.10` |
+| Code Size | Installed `tde assess --capability code-size` cross-platform qualified on Ubuntu, macOS and Windows for Python 3.11/3.13 with checksum-verified `cloc 2.10`; persistence, Query and report verified |
 | Complexity | Public `tde assess --capability complexity` validated through an installed wheel with host Radon 6.0.1; repository/language/file/symbol evidence, immutable persistence, Query and report are operational on the macOS audit host |
 | Maintainability | Derived implementation exists; no validated public CLI evidence |
 | Dependency Health | Declarative Python/npm implementation exists; no validated public CLI evidence |
@@ -64,6 +64,8 @@ G2-GOV-1 establishes Engineering Method V2 repository governance. Current `main`
 P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI override, analyzer availability/version checks, repository/language/file evidence, retained raw analyzer output/hash, and JSON/Markdown report rendering.
 
 P1-2 completes the remaining persisted-evidence flow for Code Size. An installed CLI assessment automatically persists validated canonical evidence; persisted record identity and integrity are verified before Query or report consumption; Query and Code Size report no longer execute Runtime or consume Runtime memory. The vertical slice is operational on the macOS audit host. Cross-platform analyzer qualification and release evidence remain separate blockers.
+
+P1-4 qualifies the existing Code Size vertical slice on GitHub-hosted Ubuntu, macOS and Windows runners for Python 3.11 and 3.13. Each matrix target installs one candidate wheel into an isolated environment, provisions checksum-verified `cloc 2.10`, executes assessment, persists evidence, reads persisted Query and report output, verifies store integrity and tamper detection, and dogfoods TDE. The six normalized records are analytically equivalent; missing, unsupported and timed-out analyzers fail closed. No release is created.
 
 G2-GOV-2 establishes the first Prompt Freeze Point rule in current `main`, but its required immutable execution report and final status handoff were not included before PR #39 merged. That historical finalization gap is explicitly deferred to `G2-GOV-4`; it is not repaired retrospectively in this increment.
 

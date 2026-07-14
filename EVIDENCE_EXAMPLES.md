@@ -34,3 +34,5 @@ tde --format markdown report --capability complexity <repository>
 ```
 
 Its adapter evidence includes the validated Radon version, native JSON hash, canonical repository/language/file/symbol measurements, and thresholded findings with measurement evidence references.
+
+Code Size cross-platform qualification uses the same installed-wheel persistence path. Its workflow records the isolated Python/TDE/schema/capability/adapter/`cloc` versions, verified evidence-store retrieval, persisted Query/report and a normalized analytical projection for each runner. Raw native output and its hash are retained in the individual evidence record but excluded from cross-platform comparison because they contain runner-specific paths.
