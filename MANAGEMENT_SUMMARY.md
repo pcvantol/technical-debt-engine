@@ -61,3 +61,5 @@ Prompt 27 performs the first local operational release dry run. It creates one n
 Prompt 28 validates a local Internal Release 0.1.0 wheel and isolated installation, but concludes `INTERNAL_RELEASE_BLOCKED`: no internal destination, source archive, executable/evidence bundle, or release certification is available. Nothing was published.
 
 Prompt 29 records an Operational Burn-In over the installed internal wheel. Three local runs each for TDE, empty and multi-language repositories produced deterministic normalized evidence, but cross-platform, long-running and release-certification gaps leave the result `OPERATIONAL_BURN_IN_BLOCKED`.
+
+Prompt 30 establishes the DJConnect reference-consumer contract but is `REFERENCE_CONSUMER_INTEGRATION_BLOCKED`: no released TDE CLI is available to pin and no single DJConnect repository has been selected. No consumer repository was modified.
