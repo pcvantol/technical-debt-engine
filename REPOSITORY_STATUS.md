@@ -2,13 +2,15 @@
 
 | Field | Value |
 | --- | --- |
-| Generation | 1 |
+| Generation | 2 |
 | Status | TDE_PRODUCT_PARTIALLY_OPERATIONAL (audited on current main) |
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | One prompt → one reviewable pull request |
+| Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
+| Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
 | Engineering method | Established by Prompt 2 |
 | Runtime architecture | Established by Prompt 3; not implemented |
 | Canonical schemas | Established by Prompt 4; runtime contracts only |
@@ -53,3 +55,5 @@ Prompt 15 adds a read-only Trend Engine. It aggregates baseline history and curr
 Prompt 32 is the current-state correction. Its evidence-based Operational Reality Audit classifies TDE as `TDE_PRODUCT_PARTIALLY_OPERATIONAL`: local installation, console help/version, direct Runtime Code Size execution, filesystem baseline/store, and unit tests exist; the public CLI capability flow emits empty execution evidence, persisted query is absent, empty evidence is over-qualified, and no release exists. Historical prompt records are retained as history; [OPERATIONAL_REALITY_AUDIT.md](OPERATIONAL_REALITY_AUDIT.md) is canonical for current product truth.
 
 Recovery Prompt P0-1 repairs the audited Code Size public execution path. An installed wheel now executes `tde assess --capability code-size`, emits one planned and executed capability/adapter work item with canonical measurements, and qualifies that evidence. Empty or missing execution, capability, or adapter evidence now blocks Runtime Qualification. Product and release status remain partially operational and unreleased.
+
+G2-GOV-1 establishes Engineering Method V2 repository governance. Current `main` and operational reality are authoritative; `ENGINEERING_STATUS.md` is the primary handoff, and prompt archives are immutable prospective repository memory. No product implementation, Runtime Architecture, schema, capability contract, or Adapter SDK was changed.
