@@ -16,6 +16,7 @@ from tde_runtime.trend import TrendEngine
 from tde_runtime.evidence_store import EvidenceStore
 from tde_runtime.runtime_qualification import RuntimeQualificationEngine
 from tde_runtime.software_assurance import SoftwareAssurance
+from tde_runtime.trusted_delivery import TrustedDelivery
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 
 
@@ -45,6 +46,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "run": {"purpose": "Execute registered capabilities through the Execution Engine."},
     "qualify": {"purpose": "Qualify canonical Runtime evidence."},
     "assure": {"purpose": "Assure repository and artifact integrity."},
+    "trusted-delivery": {"purpose": "Validate immutable candidate and delivery evidence."},
     "report": {"purpose": "Render reports (not implemented)."},
     "explain": {"purpose": "Explain a result (not implemented)."},
 }
@@ -249,6 +251,11 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     if arguments.command == "assure":
         evidence=SoftwareAssurance().assure(arguments.target)
         _render({"command":"assure","assuranceEvidence":evidence},arguments.format,stream)
+        return ExitCode.FAILED if evidence["qualification"] in {"FAIL","BLOCKED"} else ExitCode.WARNING if evidence["qualification"]=="PASS_WITH_WARNINGS" else ExitCode.SUCCESS
+    if arguments.command == "trusted-delivery":
+        result=Runtime().execute(arguments.target,configuration)
+        evidence=TrustedDelivery().validate(arguments.target,result.evidence)
+        _render({"command":"trusted-delivery","trustedDeliveryEvidence":evidence,"softwareAssurance":SoftwareAssurance().assure(arguments.target)},arguments.format,stream)
         return ExitCode.FAILED if evidence["qualification"] in {"FAIL","BLOCKED"} else ExitCode.WARNING if evidence["qualification"]=="PASS_WITH_WARNINGS" else ExitCode.SUCCESS
     if arguments.command in {"validate", "inspect", "assess", "run"}:
         if arguments.command in {"assess", "run"}:

@@ -112,6 +112,10 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "assure", ".")
         self.assertEqual(ExitCode.FAILED, code); self.assertEqual("FAIL", json.loads(output)["assuranceEvidence"]["qualification"])
 
+    def test_trusted_delivery_command_is_operational(self) -> None:
+        code, output = self.invoke("--format", "json", "trusted-delivery", ".")
+        self.assertEqual(ExitCode.FAILED, code); self.assertEqual("FAIL", json.loads(output)["trustedDeliveryEvidence"]["qualification"])
+
 
 if __name__ == "__main__":
     unittest.main()

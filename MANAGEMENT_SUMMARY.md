@@ -49,3 +49,5 @@ Prompt 21 performs the first formal platform certification. It concludes `PLATFO
 Prompt 22 establishes the package-independent Platform Release Engineering architecture: immutable release planning, artifacts, profiles, manifests, and evidence with GitHub Actions as future execution engine. It creates no package, workflow, publication, or release.
 
 Prompt 23 adds evidence-based, fail-closed Software Assurance through `tde assure`. It evaluates repository, configuration, schema, documentation, dependency, workflow and artifact integrity without implementing Trusted Delivery or release publication.
+
+Prompt 24 adds Trusted Delivery through `tde trusted-delivery`: immutable candidate, manifest, workflow, artifact and runtime-evidence validation with Software Assurance as informational evidence. It creates no workflow, artifact, package or release.
