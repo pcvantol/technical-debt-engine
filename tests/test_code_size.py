@@ -4,6 +4,10 @@ import json
 from io import StringIO
 import tempfile
 import unittest
+import os
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 from tde_cli.main import ExitCode, main
@@ -38,6 +42,31 @@ class CodeSizeTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         response = json.loads(stream.getvalue())
         self.assertEqual("RUNTIME_READY", response["runtime"]["status"])
+        self.assertEqual(1, response["execution"]["workItems"])
+        self.assertEqual(["code_size"], response["evidence"]["executionEvidence"]["executedCapabilities"])
+        self.assertTrue(any(item["metricKey"] == "code_size.code_lines" for item in response["evidence"]["measurements"]))
+        self.assertEqual("QUALIFIED", response["runtimeQualification"]["level"])
+
+    @unittest.skipUnless(shutil.which("cloc"), "installed CLI integration requires cloc on PATH")
+    def test_installed_wheel_assess_executes_code_size(self) -> None:
+        repository = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_root = Path(temporary)
+            environment = temporary_root / "venv"
+            wheel_directory = temporary_root / "wheel"
+            child_environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
+            subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True, env=child_environment)
+            pip = environment / "bin" / "pip"
+            tde = environment / "bin" / "tde"
+            subprocess.run([str(pip), "wheel", "--no-deps", "--wheel-dir", str(wheel_directory), str(repository)], check=True, capture_output=True, text=True, env=child_environment)
+            wheel = next(wheel_directory.glob("technical_debt_engine_runtime-*.whl"))
+            subprocess.run([str(pip), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
+            self.assertTrue(tde.is_file(), "wheel installation did not create the tde console script")
+            completed = subprocess.run([str(tde), "--format", "json", "assess", "--capability", "code-size", str(self.root)], check=False, capture_output=True, text=True, env=child_environment)
+            self.assertEqual(ExitCode.SUCCESS, completed.returncode, completed.stderr)
+            response = json.loads(completed.stdout)
+            self.assertEqual(1, response["execution"]["workItems"])
+            self.assertEqual(["code_size"], response["evidence"]["executionEvidence"]["executedCapabilities"])
 
     def test_assess_without_code_size_is_not_supported(self) -> None:
         self.assertEqual(ExitCode.NOT_SUPPORTED, main(["assess", str(self.root)], StringIO()))

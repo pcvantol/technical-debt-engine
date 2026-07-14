@@ -5,7 +5,7 @@
 | Generation | 1 |
 | Status | TDE_PRODUCT_PARTIALLY_OPERATIONAL (audited on current main) |
 | Canonical CLI | `tde` |
-| Runtime | Executable local foundation; audit found no trustworthy public capability CLI flow |
+| Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | One prompt → one reviewable pull request |
@@ -16,7 +16,7 @@
 | Adapter SDK | Established by Prompt 6; no adapters implemented |
 | Runtime foundation | Implemented by Prompt 7; no CLI or capabilities |
 | CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
-| Code Size | Direct Runtime API slice validated with host `cloc 2.10`; public CLI execution blocked |
+| Code Size | Public `tde assess --capability code-size` validated through an installed wheel with host `cloc 2.10` |
 | Complexity | Direct adapter implementation only; isolated package lacks Radon and public CLI execution blocked |
 | Maintainability | Derived implementation exists; no validated public CLI evidence |
 | Dependency Health | Declarative Python/npm implementation exists; no validated public CLI evidence |
@@ -25,8 +25,8 @@
 | Trend Engine | Operational normalized baseline-history aggregation and CLI reporting |
 | Query Engine | In-memory projection only; persisted Evidence Store consumption is blocked |
 | Evidence Store | Operational immutable filesystem persistence and history listing |
-| Execution Engine | Operational dependency-ordered capability execution and evidence |
-| Runtime Qualification | Implemented but not trustworthy: empty capability evidence is marked qualified |
+| Execution Engine | Registry-backed planning and truthful planned/executed adapter and capability evidence for the recovered Code Size flow |
+| Runtime Qualification | Fail-closed for missing execution, capability and adapter evidence; empty execution is blocked |
 | Platform Qualification | Partially qualified for continued internal engineering; no release created |
 | Platform Certification | Not certified; explicit foundation gaps remain and no release exists |
 | Platform Release Engineering | Release Runtime architecture established; no package or release created |
@@ -51,3 +51,5 @@ Prompt 14 adds immutable baseline persistence and canonical-evidence comparison.
 Prompt 15 adds a read-only Trend Engine. It aggregates baseline history and current evidence into repository, capability, metric, finding, and qualification trends, then exposes that evidence to Policy without making a policy decision.
 
 Prompt 32 is the current-state correction. Its evidence-based Operational Reality Audit classifies TDE as `TDE_PRODUCT_PARTIALLY_OPERATIONAL`: local installation, console help/version, direct Runtime Code Size execution, filesystem baseline/store, and unit tests exist; the public CLI capability flow emits empty execution evidence, persisted query is absent, empty evidence is over-qualified, and no release exists. Historical prompt records are retained as history; [OPERATIONAL_REALITY_AUDIT.md](OPERATIONAL_REALITY_AUDIT.md) is canonical for current product truth.
+
+Recovery Prompt P0-1 repairs the audited Code Size public execution path. An installed wheel now executes `tde assess --capability code-size`, emits one planned and executed capability/adapter work item with canonical measurements, and qualifies that evidence. Empty or missing execution, capability, or adapter evidence now blocks Runtime Qualification. Product and release status remain partially operational and unreleased.
