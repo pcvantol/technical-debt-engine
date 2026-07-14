@@ -10,7 +10,8 @@ from typing import Any, Callable
 
 from .configuration import RuntimeConfiguration
 from .models import RuntimeContext, RuntimeQualification, RuntimeResult, StageResult, StageStatus, utc_now
-from .registries import AdapterRegistry, CapabilityRegistry
+from .registries import AdapterRegistry, CapabilityRegistry, PolicyRegistry
+from .policy import PolicyEngine, PolicyError
 from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
 from .complexity import analyze as analyze_complexity
 from .maintainability import derive as derive_maintainability
@@ -27,13 +28,15 @@ class Runtime:
         "repository-discovery", "repository-inspection", "language-detection",
         "capability-planning", "adapter-planning", "execution-planning",
         "execution-context", "pipeline-execution", "normalization", "validation",
-        "qualification", "evidence", "reporting",
+        "policy-evaluation", "qualification", "evidence", "reporting",
     )
 
     def __init__(self, capability_registry: CapabilityRegistry | None = None,
-                 adapter_registry: AdapterRegistry | None = None) -> None:
+                 adapter_registry: AdapterRegistry | None = None,
+                 policy_engine: PolicyEngine | None = None) -> None:
         self._capability_registry = capability_registry or CapabilityRegistry()
         self._adapter_registry = adapter_registry or AdapterRegistry()
+        self._policy_engine = policy_engine or PolicyEngine()
 
     def execute(self, repository_root: str | Path,
                 configuration: RuntimeConfiguration | dict[str, Any] | None = None) -> RuntimeResult:
@@ -52,7 +55,7 @@ class Runtime:
             validation = values["validation"]
             evidence = values["evidence"]
             report = values["reporting"]
-            qualification = RuntimeQualification.READY if validation["status"] == "VALID" else RuntimeQualification.FAILED
+            qualification = RuntimeQualification.READY if values["qualification"]["status"] != "BLOCKED" else RuntimeQualification.FAILED
             return RuntimeResult(context, tuple(stages), evidence, validation, qualification, report)
 
     def _context(self, root: Path, config: RuntimeConfiguration, temporary: Path) -> RuntimeContext:
@@ -81,13 +84,29 @@ class Runtime:
             "pipeline-execution": lambda: self._execute_capabilities(context),
             "normalization": lambda: values.get("pipeline-execution", {"measurements": [], "findings": []}),
             "validation": lambda: self._validation(context),
-            "qualification": lambda: {"runtimeDecision": RuntimeQualification.READY.value},
-            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context)), values.get("normalization", {})),
+            "policy-evaluation": lambda: self._policy(context, values.get("normalization", {})),
+            "qualification": lambda: self._qualification(values.get("policy-evaluation", {})),
+            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context)), values.get("normalization", {}), values.get("policy-evaluation", {})),
             "reporting": lambda: self._report(context, values),
         }
         outputs = handlers[identifier]()
         return StageResult(identifier, {"executionId": context.execution_id}, outputs,
                            StageStatus.SUCCESS, "completed", started, utc_now())
+
+    def _policy(self, context: RuntimeContext, normalized: dict[str, Any]) -> dict[str, Any]:
+        try:
+            policy = self._policy_engine.load(context.configuration, context.repository_root,
+                                              context.runtime_version, context.schema_version)
+            return self._policy_engine.evaluate(policy, normalized, context.configuration)
+        except PolicyError as error:
+            return {"policy": None, "decision": "BLOCKED", "triggeredRules": [{"ruleId": "policy.validation", "outcome": "BLOCKING", "reason": str(error)}], "qualificationInputs": {}}
+
+    @staticmethod
+    def _qualification(policy_evidence: dict[str, Any]) -> dict[str, Any]:
+        """Qualification is deliberately a projection of Policy Engine output only."""
+        decision = policy_evidence.get("decision", "BLOCKED")
+        return {"status": decision, "policyDecision": decision, "policy": policy_evidence.get("policy"),
+                "triggeredRules": policy_evidence.get("triggeredRules", [])}
 
     def _execute_capabilities(self, context: RuntimeContext) -> dict[str, Any]:
         requested = context.configuration.get("executionOptions", {}).get("capabilities", {})
@@ -122,7 +141,7 @@ class Runtime:
                 "completeness": "COMPLETE", "integrity": "VALID", "warnings": [], "errors": []}
 
     @staticmethod
-    def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any]) -> dict[str, Any]:
+    def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any]) -> dict[str, Any]:
         generated_at = utc_now()
         seed = f"{context.repository_id}:{context.candidate['id']}:{context.execution_id}"
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,
@@ -131,7 +150,7 @@ class Runtime:
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "validation": validation,
+                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "validation": validation, "policyEvidence": policy_evidence,
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 
@@ -139,4 +158,6 @@ class Runtime:
     def _report(context: RuntimeContext, values: dict[str, Any]) -> dict[str, Any]:
         return {"runtimeSummary": {"status": "RUNTIME_READY", "runtimeVersion": context.runtime_version},
                 "executionSummary": {"executionId": context.execution_id, "workItems": 0},
-                "environment": {"schemaVersion": context.schema_version, "capabilities": 0, "adapters": 0}}
+                "qualification": values.get("qualification", {}),
+                "environment": {"schemaVersion": context.schema_version, "capabilities": 0, "adapters": 0,
+                                "policies": len(PolicyRegistry().discover())}}

@@ -16,7 +16,7 @@ class RuntimeConfiguration:
     @classmethod
     def load(cls, values: Mapping[str, Any] | None = None) -> "RuntimeConfiguration":
         values = {} if values is None else dict(values)
-        allowed = {"schemaVersion", "executionOptions", "capabilities"}
+        allowed = {"schemaVersion", "executionOptions", "capabilities", "policy"}
         unknown = set(values) - allowed
         if unknown:
             raise ValueError(f"unsupported runtime configuration: {sorted(unknown)}")
@@ -29,7 +29,10 @@ class RuntimeConfiguration:
         capabilities = values.get("capabilities", {})
         if not isinstance(capabilities, dict):
             raise ValueError("capabilities must be an object")
-        return cls(schema_version=schema_version, execution_options={**options, "capabilities": capabilities})
+        policy = values.get("policy", {})
+        if not isinstance(policy, dict):
+            raise ValueError("policy must be an object")
+        return cls(schema_version=schema_version, execution_options={**options, "capabilities": capabilities, "policy": policy})
 
     def as_dict(self) -> dict[str, Any]:
         return {"schemaVersion": self.schema_version, "executionOptions": self.execution_options or {}}

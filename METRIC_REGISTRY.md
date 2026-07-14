@@ -9,3 +9,5 @@ Code Size `0.1.0` registers `code_size.file_count` (files), `physical_lines`, `c
 Complexity `0.1.0` registers `complexity.cyclomatic.average`, `.median`, and `.maximum` (score, repository scope, mean/median/maximum). See [COMPLEXITY_METRICS.md](COMPLEXITY_METRICS.md).
 
 Maintainability `0.1.0` registers `maintainability.index` (0–100 index, repository scope, mean). See [MAINTAINABILITY_MODEL.md](MAINTAINABILITY_MODEL.md).
+
+Dependency Health `0.1.0` registers `dependency.count` (dependencies, repository scope, sum). Policy rules may qualify canonical metric values without changing their measurement definition.

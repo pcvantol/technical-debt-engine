@@ -23,9 +23,26 @@ class RuntimeFoundationTests(unittest.TestCase):
 
     def test_pipeline_executes_all_generic_stages(self) -> None:
         result = Runtime().execute(self.root)
-        self.assertEqual(13, len(result.stages))
+        self.assertEqual(14, len(result.stages))
         self.assertTrue(all(stage.status.value == "SUCCESS" for stage in result.stages))
         self.assertEqual("execution-planning", result.stages[5].identifier)
+
+    def test_qualification_consumes_policy_evidence(self) -> None:
+        result = Runtime().execute(self.root)
+        policy_stage = next(stage for stage in result.stages if stage.identifier == "policy-evaluation")
+        qualification_stage = next(stage for stage in result.stages if stage.identifier == "qualification")
+        self.assertEqual(policy_stage.outputs["decision"], qualification_stage.outputs["policyDecision"])
+        self.assertEqual(policy_stage.outputs, result.evidence["policyEvidence"])
+
+    def test_policy_override_can_block_a_measurement(self) -> None:
+        (self.root / "requirements.txt").write_text("example==1.0\n", encoding="utf-8")
+        configuration = RuntimeConfiguration.load({
+            "capabilities": {"dependency_health": {"enabled": True}},
+            "policy": {"overrides": {"dependency.count": {"warning": 0, "blocking": 0}}},
+        })
+        result = Runtime().execute(self.root, configuration)
+        qualification = next(stage for stage in result.stages if stage.identifier == "qualification")
+        self.assertEqual("BLOCKED", qualification.outputs["status"])
 
     def test_context_contains_canonical_runtime_values(self) -> None:
         result = Runtime().execute(self.root)
