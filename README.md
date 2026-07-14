@@ -13,6 +13,8 @@ Consumers integrate only through the future `tde` CLI, configuration, evidence s
 ## Documentation
 
 - [Product architecture](PRODUCT_ARCHITECTURE.md)
+- [Platform vision](PLATFORM_VISION.md) and [platform strategy](PLATFORM_STRATEGY.md)
+- [Engineering method](ENGINEERING_METHOD.md) and [session bootstrap](BOOTSTRAP.md)
 - [Capability model](CAPABILITY_MODEL.md)
 - [CLI specification](CLI_SPECIFICATION.md)
 - [Evidence schema](EVIDENCE_SCHEMA.md)
