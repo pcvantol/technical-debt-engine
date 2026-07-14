@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | RELEASE_BLOCKED |
+| Status | RELEASE_NOT_CERTIFIED |
 | Canonical CLI | `tde` |
 | Runtime | Foundation implemented; Policy Engine is the qualification decision layer |
 | Analyzers | Not implemented |
@@ -33,6 +33,7 @@
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
 | Trusted Delivery | Operational immutable-candidate validation with explicit workflow and artifact limitations |
 | Release Qualification | Candidate manifest established; publication blocked by objective gaps |
+| Release Certification | Release process not certified; no publication exists |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
