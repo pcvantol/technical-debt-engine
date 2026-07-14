@@ -107,12 +107,20 @@ def _render(value: dict[str, Any], output_format: str, stream: TextIO) -> None:
         print(f"{key}: {item}", file=stream)
 
 
-def _runtime_result(command: str, target: str, configuration: RuntimeConfiguration) -> tuple[int, dict[str, Any]]:
+def _store_location(arguments: argparse.Namespace, target: str) -> Path:
+    location = Path(arguments.store_location or ".tde/evidence")
+    return location if location.is_absolute() else Path(target) / location
+
+
+def _runtime_result(command: str, target: str, configuration: RuntimeConfiguration,
+                    store: EvidenceStore | None = None) -> tuple[int, dict[str, Any]]:
     result = Runtime().execute(target, configuration)
     payload = {"command": command, "runtime": result.report["runtimeSummary"],
                "execution": result.report["executionSummary"], "environment": result.report["environment"], "qualification": result.report["qualification"],
                "runtimeQualification": result.evidence["runtimeQualification"], "validation": result.validation,
                "evidence": result.evidence, "evidenceId": result.evidence["integrity"]["contentDigest"]}
+    if store is not None:
+        payload["evidenceStore"] = store.persist(result.evidence)
     blocked = result.report["qualification"]["status"] == "BLOCKED" or (
         command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED"
     )
@@ -192,9 +200,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             return ExitCode.NOT_SUPPORTED
         configuration = configuration.with_capability("code_size")
     if arguments.command in {"store", "history"}:
-        location = Path(arguments.store_location or ".tde/evidence")
-        location = Path(arguments.target) / location if not location.is_absolute() else location
-        store = EvidenceStore(location)
+        store = EvidenceStore(_store_location(arguments, arguments.target))
         try:
             if arguments.command == "history":
                 _render({"command": "history", "records": store.history()}, arguments.format, stream)
@@ -245,16 +251,13 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     if arguments.command == "query":
         try:
             filters = dict(item.split("=", 1) for item in arguments.filter)
-            if arguments.store_location:
-                store = EvidenceStore(Path(arguments.store_location))
-                records = store.history()
-                if not records:
-                    raise ValueError("no persisted evidence is available")
-                evidence = records[-1]["evidence"]
-            else:
-                evidence = Runtime().execute(arguments.target, configuration).evidence
+            store = EvidenceStore(_store_location(arguments, arguments.target))
+            records = store.history()
+            if not records:
+                raise ValueError("no persisted evidence is available; run assess first")
+            evidence = records[-1]["evidence"]
             response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate})
-            _render({"command": "query", **response}, arguments.format, stream)
+            _render({"command": "query", "evidenceId": evidence["integrity"]["contentDigest"], **response}, arguments.format, stream)
             return ExitCode.SUCCESS
         except (ValueError, PolicyError) as error:
             _render({"command": "query", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
@@ -272,11 +275,18 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         if arguments.capability != ["code-size"]:
             _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size"}, arguments.format, stream)
             return ExitCode.NOT_SUPPORTED
-        result = Runtime().execute(arguments.target, configuration)
-        if result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
+        try:
+            records = EvidenceStore(_store_location(arguments, arguments.target)).history()
+            if not records:
+                raise ValueError("no persisted Code Size evidence is available; run assess first")
+            evidence = records[-1]["evidence"]
+        except ValueError as error:
+            _render({"command": "report", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
+        if evidence["runtimeQualification"]["level"] != "QUALIFIED":
             _render({"command": "report", "status": "BLOCKED", "reason": "Code Size evidence is not qualified"}, arguments.format, stream)
             return ExitCode.BLOCKED
-        _render_code_size_report(result.evidence, arguments.format, stream)
+        _render_code_size_report(evidence, arguments.format, stream)
         return ExitCode.SUCCESS
     if arguments.command == "assure":
         evidence=SoftwareAssurance().assure(arguments.target)
@@ -293,8 +303,9 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
                 _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only code-size and complexity are delivered."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
         try:
-            code, payload = _runtime_result(arguments.command, arguments.target, configuration)
-        except ValueError as error:
+            store = EvidenceStore(_store_location(arguments, arguments.target)) if arguments.command in {"assess", "run"} else None
+            code, payload = _runtime_result(arguments.command, arguments.target, configuration, store)
+        except (ValueError, OSError, json.JSONDecodeError) as error:
             _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
         _render(payload, arguments.format, stream)

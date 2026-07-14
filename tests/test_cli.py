@@ -90,9 +90,21 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual("rolling", json.loads(output)["trendEvidence"]["window"])
 
     def test_query_command_is_operational(self) -> None:
+        (self.root / "sample.py").write_text("value = 1\n", encoding="utf-8")
+        self.assertEqual(ExitCode.SUCCESS, self.invoke("--format", "json", "assess", str(self.root), "--capability", "code-size")[0])
         code, output = self.invoke("--format", "json", "query", str(self.root), "--resource", "repositories")
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual(1, json.loads(output)["queryEvidence"]["resultCount"])
+
+    def test_query_requires_persisted_evidence(self) -> None:
+        code, output = self.invoke("--format", "json", "query", str(self.root), "--resource", "repositories")
+        self.assertEqual(ExitCode.BLOCKED, code)
+        self.assertIn("run assess first", json.loads(output)["reason"])
+
+    def test_report_requires_persisted_evidence(self) -> None:
+        code, output = self.invoke("--format", "json", "report", str(self.root), "--capability", "code-size")
+        self.assertEqual(ExitCode.BLOCKED, code)
+        self.assertIn("run assess first", json.loads(output)["reason"])
 
     def test_store_and_history_commands_are_operational(self) -> None:
         code, _ = self.invoke("--format", "json", "store", str(self.root))
@@ -110,11 +122,13 @@ class CliFoundationTests(unittest.TestCase):
         (self.root / ".tde.yml").write_text("schemaVersion: '1.0.0'\ncapabilities:\n  code_size:\n    enabled: true\n", encoding="utf-8")
         code, output = self.invoke("--format", "json", "assess", str(self.root), "--capability", "code-size")
         self.assertEqual(ExitCode.SUCCESS, code)
-        self.assertTrue(json.loads(output)["evidence"]["measurements"])
+        assessment = json.loads(output)
+        self.assertTrue(assessment["evidence"]["measurements"])
+        self.assertFalse(assessment["evidenceStore"]["existing"])
         code, output = self.invoke("--format", "markdown", "report", str(self.root), "--capability", "code-size")
         self.assertEqual(ExitCode.SUCCESS, code); self.assertIn("# Code Size Report", output)
         location = self.root / "evidence"
-        code, _ = self.invoke("--format", "json", "--store-location", str(location), "store", str(self.root), "--capability", "code-size")
+        code, _ = self.invoke("--format", "json", "--store-location", str(location), "assess", str(self.root), "--capability", "code-size")
         self.assertEqual(ExitCode.SUCCESS, code)
         code, output = self.invoke("--format", "json", "--store-location", str(location), "query", str(self.root), "--resource", "metrics")
         self.assertEqual(ExitCode.SUCCESS, code); self.assertGreater(json.loads(output)["queryEvidence"]["resultCount"], 0)
