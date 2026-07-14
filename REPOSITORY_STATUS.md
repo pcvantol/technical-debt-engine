@@ -44,6 +44,7 @@
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |
 | Deployment Strategy | Canonical target, distribution, consumer and lifecycle model defined; no deployment implementation or release created |
 | Persistence Architecture | Canonical JSON-authoritative, local-first storage/index/consumer model defined; no SQLite, cloud, migration or retention implementation created |
+| Dashboard Architecture | Canonical Query-only, read-only presentation model defined; no dashboard implementation created |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
