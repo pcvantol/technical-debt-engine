@@ -1,4 +1,6 @@
-# Prompt index
+# Prompt Index
+
+This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md); immutable archives are in [docs/history/prompts](docs/history/prompts). Prompt archives apply prospectively from `G2-GOV-1`; earlier rows remain preserved historical navigation until separately archived.
 
 | Prompt | Scope | Status |
 | --- | --- | --- |
@@ -37,9 +39,12 @@
 | 31 | Generation 2 Strategy Refresh | Complete |
 | 32 | Operational Reality Audit | Complete |
 | P0-1 | Public CLI Execution and Truthful Runtime Qualification | Complete |
+| [G2-GOV-1](docs/history/prompts/G2-GOV-1-engineering-method-evolution.md) | Engineering Method Evolution: Repository Governance Alignment | [Reviewable — #37](https://github.com/pcvantol/technical-debt-engine/pull/37) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/engineering-method-v2) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/afae54f5f05be85148179cfb3a551c0e18f35c71) |
 
-Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Generation 1 is complete; Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
+Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
 Prompt 32 is an evidence-only audit, not a Generation 2 implementation increment. It establishes `TDE_PRODUCT_PARTIALLY_OPERATIONAL` as the current product state and records the implementation recovery sequence in [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).
 
 Recovery Prompt P0-1 implements only the first P0 recovery slice: installed CLI Code Size execution through the canonical Runtime and fail-closed Runtime Qualification. It does not create a release or advance other recovery milestones.
+
+`G2-GOV-1` establishes repository-native engineering continuity and the prospective immutable archive requirement. It is governance-only and does not alter Runtime, Schema, Capability, or Adapter SDK architecture.
