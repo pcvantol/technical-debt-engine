@@ -34,5 +34,6 @@
 | 28 | Internal Release 0.1.0 | Complete |
 | 29 | Operational Burn-In | Complete |
 | 30 | DJConnect Reference Consumer Integration | Blocked |
+| 31 | Generation 2 Strategy Refresh | Complete |
 
-Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
+Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Generation 1 is complete; Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
