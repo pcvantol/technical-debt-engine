@@ -21,8 +21,18 @@ def normalize(value: object) -> object:
 
 def main() -> int:
     records = [json.loads(path.read_text(encoding="utf-8")) for path in sorted((ROOT / "qualification").glob("complexity-*.json"))]
-    operating_systems = {record["operatingSystem"].split("-")[0].lower() for record in records}
-    if len(records) < 6 or not {"linux", "darwin", "windows"}.issubset(operating_systems):
+    def operating_system(record: dict[str, object]) -> str:
+        value = str(record["operatingSystem"]).lower()
+        if value.startswith("macos") or value.startswith("darwin"):
+            return "macos"
+        if value.startswith("windows"):
+            return "windows"
+        if value.startswith("linux"):
+            return "linux"
+        return value.split("-")[0]
+
+    operating_systems = {operating_system(record) for record in records}
+    if len(records) < 6 or not {"linux", "macos", "windows"}.issubset(operating_systems):
         raise SystemExit("qualification matrix is incomplete")
     baseline = normalize(records[0]["analyticalProjection"])
     differences = [record["operatingSystem"] for record in records if normalize(record["analyticalProjection"]) != baseline]
