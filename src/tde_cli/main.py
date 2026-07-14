@@ -127,13 +127,14 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
     return (ExitCode.BLOCKED if blocked else ExitCode.SUCCESS), payload
 
 
-def _render_code_size_report(evidence: dict[str, Any], output_format: str, stream: TextIO) -> None:
-    metrics = {item["metricKey"]: item["value"] for item in evidence.get("measurements", []) if item.get("scope") == "repository"}
+def _render_capability_report(evidence: dict[str, Any], capability: str, output_format: str, stream: TextIO) -> None:
+    metrics = {item["metricKey"]: item["value"] for item in evidence.get("measurements", []) if item.get("scope") == "repository" and item.get("capabilityId") == capability}
+    title = "Code Size" if capability == "code_size" else "Complexity"
     payload = {"schemaId": "tde.report", "schemaVersion": evidence["schemaVersion"], "evidenceId": evidence["integrity"]["contentDigest"],
-               "format": output_format, "content": {"capability": "code_size", "metrics": metrics,
+               "format": output_format, "content": {"capability": capability, "metrics": metrics,
                "qualification": evidence["runtimeQualification"]["level"]}}
     if output_format == "markdown":
-        print("# Code Size Report", file=stream)
+        print(f"# {title} Report", file=stream)
         print("", file=stream)
         for key, value in sorted(metrics.items()):
             print(f"- **{key}:** {value}", file=stream)
@@ -195,10 +196,11 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         values["executionOptions"].pop("trend", None)
         configuration = RuntimeConfiguration.load(values)
     if arguments.command in {"assess", "baseline", "compare", "run", "store", "inspect", "validate", "qualify", "report"} and arguments.capability:
-        if arguments.capability != ["code-size"]:
-            _render({"command": arguments.command, "status": "NOT_SUPPORTED", "reason": "This Code Size vertical slice supports only code-size."}, arguments.format, stream)
+        supported = {"code-size": "code_size", "complexity": "complexity"}
+        if len(arguments.capability) != 1 or arguments.capability[0] not in supported:
+            _render({"command": arguments.command, "status": "NOT_SUPPORTED", "reason": "This vertical slice supports code-size and complexity."}, arguments.format, stream)
             return ExitCode.NOT_SUPPORTED
-        configuration = configuration.with_capability("code_size")
+        configuration = configuration.with_capability(supported[arguments.capability[0]])
     if arguments.command in {"store", "history"}:
         store = EvidenceStore(_store_location(arguments, arguments.target))
         try:
@@ -272,21 +274,23 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         except ValueError as error:
             _render({"command":"qualify","status":"BLOCKED","reason":str(error)},arguments.format,stream); return ExitCode.BLOCKED
     if arguments.command == "report":
-        if arguments.capability != ["code-size"]:
-            _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size"}, arguments.format, stream)
+        supported = {"code-size": "code_size", "complexity": "complexity"}
+        if len(arguments.capability) != 1 or arguments.capability[0] not in supported:
+            _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size or --capability complexity"}, arguments.format, stream)
             return ExitCode.NOT_SUPPORTED
         try:
             records = EvidenceStore(_store_location(arguments, arguments.target)).history()
-            if not records:
-                raise ValueError("no persisted Code Size evidence is available; run assess first")
-            evidence = records[-1]["evidence"]
+            capability = supported[arguments.capability[0]]
+            evidence = next((record["evidence"] for record in reversed(records) if any(item.get("capabilityId") == capability for item in record["evidence"].get("capabilityResults", []))), None)
+            if evidence is None:
+                raise ValueError("no persisted evidence is available for this capability; run assess first")
         except ValueError as error:
             _render({"command": "report", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
         if evidence["runtimeQualification"]["level"] != "QUALIFIED":
-            _render({"command": "report", "status": "BLOCKED", "reason": "Code Size evidence is not qualified"}, arguments.format, stream)
+            _render({"command": "report", "status": "BLOCKED", "reason": "capability evidence is not qualified"}, arguments.format, stream)
             return ExitCode.BLOCKED
-        _render_code_size_report(evidence, arguments.format, stream)
+        _render_capability_report(evidence, supported[arguments.capability[0]], arguments.format, stream)
         return ExitCode.SUCCESS
     if arguments.command == "assure":
         evidence=SoftwareAssurance().assure(arguments.target)

@@ -96,7 +96,10 @@ class RuntimeConfiguration:
     def with_capability(self, identifier: str, enabled: bool = True) -> "RuntimeConfiguration":
         values = self.as_dict()
         capabilities = dict(values["executionOptions"].get("capabilities", {}))
-        capabilities[identifier] = {"enabled": enabled}
+        existing = capabilities.get(identifier, {})
+        if not isinstance(existing, dict):
+            raise ValueError(f"capability configuration for {identifier} must be an object")
+        capabilities[identifier] = {**existing, "enabled": enabled}
         values["capabilities"] = capabilities
         values["executionOptions"].pop("capabilities", None)
         return self.load(values)

@@ -24,3 +24,13 @@ tde --format markdown report --capability code-size <repository>
 ```
 
 Both commands consume the persisted evidence record. If no record exists, they return a blocked result and instruct the caller to run `assess` first.
+
+Complexity uses the same persisted-evidence flow:
+
+```sh
+tde --format json assess --capability complexity <repository>
+tde --format json query <repository> --resource findings
+tde --format markdown report --capability complexity <repository>
+```
+
+Its adapter evidence includes the validated Radon version, native JSON hash, canonical repository/language/file/symbol measurements, and thresholded findings with measurement evidence references.
