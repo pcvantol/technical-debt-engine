@@ -34,14 +34,15 @@ jobs:
         run: python -m unittest tests.test_build_reproducibility -v
       - name: Build two independent candidates
         run: |
-          python tools/package_build.py --output artifacts/first
-          python tools/package_build.py --output artifacts/second
-          diff -u artifacts/first/SHA256SUMS artifacts/second/SHA256SUMS
-          cmp artifacts/first/*.whl artifacts/second/*.whl
-          cmp artifacts/first/*.tar.gz artifacts/second/*.tar.gz
+          ARTIFACTS="$RUNNER_TEMP/tde-package"
+          python tools/package_build.py --output "$ARTIFACTS/first"
+          python tools/package_build.py --output "$ARTIFACTS/second"
+          diff -u "$ARTIFACTS/first/SHA256SUMS" "$ARTIFACTS/second/SHA256SUMS"
+          cmp "$ARTIFACTS/first"/*.whl "$ARTIFACTS/second"/*.whl
+          cmp "$ARTIFACTS/first"/*.tar.gz "$ARTIFACTS/second"/*.tar.gz
       - name: Qualify installed wheel and source distribution
-        run: python tools/verify_installed_package.py --wheel artifacts/first/*.whl --sdist artifacts/first/*.tar.gz
+        run: python tools/verify_installed_package.py --wheel "$RUNNER_TEMP"/tde-package/first/*.whl --sdist "$RUNNER_TEMP"/tde-package/first/*.tar.gz
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: package-build-evidence
-          path: artifacts/first/
+          path: ${{ runner.temp }}/tde-package/first/
