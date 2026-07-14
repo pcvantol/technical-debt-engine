@@ -12,6 +12,7 @@ from typing import Any, Sequence, TextIO
 from tde_runtime import Runtime, RuntimeConfiguration
 from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine
 from tde_runtime.policy import PolicyEngine, PolicyError
+from tde_runtime.trend import TrendEngine
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 
 
@@ -34,6 +35,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "assess": {"purpose": "Assess technical debt (not implemented)."},
     "baseline": {"purpose": "Create a baseline (not implemented)."},
     "compare": {"purpose": "Compare evidence (not implemented)."},
+    "trend": {"purpose": "Aggregate canonical evidence history into trends."},
     "qualify": {"purpose": "Qualify evidence (not implemented)."},
     "report": {"purpose": "Render reports (not implemented)."},
     "explain": {"purpose": "Explain a result (not implemented)."},
@@ -50,6 +52,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--policy", help="Repository or workspace policy directory.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
+    parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -143,6 +146,14 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         values["baseline"] = {"location": arguments.baseline_location}
         values["executionOptions"].pop("baseline", None)
         configuration = RuntimeConfiguration.load(values)
+    if arguments.history_depth is not None:
+        if arguments.history_depth < 0:
+            _render({"status": "BLOCKED", "reason": "history depth must not be negative"}, arguments.format, stream)
+            return ExitCode.BLOCKED
+        values = configuration.as_dict()
+        values["trend"] = {"historyDepth": arguments.history_depth}
+        values["executionOptions"].pop("trend", None)
+        configuration = RuntimeConfiguration.load(values)
     if arguments.command in {"assess", "baseline", "compare"} and arguments.capability:
         if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
             _render({"command": arguments.command, "status": "NOT_IMPLEMENTED", "reason": "Only validated Generation 1 capabilities are available."}, arguments.format, stream)
@@ -175,6 +186,19 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             return status
         except (BaselineError, PolicyError, ValueError) as error:
             _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
+    if arguments.command == "trend":
+        location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+        location = Path(arguments.target) / location if not Path(location).is_absolute() else Path(location)
+        try:
+            current = Runtime().execute(arguments.target, configuration)
+            trend = TrendEngine().build(current.evidence, location, configuration.execution_options.get("trend", {}).get("historyDepth"))
+            policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
+            policy_evidence = PolicyEngine().evaluate(policy, {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"], "capabilityResults": current.evidence["capabilityResults"], "trend": trend}, current.context.configuration)
+            _render({"command": "trend", "trendEvidence": trend, "policyEvidence": policy_evidence}, arguments.format, stream)
+            return ExitCode.SUCCESS
+        except (ValueError, PolicyError) as error:
+            _render({"command": "trend", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess"}:
         if arguments.command == "assess":

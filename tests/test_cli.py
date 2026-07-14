@@ -83,6 +83,12 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual("VALID", json.loads(output)["comparison"]["status"])
 
+    def test_trend_command_is_operational(self) -> None:
+        self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial")
+        code, output = self.invoke("--format", "json", "trend", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("rolling", json.loads(output)["trendEvidence"]["window"])
+
 
 if __name__ == "__main__":
     unittest.main()
