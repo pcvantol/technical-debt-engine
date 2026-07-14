@@ -35,5 +35,8 @@
 | 29 | Operational Burn-In | Complete |
 | 30 | DJConnect Reference Consumer Integration | Blocked |
 | 31 | Generation 2 Strategy Refresh | Complete |
+| 32 | Operational Reality Audit | Complete |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Generation 1 is complete; Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.
+
+Prompt 32 is an evidence-only audit, not a Generation 2 implementation increment. It establishes `TDE_PRODUCT_PARTIALLY_OPERATIONAL` as the current product state and records the implementation recovery sequence in [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).

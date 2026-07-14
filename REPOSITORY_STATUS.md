@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | GENERATION_2_STRATEGY_ESTABLISHED |
+| Status | TDE_PRODUCT_PARTIALLY_OPERATIONAL (audited on current main) |
 | Canonical CLI | `tde` |
-| Runtime | Foundation implemented; Policy Engine is the qualification decision layer |
+| Runtime | Executable local foundation; audit found no trustworthy public capability CLI flow |
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | One prompt → one reviewable pull request |
@@ -16,17 +16,17 @@
 | Adapter SDK | Established by Prompt 6; no adapters implemented |
 | Runtime foundation | Implemented by Prompt 7; no CLI or capabilities |
 | CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
-| Code Size | Validated by Prompt 9 with cloc 2.10; cross-platform qualification pending |
-| Complexity | Validated by Prompt 10 with Radon 6.0.1 for Python; multi-language pending |
-| Maintainability | Validated derived capability from Code Size and Complexity evidence |
-| Dependency Health | Validated declarative dependency discovery |
+| Code Size | Direct Runtime API slice validated with host `cloc 2.10`; public CLI execution blocked |
+| Complexity | Direct adapter implementation only; isolated package lacks Radon and public CLI execution blocked |
+| Maintainability | Derived implementation exists; no validated public CLI evidence |
+| Dependency Health | Declarative Python/npm implementation exists; no validated public CLI evidence |
 | Policy Engine | Operational with versioned, dynamically discovered policy files and evidence |
 | Baseline & Comparison | Operational immutable baseline persistence and canonical-evidence comparison |
 | Trend Engine | Operational normalized baseline-history aggregation and CLI reporting |
-| Query Engine | Operational versioned, read-only canonical-evidence query layer |
+| Query Engine | In-memory projection only; persisted Evidence Store consumption is blocked |
 | Evidence Store | Operational immutable filesystem persistence and history listing |
 | Execution Engine | Operational dependency-ordered capability execution and evidence |
-| Runtime Qualification | Operational evidence-only trustworthiness and confidence assessment |
+| Runtime Qualification | Implemented but not trustworthy: empty capability evidence is marked qualified |
 | Platform Qualification | Partially qualified for continued internal engineering; no release created |
 | Platform Certification | Not certified; explicit foundation gaps remain and no release exists |
 | Platform Release Engineering | Release Runtime architecture established; no package or release created |
@@ -35,7 +35,7 @@
 | Release Qualification | Candidate manifest established; publication blocked by objective gaps |
 | Release Certification | Release process not certified; no publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
-| Internal Release 0.1.0 | Wheel and isolated installation validated; distribution blocked |
+| Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
 | DJConnect Reference Consumer | Blocked: no released TDE CLI and no selected DJConnect repository |
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |
@@ -49,3 +49,5 @@ Prompt 13 operationalizes qualification policy. The Runtime now invokes the stan
 Prompt 14 adds immutable baseline persistence and canonical-evidence comparison. It reports metric/finding/capability transitions and sends regression evidence to the Policy Engine without embedding qualification decisions in the Comparison Engine.
 
 Prompt 15 adds a read-only Trend Engine. It aggregates baseline history and current evidence into repository, capability, metric, finding, and qualification trends, then exposes that evidence to Policy without making a policy decision.
+
+Prompt 32 is the current-state correction. Its evidence-based Operational Reality Audit classifies TDE as `TDE_PRODUCT_PARTIALLY_OPERATIONAL`: local installation, console help/version, direct Runtime Code Size execution, filesystem baseline/store, and unit tests exist; the public CLI capability flow emits empty execution evidence, persisted query is absent, empty evidence is over-qualified, and no release exists. Historical prompt records are retained as history; [OPERATIONAL_REALITY_AUDIT.md](OPERATIONAL_REALITY_AUDIT.md) is canonical for current product truth.

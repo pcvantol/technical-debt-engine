@@ -2,14 +2,14 @@
 
 The roadmap belongs to TDE. Consumers may inform priorities but do not define the product boundary.
 
-## Generation 1 — completed foundation
+## Current product truth
 
-- CLI Runtime
-- Capability Framework
-- Canonical Schema
-- Qualification
-- Evidence
-- Reporting
+The 2026-07-14 Operational Reality Audit classifies current main as `TDE_PRODUCT_PARTIALLY_OPERATIONAL`. Generation 1 completion records are historical; the next executable recovery increment must make the installed public CLI perform and evidence one real Code Size analysis. See [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).
+
+## Generation 1 — frozen foundation
+
+- CLI Runtime, capability framework and canonical schemas exist.
+- Qualification, reporting and product capability claims require the audit recovery plan before being treated as current operational outcomes.
 
 ## Generation 2 — three programs
 
