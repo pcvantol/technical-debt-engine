@@ -40,6 +40,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | 32 | Operational Reality Audit | Complete |
 | P0-1 | Public CLI Execution and Truthful Runtime Qualification | Complete |
 | [G2-GOV-1](docs/history/prompts/G2-GOV-1-engineering-method-evolution.md) | Engineering Method Evolution: Repository Governance Alignment | [Reviewable — #37](https://github.com/pcvantol/technical-debt-engine/pull/37) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/engineering-method-v2) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/afae54f5f05be85148179cfb3a551c0e18f35c71) |
+| [P1-1](docs/history/prompts/P1-1-complete-code-size-vertical-slice.md) | Complete Code Size Vertical Slice | [Reviewable — #38](https://github.com/pcvantol/technical-debt-engine/pull/38) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/agent/code-size-vertical-slice) · [commit](https://github.com/pcvantol/technical-debt-engine/commit/964ff2aea582c1751485cb050cc4868d51d49f56) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 

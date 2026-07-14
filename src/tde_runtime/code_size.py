@@ -1,6 +1,6 @@
 """Code Size capability adapter backed by an explicitly installed cloc executable."""
 from __future__ import annotations
-import json, shutil, subprocess
+import json, re, shutil, subprocess
 from collections import defaultdict
 from hashlib import sha256
 from pathlib import Path
@@ -10,6 +10,7 @@ CAPABILITY_ID = "code_size"
 CAPABILITY_VERSION = "0.1.0"
 ADAPTER_ID = "code_size.cloc"
 ADAPTER_VERSION = "0.1.0"
+MINIMUM_ANALYZER_VERSION = (2, 10)
 
 def classify(path: str) -> str:
     value = path.replace("\\", "/").lower()
@@ -26,6 +27,9 @@ def analyze(root: Path, timeout: int = 60) -> dict[str, Any]:
         return {"status":"BLOCKED", "limitations":[{"id":"analyzer.cloc.unavailable","description":"cloc is not on PATH; install cloc 2.10+.","cause":"analyzer unavailable"}]}
     try:
         version = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()
+        match = re.search(r"(\d+)\.(\d+)", version)
+        if not match or tuple(map(int, match.groups())) < MINIMUM_ANALYZER_VERSION:
+            return {"status":"BLOCKED", "limitations":[{"id":"analyzer.cloc.unsupported_version","description":f"cloc {MINIMUM_ANALYZER_VERSION[0]}.{MINIMUM_ANALYZER_VERSION[1]}+ is required; found {version or 'unknown'}.","cause":"unsupported analyzer version"}]}
         result = subprocess.run([executable, "--json", "--by-file", "--quiet", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
         raw = result.stdout
         data = json.loads(raw)
@@ -42,4 +46,4 @@ def analyze(root: Path, timeout: int = 60) -> dict[str, Any]:
         for key in ("code","comment","blank"): totals[key] += item[key]
         totals["files"] += 1; totals[category.lower()] += item["code"]
     source = totals["source"]; ratio = totals["test"] / source if source else 0
-    return {"status":"VALID","adapter":{"id":ADAPTER_ID,"version":ADAPTER_VERSION},"analyzer":{"id":"cloc","version":version},"rawOutputHash":"sha256:"+sha256(raw.encode()).hexdigest(),"files":files,"languages":dict(sorted(languages.items())),"totals":dict(totals),"testToSourceRatio":ratio,"limitations":[]}
+    return {"status":"VALID","adapter":{"id":ADAPTER_ID,"version":ADAPTER_VERSION},"analyzer":{"id":"cloc","version":version},"rawOutput":raw,"rawOutputHash":"sha256:"+sha256(raw.encode()).hexdigest(),"files":files,"languages":dict(sorted(languages.items())),"totals":dict(totals),"testToSourceRatio":ratio,"limitations":[{"id":"code_size.logical_lines.unavailable","description":"cloc does not provide logical line counts.","cause":"analyzer limitation"}]}

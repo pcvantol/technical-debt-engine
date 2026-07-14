@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -116,22 +117,29 @@ class Runtime:
     def _validation(context: RuntimeContext, execution: dict[str, Any]) -> dict[str, Any]:
         execution_evidence = execution.get("executionEvidence", {})
         executed = execution_evidence.get("executedCapabilities", [])
+        complete = bool(executed) and not execution_evidence.get("blockedCapabilities")
         return {"status": "VALID", "schema": "VALID", "candidateIdentity": "VALID",
-                "repositoryIdentity": "VALID", "adapter": "VALID", "analyzer": "VALID",
+                "repositoryIdentity": "VALID", "adapter": "VALID" if complete else "NOT_APPLICABLE", "analyzer": "VALID" if complete else "NOT_APPLICABLE",
                 "completeness": "COMPLETE" if executed else "INCOMPLETE", "integrity": "VALID",
                 "warnings": [] if executed else ["no capability was executed"], "errors": []}
 
     @staticmethod
     def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any]) -> dict[str, Any]:
         generated_at = utc_now()
-        seed = f"{context.repository_id}:{context.candidate['id']}:{context.execution_id}"
+        stable_results = [{key: value for key, value in result.items() if key != "executionTiming"}
+                          for result in normalized.get("capabilityResults", [])]
+        seed = json.dumps({"repository": context.repository_id, "candidate": context.candidate,
+                           "configuration": RuntimeConfiguration.load(context.configuration).digest(),
+                           "capabilityResults": stable_results,
+                           "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []),
+                           "policy": policy_evidence}, sort_keys=True, separators=(",", ":"), default=str)
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,
                 "runtime": {"id": "tde", "version": context.runtime_version},
                 "executionId": context.execution_id,
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
+                "capabilityResults": normalized.get("capabilityResults", []), "adapterResults": normalized.get("adapterResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 
