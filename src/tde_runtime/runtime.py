@@ -12,6 +12,7 @@ from .configuration import RuntimeConfiguration
 from .models import RuntimeContext, RuntimeQualification, RuntimeResult, StageResult, StageStatus, utc_now
 from .registries import AdapterRegistry, CapabilityRegistry
 from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
+from .complexity import analyze as analyze_complexity
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -89,7 +90,10 @@ class Runtime:
     def _execute_capabilities(self, context: RuntimeContext) -> dict[str, Any]:
         requested = context.configuration.get("executionOptions", {}).get("capabilities", {})
         enabled = requested.get(CAPABILITY_ID, {}).get("enabled", False)
-        if not enabled: return {"executedWorkItems": 0, "measurements": [], "findings": [], "capabilityResults": []}
+        complexity_enabled = requested.get("complexity", {}).get("enabled", False)
+        if not enabled and not complexity_enabled: return {"executedWorkItems": 0, "measurements": [], "findings": [], "capabilityResults": []}
+        if complexity_enabled and not enabled:
+            result=analyze_complexity(context.repository_root); return {"executedWorkItems":1,"measurements":result.get("measurements",[]),"findings":result.get("findings",[]),"capabilityResults":[{"capabilityId":"complexity","capabilityVersion":"0.1.0","status":result["status"],"adapterIds":["complexity.radon"],"completeness":1,"qualificationApplicable":True,"limitations":result.get("limitations",[])}]}
         result = analyze(context.repository_root, int(context.execution_options.get("timeout", 60)))
         if result["status"] != "VALID": return {"executedWorkItems": 1, "measurements": [], "findings": [], "capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"BLOCKED","completeness":0,"qualificationApplicable":False,"limitations":result["limitations"]}]}
         measurements=[]

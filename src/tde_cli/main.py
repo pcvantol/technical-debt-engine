@@ -112,11 +112,11 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         return ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess"}:
         if arguments.command == "assess":
-            if arguments.capability != ["code-size"]:
-                _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only --capability code-size is delivered."}, arguments.format, stream)
+            if arguments.capability not in (["code-size"], ["complexity"]):
+                _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only code-size and complexity are delivered."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
             values = configuration.as_dict()
-            values["capabilities"] = {"code_size": {"enabled": True}}
+            values["capabilities"] = {"code_size" if arguments.capability == ["code-size"] else "complexity": {"enabled": True}}
             configuration = RuntimeConfiguration.load(values)
         try:
             code, payload = _runtime_result(arguments.command, arguments.target, configuration)
