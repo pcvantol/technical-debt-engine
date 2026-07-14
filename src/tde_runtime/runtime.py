@@ -84,7 +84,9 @@ class Runtime:
             relative = path.relative_to(root).as_posix()
             digest.update(relative.encode("utf-8"))
             digest.update(b"\0")
-            digest.update(path.read_bytes())
+            # Git may materialize text files with CRLF on Windows.  Candidate
+            # identity represents source content, not checkout line endings.
+            digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
             digest.update(b"\0")
         return digest.hexdigest()[:16]
 

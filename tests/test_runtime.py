@@ -57,6 +57,12 @@ class RuntimeFoundationTests(unittest.TestCase):
                 (directory / "sample.py").write_text("VALUE = 1\n", encoding="utf-8")
             self.assertEqual(Runtime._repository_digest(Path(first)), Runtime._repository_digest(Path(second)))
 
+    def test_repository_identity_normalizes_windows_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            (Path(first) / "sample.py").write_bytes(b"VALUE = 1\n")
+            (Path(second) / "sample.py").write_bytes(b"VALUE = 1\r\n")
+            self.assertEqual(Runtime._repository_digest(Path(first)), Runtime._repository_digest(Path(second)))
+
     def test_default_and_invalid_configuration(self) -> None:
         configuration = RuntimeConfiguration.load()
         self.assertEqual("1.0.0", configuration.schema_version)
