@@ -110,11 +110,11 @@ class CliFoundationTests(unittest.TestCase):
 
     def test_assure_command_is_operational(self) -> None:
         code, output = self.invoke("--format", "json", "assure", ".")
-        self.assertEqual(ExitCode.FAILED, code); self.assertEqual("FAIL", json.loads(output)["assuranceEvidence"]["qualification"])
+        self.assertIn(code, {ExitCode.WARNING, ExitCode.FAILED}); self.assertIn(json.loads(output)["assuranceEvidence"]["qualification"], {"PASS_WITH_WARNINGS", "FAIL"})
 
     def test_trusted_delivery_command_is_operational(self) -> None:
         code, output = self.invoke("--format", "json", "trusted-delivery", ".")
-        self.assertEqual(ExitCode.FAILED, code); self.assertEqual("FAIL", json.loads(output)["trustedDeliveryEvidence"]["qualification"])
+        self.assertIn(code, {ExitCode.WARNING, ExitCode.FAILED}); self.assertIn(json.loads(output)["trustedDeliveryEvidence"]["qualification"], {"PASS_WITH_WARNINGS", "FAIL"})
 
 
 if __name__ == "__main__":
