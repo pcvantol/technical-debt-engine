@@ -26,8 +26,8 @@
 | Policy Engine | Operational with versioned, dynamically discovered policy files and evidence |
 | Baseline & Comparison | Operational immutable baseline persistence and canonical-evidence comparison |
 | Trend Engine | Operational normalized baseline-history aggregation and CLI reporting |
-| Query Engine | In-memory projection only; persisted Evidence Store consumption is blocked |
-| Evidence Store | Operational immutable filesystem persistence and history listing |
+| Query Engine | Code Size Query consumes only integrity-verified persisted Evidence Store records |
+| Evidence Store | Operational immutable filesystem persistence, retrieval, identity and integrity verification |
 | Execution Engine | Registry-backed planning and truthful planned/executed adapter and capability evidence for the recovered Code Size flow |
 | Runtime Qualification | Fail-closed for missing execution, capability and adapter evidence; empty execution is blocked |
 | Platform Qualification | Partially qualified for continued internal engineering; no release created |
@@ -59,7 +59,9 @@ Recovery Prompt P0-1 repairs the audited Code Size public execution path. An ins
 
 G2-GOV-1 establishes Engineering Method V2 repository governance. Current `main` and operational reality are authoritative; `ENGINEERING_STATUS.md` is the primary handoff, and prompt archives are immutable prospective repository memory. No product implementation, Runtime Architecture, schema, capability contract, or Adapter SDK was changed.
 
-P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI override, analyzer availability/version checks, repository/language/file evidence, retained raw analyzer output/hash, and JSON/Markdown report rendering. Automatic assessment persistence and persisted-evidence-only query behavior are Deferred Work for `P1-2`; cross-platform qualification and release evidence remain blockers.
+P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI override, analyzer availability/version checks, repository/language/file evidence, retained raw analyzer output/hash, and JSON/Markdown report rendering.
+
+P1-2 completes the remaining persisted-evidence flow for Code Size. An installed CLI assessment automatically persists validated canonical evidence; persisted record identity and integrity are verified before Query or report consumption; Query and Code Size report no longer execute Runtime or consume Runtime memory. The vertical slice is operational on the macOS audit host. Cross-platform analyzer qualification and release evidence remain separate blockers.
 
 G2-GOV-2 establishes the first Prompt Freeze Point rule in current `main`, but its required immutable execution report and final status handoff were not included before PR #39 merged. That historical finalization gap is explicitly deferred to `G2-GOV-4`; it is not repaired retrospectively in this increment.
 
