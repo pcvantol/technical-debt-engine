@@ -20,10 +20,13 @@ This is TDE's canonical engineering constitution. It defines how the independent
 | Long-Term Maintainability | Sustain the platform. | Decisions consider future ownership. | Prefer simple, documented contracts. |
 | Vendor Neutrality | Preserve portability. | No vendor controls architecture. | Keep interfaces implementation-neutral. |
 | Human Authority | Retain accountable judgment. | Humans approve governance, merge, and release. | Agents have no merge or release authority. |
+| Main Is Source of Truth | Ground work in accepted repository state. | Current `main` overrides conversation and historical plans. | Branch work starts from current `main`; history supplies context only. |
+| Operational Reality Is Authoritative | Prevent plan-derived claims. | Observable repository evidence determines current state. | Status and recovery decisions cite executable, testable, or immutable evidence. |
+| Repository-Native Continuity | Make future work self-describing. | Repository contents preserve handoff and immutable history. | Chat history is never required to continue engineering. |
 
 ## Lifecycle and definition of done
 
-The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request.
+The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request. Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded** for a prompt replaced before merge. Only one prompt may be Active.
 
 - **IMPLEMENTED:** the scoped change exists; this is not proof of correctness.
 - **VALIDATED:** declared checks have passed; this is not a policy decision.
@@ -33,13 +36,23 @@ The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WO
 
 These states are distinct and must never be used interchangeably.
 
+## Operational reality and recovery
+
+Engineering proceeds from current repository reality, not historical prompt order:
+
+```text
+Current main → Repository Status → Current Engineering Status → Recovery Plan → Next Engineering Increment
+```
+
+Roadmaps and prompt archives guide context but do not override observable current repository state. [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md) is the primary handoff and is completely replaced by each prompt. Immutable historical context is preserved in [docs/history/prompts](docs/history/prompts).
+
 ## Validation and documentation
 
-Validation is proportional to risk and includes contract, documentation, and repository-state checks as applicable. Documentation is canonical rather than duplicative: alter the designated source, update status, summary, and prompt index, and record durable architectural choices as ADRs.
+Validation is proportional to risk and includes contract, documentation, and repository-state checks as applicable. Documentation is canonical rather than duplicative: alter the designated source, update current engineering status, repository status, management summary, and prompt index, archive the prompt, and record durable architectural choices as ADRs.
 
 ## Governance and lifecycle
 
-Architecture, capability, and schema changes follow the architecture decision process and applicable ADRs. A capability moves from proposal through defined contract, independent adapter design, canonical mapping, qualification semantics, evidence compatibility, validation, and release readiness. Prompt lifecycle is Draft → Active → Completed → Deprecated → Archived, with exactly one canonical Active prompt.
+Architecture, capability, and schema changes follow the architecture decision process and applicable ADRs. A capability moves from proposal through defined contract, independent adapter design, canonical mapping, qualification semantics, evidence compatibility, validation, and release readiness. Prompt governance, lifecycle, and finalization are defined in [PROMPT_GOVERNANCE.md](PROMPT_GOVERNANCE.md), [PROMPT_LIFECYCLE.md](PROMPT_LIFECYCLE.md), and [PROMPT_FINALIZATION.md](PROMPT_FINALIZATION.md).
 
 ## Evidence, qualification, release, and exceptions
 
