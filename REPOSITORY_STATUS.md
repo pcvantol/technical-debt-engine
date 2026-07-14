@@ -20,7 +20,7 @@
 | Runtime foundation | Implemented by Prompt 7; no CLI or capabilities |
 | CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
 | Code Size | Public `tde assess --capability code-size` validated through an installed wheel with host `cloc 2.10` |
-| Complexity | Direct adapter implementation only; isolated package lacks Radon and public CLI execution blocked |
+| Complexity | Public `tde assess --capability complexity` validated through an installed wheel with host Radon 6.0.1; repository/language/file/symbol evidence, immutable persistence, Query and report are operational on the macOS audit host |
 | Maintainability | Derived implementation exists; no validated public CLI evidence |
 | Dependency Health | Declarative Python/npm implementation exists; no validated public CLI evidence |
 | Policy Engine | Operational with versioned, dynamically discovered policy files and evidence |
@@ -46,6 +46,8 @@
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
 Prompt 10 adds validated Python Complexity through `complexity.radon` and preserves registry architecture for other native analyzers. Cross-platform and multi-language qualification remain pending.
+
+Recovery P1-2 completes the public Complexity vertical slice: the installed CLI executes validated Radon 6.0+, normalizes deterministic repository/language/file/symbol evidence and threshold findings, persists verified evidence and serves Query and report only from the Evidence Store. Python/macOS is currently qualified; other languages and platforms remain explicit analyzer limitations.
 
 Prompt 13 operationalizes qualification policy. The Runtime now invokes the standalone Policy Engine after normalization, records policy identity, decision, triggered rules, and inputs in evidence, and projects only that output into Qualification. Default and repository/workspace policies are dynamically discovered; custom/organization/cloud policies remain future work.
 
