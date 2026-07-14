@@ -31,5 +31,6 @@
 | 25 | Release Qualification | Complete |
 | 26 | Release Certification | Complete |
 | 27 | Operational Release Dry Run | Complete |
+| 28 | Internal Release 0.1.0 | Complete |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.

@@ -1,0 +1,12 @@
+{
+  "releaseVersion": "0.1.0",
+  "profile": "internal",
+  "candidate": {"commit": "25608ae141489a0dc25aa0822607b3feed863e75", "branch": "main"},
+  "runtimeVersion": "0.1.0",
+  "cliVersion": "0.1.0",
+  "schemaVersion": "1.0.0",
+  "artifacts": [{"type": "python-wheel", "path": "internal-release-artifacts/technical_debt_engine_runtime-0.1.0-py3-none-any.whl", "sha256": "c4012cbaea1f25a55b49d98f1d927a421b3c6fed007dc8322ee12013794b417b"}],
+  "installation": {"validated": true, "cliVersion": "0.1.0"},
+  "publication": {"performed": false, "reason": "no configured internal distribution channel and release certification remains negative"},
+  "qualification": "BLOCKED"
+}
