@@ -18,6 +18,7 @@ from .maintainability import derive as derive_maintainability
 from .dependency_health import discover as discover_dependencies
 from .query import QueryEngine
 from .execution import CapabilityExecutionEngine
+from .runtime_qualification import RuntimeQualificationEngine
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -156,7 +157,7 @@ class Runtime:
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "validation": validation, "policyEvidence": policy_evidence,
+                "capabilityResults": normalized.get("capabilityResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 

@@ -104,6 +104,10 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "run", str(self.root), "--capability", "dependency-health")
         self.assertEqual(ExitCode.SUCCESS, code); self.assertEqual("run", json.loads(output)["command"])
 
+    def test_qualify_command_is_operational(self) -> None:
+        code, output = self.invoke("--format", "json", "qualify", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code); self.assertEqual("QUALIFIED", json.loads(output)["runtimeQualification"]["level"])
+
 
 if __name__ == "__main__":
     unittest.main()
