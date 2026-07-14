@@ -7,3 +7,7 @@ The platform is project-independent, language-independent, CI-independent, platf
 TDE is delivered as an Engineering Runtime, CLI, Python Library, GitHub Action,
 and Docker Runtime product. Its canonical supported targets, consumer model,
 and release lifecycle are defined in [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md); delivery products extend stable contracts without redefining the Runtime.
+
+Its evidence is durable through a local-first, immutable persistence model;
+[Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md) defines
+the canonical storage and consumer-access strategy without redefining evidence.

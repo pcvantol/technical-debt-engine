@@ -6,7 +6,7 @@ Generation 1 has established the runtime, canonical evidence, four initial capab
 
 ## Priority gap closure
 
-1. Complete Query Engine consumption of persisted Evidence Store records.
+1. Complete Query Engine consumption of persisted Evidence Store records according to [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md).
 2. Make Runtime Qualification fail closed for empty required capability evidence.
 3. Complete report rendering exclusively from Query results.
 4. Remove remaining legacy Runtime capability execution ownership.
@@ -14,7 +14,7 @@ Generation 1 has established the runtime, canonical evidence, four initial capab
 
 ## Planned platform evolution
 
-Cloud Evidence Store, Remote Query API, distributed/parallel execution, package distribution, public release and IDE integration are additive only; they must preserve frozen Generation 1 contracts. Package and consumer targets follow [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md); implementation remains separately qualified and approved.
+Cloud Evidence Store, Remote Query API, distributed/parallel execution, package distribution, public release and IDE integration are additive only; they must preserve frozen Generation 1 contracts. Package and consumer targets follow [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md); persistence evolution follows [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md); implementation remains separately qualified and approved.
 
 ## Backlog hygiene
 

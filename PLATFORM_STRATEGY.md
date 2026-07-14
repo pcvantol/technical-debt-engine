@@ -22,6 +22,8 @@ Evolution favors independent capabilities, stable evidence, explicit policy, and
 
 The canonical product deployment model, including Generation 1 targets and future distribution evaluation, is [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md). It remains independent from Runtime Architecture and release execution.
 
+The canonical persistence model is [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md). It keeps JSON evidence authoritative while allowing additive local indexing and future optional backends.
+
 ## Governance and long-term vision
 
 The product roadmap is owned by TDE governance and prioritized for reusable value, contract integrity, evidence quality, and long-term maintainability. The long-term direction is a trusted technical-debt platform with portable contracts, release gates, IDE support, and optional cloud delivery without vendor lock-in.

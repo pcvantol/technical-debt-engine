@@ -43,6 +43,7 @@
 | DJConnect Reference Consumer | Blocked: no released TDE CLI and no selected DJConnect repository |
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |
 | Deployment Strategy | Canonical target, distribution, consumer and lifecycle model defined; no deployment implementation or release created |
+| Persistence Architecture | Canonical JSON-authoritative, local-first storage/index/consumer model defined; no SQLite, cloud, migration or retention implementation created |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
@@ -69,6 +70,8 @@ P1-2 completes the remaining persisted-evidence flow for Code Size. An installed
 P1-4 qualifies the existing Code Size vertical slice on GitHub-hosted Ubuntu, macOS and Windows runners for Python 3.11 and 3.13. Each matrix target installs one candidate wheel into an isolated environment, provisions checksum-verified `cloc 2.10`, executes assessment, persists evidence, reads persisted Query and report output, verifies store integrity and tamper detection, and dogfoods TDE. The six normalized records are analytically equivalent; missing, unsupported and timed-out analyzers fail closed. No release is created.
 
 PD-1 establishes the canonical Deployment Strategy. Generation 1 product targets are PyPI, GitHub Releases, Homebrew, Docker, GitHub Action and the Python Runtime API; distribution execution remains unimplemented and no target is currently published. Generation 2 package-manager and IDE targets are planned; Generation 3 service targets remain research. Runtime Architecture and implementation are unchanged.
+
+PD-2 establishes the canonical Persistence Architecture. Generation 1 uses immutable canonical JSON with filesystem persistence and persisted Query; Generation 2 SQLite is derived local indexing only; Generation 3 PostgreSQL/object/distributed/cloud persistence is future evaluation. Canonical Evidence remains authoritative and consumers read only through Query. Runtime and implementation are unchanged.
 
 G2-GOV-2 establishes the first Prompt Freeze Point rule in current `main`, but its required immutable execution report and final status handoff were not included before PR #39 merged. That historical finalization gap is explicitly deferred to `G2-GOV-4`; it is not repaired retrospectively in this increment.
 
