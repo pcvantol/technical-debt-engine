@@ -35,3 +35,5 @@ Prompt 14 transforms the product from point-in-time assessment to evolution-awar
 Prompt 15 adds continuous engineering intelligence through normalized, repository-local trend evidence. History, direction, moving averages, capability evolution, and policy history are exposed through `tde trend` while qualification remains owned by the Policy Engine.
 
 Prompt 16 adds the canonical read-only Query Engine, used by Runtime and `tde query` to project canonical engineering evidence without analyzer or evidence mutation.
+
+Prompt 17 adds an immutable, storage-independent Evidence Store with filesystem persistence and history through `tde store` and `tde history`.

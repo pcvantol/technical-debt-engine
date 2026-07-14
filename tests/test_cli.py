@@ -94,6 +94,12 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual(1, json.loads(output)["queryEvidence"]["resultCount"])
 
+    def test_store_and_history_commands_are_operational(self) -> None:
+        code, _ = self.invoke("--format", "json", "store", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code)
+        code, output = self.invoke("--format", "json", "history", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code); self.assertEqual(1, len(json.loads(output)["records"]))
+
 
 if __name__ == "__main__":
     unittest.main()
