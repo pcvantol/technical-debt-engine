@@ -14,7 +14,7 @@ Generation 1 has established the runtime, canonical evidence, four initial capab
 
 ## Planned platform evolution
 
-Cloud Evidence Store, Remote Query API, distributed/parallel execution, package distribution, public release and IDE integration are additive only; they must preserve frozen Generation 1 contracts.
+Cloud Evidence Store, Remote Query API, distributed/parallel execution, package distribution, public release and IDE integration are additive only; they must preserve frozen Generation 1 contracts. Package and consumer targets follow [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md); implementation remains separately qualified and approved.
 
 ## Backlog hygiene
 

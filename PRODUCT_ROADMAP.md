@@ -24,7 +24,7 @@ The 2026-07-14 Operational Reality Audit classifies current main as `TDE_PRODUCT
 
 - Evidence Store / Query integration and reporting completion — priority gap closure
 - Parallel and distributed execution, remote query API, cloud evidence store — planned
-- Package distribution, public release, IDE integration — planned only after qualification
+- Package distribution, public release, IDE integration — planned only after qualification; target lifecycle and ordering are defined by [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md)
 
 ### Innovation Lab
 
@@ -33,5 +33,7 @@ The 2026-07-14 Operational Reality Audit classifies current main as `TDE_PRODUCT
 - Architecture drift prediction and technical debt simulation
 
 These items remain research until explicitly promoted.
+
+Generation 2 evaluates secondary native package managers and IDE integrations; Generation 3 service surfaces remain research. See [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md) for the canonical target model.
 
 Roadmap entries are outcomes, not release commitments. Scope changes follow [ROADMAP_GOVERNANCE.md](ROADMAP_GOVERNANCE.md).

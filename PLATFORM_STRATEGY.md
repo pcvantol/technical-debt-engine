@@ -20,6 +20,8 @@ Generation 2 has exactly three engineering programs:
 
 Evolution favors independent capabilities, stable evidence, explicit policy, and additive compatibility. Releases progress according to [RELEASE_STRATEGY.md](RELEASE_STRATEGY.md); no Generation 2 roadmap entry is a release commitment.
 
+The canonical product deployment model, including Generation 1 targets and future distribution evaluation, is [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md). It remains independent from Runtime Architecture and release execution.
+
 ## Governance and long-term vision
 
 The product roadmap is owned by TDE governance and prioritized for reusable value, contract integrity, evidence quality, and long-term maintainability. The long-term direction is a trusted technical-debt platform with portable contracts, release gates, IDE support, and optional cloud delivery without vendor lock-in.
