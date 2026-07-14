@@ -2,6 +2,31 @@
 
 Use this template for every future canonical engineering prompt. The prompt defines exactly one coherent engineering increment and must name its objective, boundaries, required documentation, validation, and decision.
 
+## Initialization contract
+
+Every prompt begins with Repository Synchronization:
+
+```sh
+git switch main
+git pull --ff-only
+```
+
+If either command fails, stop and do not begin engineering. After a successful
+fast-forward synchronization, verify the current branch, `HEAD`, repository and
+working-tree cleanliness, tracking branch, and fast-forward status. If any
+check fails, stop.
+
+Only then read [BOOTSTRAP.md](BOOTSTRAP.md),
+[ENGINEERING_STATUS.md](ENGINEERING_STATUS.md),
+[REPOSITORY_STATUS.md](REPOSITORY_STATUS.md),
+[MANAGEMENT_SUMMARY.md](MANAGEMENT_SUMMARY.md),
+[ROADMAP_INDEX.md](ROADMAP_INDEX.md), the current active roadmap and backlog,
+and [PROMPT_INDEX.md](PROMPT_INDEX.md). Read Prompt History only when it is
+needed for historical context. Perform the implementation reality check after
+that read; begin engineering planning only afterward. The prompt must instruct
+the implementation agent to determine the latest merged increment from current
+repository state, never assume it.
+
 ## Completion contract
 
 Every prompt finishes with the following contract:

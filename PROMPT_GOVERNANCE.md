@@ -6,7 +6,26 @@
 One Prompt = One Engineering Increment = One Reviewable Pull Request
 ```
 
-Merge remains an explicit human engineering decision. A prompt is scoped from current `main` and current operational reality; historical prompt order is informational, not an implementation queue.
+Merge remains an explicit human engineering decision. A prompt is scoped from
+verified current `main` and current operational reality; historical prompt
+order is informational, not an implementation queue.
+
+## Mandatory initialization
+
+Repository Synchronization is the first step of every engineering prompt:
+
+```text
+Repository Synchronization → Current Main Verification → Canonical Repository Read → Implementation Reality Check → Engineering Planning
+```
+
+Execute `git switch main` and then `git pull --ff-only`. Do not continue if
+either command fails. Immediately verify the checked-out branch, `HEAD`,
+repository and working-tree cleanliness, tracking branch, and fast-forward
+status; any verification failure stops engineering. Read the canonical sources
+in [BOOTSTRAP.md](BOOTSTRAP.md) only after that gate succeeds. Planning must
+derive the increment, program, repository truth, backlog, and deferred work
+from current repository contents—not from prompt text, conversation history,
+historical prompts, or AI memory.
 
 ## Sources of current work
 

@@ -1,19 +1,19 @@
 # AI session initialization
 
-Every AI-assisted engineering session follows this mandatory flow:
+Every AI-assisted engineering session begins with repository synchronization. It
+must not interpret the prompt, inspect implementation, or plan engineering work
+until every synchronization and verification step succeeds.
 
 ```text
-Read BOOTSTRAP
+Repository Synchronization
   ↓
-Determine repository status
+Current Main Verification
   ↓
-Read ENGINEERING_STATUS and determine current main
+Canonical Repository Read
   ↓
-Determine active prompt and recovery-plan position
+Implementation Reality Check
   ↓
-Read required canonical documents
-  ↓
-State assumptions
+Engineering Planning
   ↓
 Implement focused increment
   ↓
@@ -25,6 +25,45 @@ Replace ENGINEERING_STATUS and archive the prompt
   ↓
 Produce reviewable Pull Request
 ```
+
+## Repository synchronization
+
+Every engineering prompt begins by executing:
+
+```sh
+git switch main
+git pull --ff-only
+```
+
+If either command fails, stop. Do not begin engineering.
+
+## Current main verification
+
+Immediately after synchronization, verify the checked-out branch, `HEAD`
+commit, repository and working-tree cleanliness, tracking branch, and
+fast-forward status. If any verification fails, stop. Current `main` is the
+only repository state from which engineering may be planned.
+
+## Canonical repository read
+
+Only after synchronization and verification, read the canonical sources in
+this order:
+
+1. [BOOTSTRAP.md](BOOTSTRAP.md)
+2. [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md)
+3. [REPOSITORY_STATUS.md](REPOSITORY_STATUS.md)
+4. [MANAGEMENT_SUMMARY.md](MANAGEMENT_SUMMARY.md)
+5. [ROADMAP_INDEX.md](ROADMAP_INDEX.md)
+6. The current active roadmap
+7. The current active backlog
+8. [PROMPT_INDEX.md](PROMPT_INDEX.md)
+9. Prompt History only when historical context is required
+
+Perform the implementation reality check only after this read. Engineering
+planning then determines the current engineering increment, program,
+repository truth, backlog, and deferred work from repository contents. Prompt
+text, conversation history, historical prompts, and prior AI assumptions do
+not determine current repository state.
 
 The session must distinguish, in its working record and final report, between:
 
