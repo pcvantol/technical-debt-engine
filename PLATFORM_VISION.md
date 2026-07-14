@@ -11,3 +11,5 @@ and release lifecycle are defined in [Deployment Strategy](docs/product/DEPLOYME
 Its evidence is durable through a local-first, immutable persistence model;
 [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md) defines
 the canonical storage and consumer-access strategy without redefining evidence.
+
+[Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md) defines the separate, read-only presentation layer for that evidence.
