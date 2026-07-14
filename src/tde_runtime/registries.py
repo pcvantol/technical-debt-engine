@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class CapabilityRegistry:
     def discover(self) -> tuple[object, ...]:
-        return ({"id": "code_size", "version": "0.1.0", "status": "VALIDATED"},{"id":"complexity","version":"0.1.0","status":"VALIDATED"})
+        return ({"id": "code_size", "version": "0.1.0", "status": "VALIDATED"},{"id":"complexity","version":"0.1.0","status":"VALIDATED"},{"id":"maintainability","version":"0.1.0","status":"VALIDATED"})
 
 
 class AdapterRegistry:

@@ -13,6 +13,7 @@ from .models import RuntimeContext, RuntimeQualification, RuntimeResult, StageRe
 from .registries import AdapterRegistry, CapabilityRegistry
 from .code_size import analyze, CAPABILITY_ID, CAPABILITY_VERSION
 from .complexity import analyze as analyze_complexity
+from .maintainability import derive as derive_maintainability
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -91,11 +92,19 @@ class Runtime:
         requested = context.configuration.get("executionOptions", {}).get("capabilities", {})
         enabled = requested.get(CAPABILITY_ID, {}).get("enabled", False)
         complexity_enabled = requested.get("complexity", {}).get("enabled", False)
+        maintainability_enabled = requested.get("maintainability", {}).get("enabled", False)
+        if maintainability_enabled:
+            code_result=analyze(context.repository_root); complexity_result=analyze_complexity(context.repository_root)
+            code=self._code_size_result(context, code_result); complexity={"measurements":complexity_result.get("measurements",[])}; derived=derive_maintainability(code,complexity)
+            return {"executedWorkItems":3,"measurements":code["measurements"]+complexity["measurements"]+derived.get("measurements",[]),"findings":code["findings"]+complexity_result.get("findings",[]),"capabilityResults":[code["capabilityResults"][0],{"capabilityId":"complexity","capabilityVersion":"0.1.0","status":complexity_result["status"],"adapterIds":["complexity.radon"],"completeness":1,"qualificationApplicable":True},{"capabilityId":"maintainability","capabilityVersion":"0.1.0","status":derived["status"],"adapterIds":[],"completeness":1,"qualificationApplicable":True,"limitations":derived.get("limitations",[])}]}
         if not enabled and not complexity_enabled: return {"executedWorkItems": 0, "measurements": [], "findings": [], "capabilityResults": []}
         if complexity_enabled and not enabled:
             result=analyze_complexity(context.repository_root); return {"executedWorkItems":1,"measurements":result.get("measurements",[]),"findings":result.get("findings",[]),"capabilityResults":[{"capabilityId":"complexity","capabilityVersion":"0.1.0","status":result["status"],"adapterIds":["complexity.radon"],"completeness":1,"qualificationApplicable":True,"limitations":result.get("limitations",[])}]}
         result = analyze(context.repository_root, int(context.execution_options.get("timeout", 60)))
         if result["status"] != "VALID": return {"executedWorkItems": 1, "measurements": [], "findings": [], "capabilityResults":[{"capabilityId":CAPABILITY_ID,"capabilityVersion":CAPABILITY_VERSION,"status":"BLOCKED","completeness":0,"qualificationApplicable":False,"limitations":result["limitations"]}]}
+        return self._code_size_result(context, result)
+
+    def _code_size_result(self, context: RuntimeContext, result: dict[str, Any]) -> dict[str, Any]:
         measurements=[]
         for key, value in result["totals"].items():
             if key in {"files","code","comment","blank","source","test","generated","vendor","documentation"}: measurements.append({"measurementId":f"code_size.repository.{key}","capabilityId":CAPABILITY_ID,"metricKey":f"code_size.{ {'files':'file_count','code':'code_lines','comment':'comment_lines','blank':'blank_lines','source':'source_lines','test':'test_lines','generated':'generated_lines','vendor':'vendor_lines','documentation':'documentation_lines'}[key] }","value":value,"unit":"lines" if key!='files' else "files","scope":"repository","targetEntityId":context.repository_id,"aggregation":"sum","sourceAdapterId":result["adapter"]["id"],"sourceToolId":"cloc"})
