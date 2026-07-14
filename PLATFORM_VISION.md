@@ -13,3 +13,5 @@ Its evidence is durable through a local-first, immutable persistence model;
 the canonical storage and consumer-access strategy without redefining evidence.
 
 [Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md) defines the separate, read-only presentation layer for that evidence.
+
+These Product Definitions are the canonical technical product references. TDE remains an Engineering Runtime, CLI, Python Library, GitHub Action and Docker Runtime, with Dashboard and Cloud Platform as future product surfaces; consumers use stable public contracts.

@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `PD-3` — Canonical Dashboard Architecture |
-| Freeze state | `REVIEWABLE` — no further engineering permitted. |
-| Current branch | `codex/pd-3-canonical-dashboard-architecture` |
-| Current pull request | [#49](https://github.com/pcvantol/technical-debt-engine/pull/49) |
-| Current decision | `CANONICAL_DASHBOARD_ARCHITECTURE_ESTABLISHED` |
-| Current repository truth | Dashboard is a documented future Query-only presentation layer; no dashboard implementation exists. |
+| Current prompt | `PD-4` — Product Strategy Alignment |
+| Freeze state | `ACTIVE` — finalization records prepared in draft PR #50. |
+| Current branch | `codex/pd-4-product-strategy-alignment` |
+| Current pull request | [#50](https://github.com/pcvantol/technical-debt-engine/pull/50) — draft |
+| Current decision | `PRODUCT_STRATEGY_ALIGNMENT_ESTABLISHED` |
+| Current repository truth | Product Definitions are canonical navigation references; no implementation changes are included. |
 | Next recommended prompt | Determine after review and merge. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- | --- |
-| Implement and qualify local Dashboard server/CLI. | PD-3 is architecture only. | Dashboard implementation prompt | `P1` |
+| Define release, public API, cloud, organization and authentication strategies. | PD-4 establishes only the Product Definition framework. | Future Product Definition prompt | `P2` |

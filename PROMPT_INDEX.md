@@ -51,6 +51,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [PD-1](docs/history/prompts/PD-1-canonical-deployment-strategy.md) | Canonical Deployment Strategy | [Reviewable — #47](https://github.com/pcvantol/technical-debt-engine/pull/47) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/pd-1-canonical-deployment-strategy) · [candidate commit](https://github.com/pcvantol/technical-debt-engine/commit/1a15f57) |
 | [PD-2](docs/history/prompts/PD-2-canonical-persistence-architecture.md) | Canonical Persistence Architecture | [Reviewable — #48](https://github.com/pcvantol/technical-debt-engine/pull/48) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/pd-2-canonical-persistence-architecture) · [candidate commit](https://github.com/pcvantol/technical-debt-engine/commit/8c7f6ae) |
 | PD-3 | Canonical Dashboard Architecture | [Reviewable — #49](https://github.com/pcvantol/technical-debt-engine/pull/49) |
+| PD-4 | Product Strategy Alignment | [Reviewable — #50](https://github.com/pcvantol/technical-debt-engine/pull/50) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 

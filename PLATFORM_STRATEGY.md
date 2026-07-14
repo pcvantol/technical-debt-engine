@@ -26,6 +26,8 @@ The canonical persistence model is [Persistence Architecture](docs/product/PERSI
 
 The canonical presentation model is [Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md); it consumes Query results without coupling presentation to Runtime.
 
+Product Definitions own distribution, retention and presentation direction. Future definitions may cover Release Strategy, Public API Strategy, Cloud Architecture, Organization Model and Authentication Model; they extend this collection rather than duplicate it.
+
 ## Governance and long-term vision
 
 The product roadmap is owned by TDE governance and prioritized for reusable value, contract integrity, evidence quality, and long-term maintainability. The long-term direction is a trusted technical-debt platform with portable contracts, release gates, IDE support, and optional cloud delivery without vendor lock-in.
