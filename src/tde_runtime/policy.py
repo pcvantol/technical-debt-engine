@@ -74,6 +74,9 @@ class PolicyEngine:
                 triggered.extend(self._finding_matches(rule, findings))
             elif rule.get("type") == "capability":
                 triggered.extend(self._capability_matches(rule, normalized.get("capabilityResults", []), configuration))
+            elif rule.get("type") == "comparison_regression":
+                triggered.extend({"ruleId": rule["id"], "outcome": rule.get("outcome", "BLOCKING"), "comparisonId": normalized.get("comparison", {}).get("comparisonId"), "findingId": item}
+                                 for item in normalized.get("comparison", {}).get("regressions", []))
         if any(item.get("blocking") is True for item in limitations):
             triggered.append({"ruleId": "limitation.blocking", "outcome": "BLOCKING", "reason": "blocking limitation"})
         outcomes = {item["outcome"] for item in triggered}
@@ -97,7 +100,7 @@ class PolicyEngine:
         if not isinstance(policy["rules"], list):
             raise PolicyError("policy.rules must be an array")
         for rule in policy["rules"]:
-            if not isinstance(rule, dict) or "id" not in rule or rule.get("type") not in {"threshold", "finding_severity", "capability"}:
+            if not isinstance(rule, dict) or "id" not in rule or rule.get("type") not in {"threshold", "finding_severity", "capability", "comparison_regression"}:
                 raise PolicyError("every policy rule needs an id and supported type")
 
     @staticmethod

@@ -10,6 +10,8 @@ import sys
 from typing import Any, Sequence, TextIO
 
 from tde_runtime import Runtime, RuntimeConfiguration
+from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine
+from tde_runtime.policy import PolicyEngine, PolicyError
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 
 
@@ -47,6 +49,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
     parser.add_argument("--policy", help="Repository or workspace policy directory.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
+    parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -58,6 +61,10 @@ def build_parser() -> argparse.ArgumentParser:
         command = subcommands.add_parser(identifier, help=metadata["purpose"], description=metadata["purpose"])
         command.add_argument("target", nargs="?", default=".", help="Repository target (default: current directory).")
         command.add_argument("--capability", action="append", default=[], help="Enable a registered capability.")
+        if identifier == "baseline":
+            command.add_argument("--name", help="Immutable baseline name.")
+        if identifier == "compare":
+            command.add_argument("--baseline", help="Baseline name or JSON path.")
     return parser
 
 
@@ -131,14 +138,49 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         values["policy"] = policy
         values["executionOptions"].pop("policy", None)
         configuration = RuntimeConfiguration.load(values)
+    if arguments.baseline_location:
+        values = configuration.as_dict()
+        values["baseline"] = {"location": arguments.baseline_location}
+        values["executionOptions"].pop("baseline", None)
+        configuration = RuntimeConfiguration.load(values)
+    if arguments.command in {"assess", "baseline", "compare"} and arguments.capability:
+        if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
+            _render({"command": arguments.command, "status": "NOT_IMPLEMENTED", "reason": "Only validated Generation 1 capabilities are available."}, arguments.format, stream)
+            return ExitCode.NOT_SUPPORTED
+        values = configuration.as_dict()
+        key = {"code-size": "code_size", "dependency-health": "dependency_health"}.get(arguments.capability[0], arguments.capability[0])
+        values["capabilities"] = {key: {"enabled": True}}
+        values["executionOptions"].pop("capabilities", None)
+        configuration = RuntimeConfiguration.load(values)
+    if arguments.command in {"baseline", "compare"}:
+        location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+        repository = BaselineRepository(Path(arguments.target) / location if not Path(location).is_absolute() else location)
+        try:
+            current = Runtime().execute(arguments.target, configuration)
+            if arguments.command == "baseline":
+                baseline = repository.create(current.evidence, arguments.name)
+                _render({"command": "baseline", "status": "VALID", "baseline": baseline}, arguments.format, stream)
+                return ExitCode.SUCCESS
+            if not arguments.baseline:
+                raise BaselineError("compare requires --baseline")
+            baseline = repository.load(arguments.baseline)
+            comparison = ComparisonEngine().compare(current.evidence, baseline)
+            policy = PolicyEngine().load(current.context.configuration, current.context.repository_root,
+                                         current.context.runtime_version, current.context.schema_version)
+            normalized = {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"],
+                          "capabilityResults": current.evidence["capabilityResults"], "comparison": comparison}
+            policy_evidence = PolicyEngine().evaluate(policy, normalized, current.context.configuration)
+            status = ExitCode.BLOCKED if policy_evidence["decision"] == "BLOCKED" else ExitCode.SUCCESS
+            _render({"command": "compare", "comparison": comparison, "policyEvidence": policy_evidence}, arguments.format, stream)
+            return status
+        except (BaselineError, PolicyError, ValueError) as error:
+            _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess"}:
         if arguments.command == "assess":
-            if arguments.capability not in (["code-size"], ["complexity"], ["maintainability"], ["dependency-health"]):
+            if not arguments.capability:
                 _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only code-size and complexity are delivered."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
-            values = configuration.as_dict()
-            key={"code-size":"code_size","dependency-health":"dependency_health"}.get(arguments.capability[0],arguments.capability[0]); values["capabilities"] = {key: {"enabled": True}}
-            configuration = RuntimeConfiguration.load(values)
         try:
             code, payload = _runtime_result(arguments.command, arguments.target, configuration)
         except ValueError as error:

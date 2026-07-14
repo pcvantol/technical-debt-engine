@@ -1,0 +1,79 @@
+{
+  "baselineId": "prompt-14",
+  "candidateId": "candidate.content.e2e179e9096aa79d",
+  "createdAt": "2026-07-14T13:21:58.439616Z",
+  "evidence": {
+    "candidate": {
+      "id": "candidate.content.e2e179e9096aa79d",
+      "identityType": "content_digest",
+      "validationStatus": "VALID",
+      "value": "sha256:e2e179e9096aa79d"
+    },
+    "capabilityResults": [],
+    "configurationDigest": "sha256:75e48f712d9d7532f9aaf63eac737a7108bf7e99eeb2d9b2ea812064c60ffbf6",
+    "executionId": "execution.426cdac790254b1e81663db68fe83a59",
+    "findings": [],
+    "integrity": {
+      "algorithm": "sha-256",
+      "contentDigest": "sha256:eb429fcfa7fb5699dfd8d11f01ad2d23b7247ff40c1bca6e2818a174492aa17b"
+    },
+    "measurements": [],
+    "policyEvidence": {
+      "decision": "NOT_APPLICABLE",
+      "policy": {
+        "identifier": "tde.generation-1.default",
+        "owner": "TDE policy governance",
+        "scope": "repository",
+        "version": "1.0.0"
+      },
+      "qualificationInputs": {
+        "configuration": {
+          "executionOptions": {
+            "baseline": {
+              "location": "dogfooding"
+            },
+            "capabilities": {},
+            "policy": {}
+          },
+          "schemaVersion": "1.0.0"
+        },
+        "findingCount": 0,
+        "limitationCount": 0,
+        "measurementCount": 0
+      },
+      "triggeredRules": []
+    },
+    "repository": {
+      "displayName": "local-repository",
+      "id": "repository.local.e2e179e9096aa79d"
+    },
+    "runtime": {
+      "id": "tde",
+      "version": "0.1.0"
+    },
+    "schemaId": "tde.evidence",
+    "schemaVersion": "1.0.0",
+    "timestamps": {
+      "executedAt": "2026-07-14T13:21:58.439153Z",
+      "generatedAt": "2026-07-14T13:21:58.439153Z"
+    },
+    "validation": {
+      "adapter": "VALID",
+      "analyzer": "VALID",
+      "candidateIdentity": "VALID",
+      "completeness": "COMPLETE",
+      "errors": [],
+      "integrity": "VALID",
+      "repositoryIdentity": "VALID",
+      "schema": "VALID",
+      "status": "VALID",
+      "warnings": []
+    }
+  },
+  "integrityDigest": "sha256:3d20be230dfd005885362c8d4c5324d94b3308216d3292c01e5522b3b5020217",
+  "policyVersion": "1.0.0",
+  "repositoryId": "repository.local.e2e179e9096aa79d",
+  "runtimeVersion": "0.1.0",
+  "schemaVersion": "1.0.0",
+  "sourceEvidenceId": "sha256:eb429fcfa7fb5699dfd8d11f01ad2d23b7247ff40c1bca6e2818a174492aa17b"
+}

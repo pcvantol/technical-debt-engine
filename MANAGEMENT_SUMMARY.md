@@ -29,3 +29,5 @@ Prompt 11 adds derived Maintainability without a native analyzer, consuming cano
 Prompt 12 adds declarative Dependency Health discovery for common manifest formats without package-manager execution or network access.
 
 Prompt 13 makes qualification operational through a standalone, versioned Policy Engine. Policies are dynamically discovered JSON contracts with explicit compatibility; their decisions and triggered rules are preserved as evidence. Qualification now consumes only those policy decisions, keeping capability-specific thresholds outside the Runtime.
+
+Prompt 14 transforms the product from point-in-time assessment to evolution-aware assessment. Immutable baseline snapshots and canonical evidence comparisons now detect metric deltas, finding regressions, improvements, and capability support; Policy Engine integration retains a separate decision layer.
