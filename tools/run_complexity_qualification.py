@@ -66,6 +66,7 @@ def main() -> int:
         venv = temporary_path / "venv"
         run([sys.executable, "-m", "venv", str(venv)])
         python, tde = executable(venv, "python"), executable(venv, "tde")
+        isolated_env = {**os.environ, "PATH": str(Path(tde).parent) + os.pathsep + os.environ.get("PATH", "")}
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "--no-deps", str(wheel)])
         missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}, env={**os.environ, "PATH": str(Path(tde).parent)})
         # The negative case must not become the persisted record used by the
@@ -73,18 +74,18 @@ def main() -> int:
         shutil.rmtree(fixture / ".tde", ignore_errors=True)
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "radon==6.0.1"])
         commands = {
-            "version": run([tde, "--format", "json", "--version"]),
-            "inspect": run([tde, "--format", "json", "inspect", str(fixture)], expected={0, 3}),
+            "version": run([tde, "--format", "json", "--version"], env=isolated_env),
+            "inspect": run([tde, "--format", "json", "inspect", str(fixture)], expected={0, 3}, env=isolated_env),
             # A blocking policy result is expected: it proves the analyzer ran
             # and found the fixture's critical symbol.
-            "assess": run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}),
-            "validate": run([tde, "--format", "json", "validate", str(fixture)], expected={0, 3}),
-            "query": run([tde, "--format", "json", "query", str(fixture), "--resource", "findings"]),
-            "report": run([tde, "--format", "markdown", "report", "--capability", "complexity", str(fixture)], expected={0, 3}),
+            "assess": run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}, env=isolated_env),
+            "validate": run([tde, "--format", "json", "validate", str(fixture)], expected={0, 3}, env=isolated_env),
+            "query": run([tde, "--format", "json", "query", str(fixture), "--resource", "findings"], env=isolated_env),
+            "report": run([tde, "--format", "markdown", "report", "--capability", "complexity", str(fixture)], expected={0, 3}, env=isolated_env),
         }
         dogfood = temporary_path / "technical-debt-engine"
         shutil.copytree(ROOT, dogfood, ignore=shutil.ignore_patterns(".git", ".venv", "venv", "__pycache__", ".tde", "qualification"))
-        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 3})
+        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 3}, env=isolated_env)
         assessment = json.loads(commands["assess"]["_raw"])
         evidence_id = assessment["evidenceId"].removeprefix("sha256:")
         evidence_path = fixture / ".tde" / "evidence" / "evidence" / f"{evidence_id}.json"
