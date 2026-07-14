@@ -83,6 +83,22 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual("VALID", json.loads(output)["comparison"]["status"])
 
+    def test_compare_persists_real_evidence_and_query_reads_comparison(self) -> None:
+        source = self.root / "sample.py"
+        source.write_text("value = 1\n", encoding="utf-8")
+        code, output = self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial", "--capability", "code-size")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertFalse(json.loads(output)["evidenceStore"]["existing"])
+        source.write_text("value = 1\nother = 2\n", encoding="utf-8")
+        code, output = self.invoke("--format", "json", "compare", str(self.root), "--baseline", "initial", "--capability", "code-size")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        comparison = json.loads(output)
+        self.assertTrue(comparison["comparisonStore"]["comparisonDigest"].startswith("sha256:"))
+        self.assertEqual("UNCHANGED", comparison["qualificationDelta"]["direction"])
+        code, output = self.invoke("--format", "json", "query", str(self.root), "--resource", "comparisons")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual(1, json.loads(output)["queryEvidence"]["resultCount"])
+
     def test_trend_command_is_operational(self) -> None:
         self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial")
         code, output = self.invoke("--format", "json", "trend", str(self.root))

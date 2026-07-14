@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from tde_runtime import Runtime
-from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine
+from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine, ComparisonRepository
 
 
 class BaselineAndComparisonTests(unittest.TestCase):
@@ -39,6 +39,15 @@ class BaselineAndComparisonTests(unittest.TestCase):
         comparison = ComparisonEngine().compare(current, baseline)
         self.assertEqual("SEVERITY_INCREASED", comparison["findingTransitions"][0]["transition"])
         self.assertEqual("SUPPORTED", comparison["capabilityComparison"][0]["comparisonSupport"])
+
+    def test_persisted_comparison_has_integrity_and_qualification_delta(self) -> None:
+        baseline = {"baselineId": "initial", "evidence": self._evidence(10, [])}
+        comparison = ComparisonEngine().compare(self._evidence(10, []), baseline)
+        repository = ComparisonRepository(self.root / "comparisons")
+        record = repository.persist(comparison, {"decision": "PASS"}, baseline)
+        self.assertTrue(record["comparisonDigest"].startswith("sha256:"))
+        self.assertEqual("UNCHANGED", record["qualificationDelta"]["direction"])
+        self.assertEqual(record, repository.load(comparison["comparisonId"]))
 
     def _evidence(self, metric_value: int, findings: list[dict[str, str]]) -> dict:
         evidence = dict(self.evidence)

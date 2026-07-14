@@ -31,6 +31,8 @@ class BaselineRepository:
                   "repositoryId": evidence["repository"]["id"], "candidateId": evidence["candidate"]["id"],
                   "schemaVersion": evidence["schemaVersion"], "runtimeVersion": evidence["runtime"]["version"],
                   "createdAt": created_at,
+                  "capabilityVersions": {item["capabilityId"]: item.get("capabilityVersion")
+                                         for item in evidence.get("capabilityResults", [])},
                   "policyVersion": evidence.get("policyEvidence", {}).get("policy", {}).get("version"),
                   "integrityDigest": f"sha256:{sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()}",
                   "evidence": evidence}
@@ -72,6 +74,7 @@ class ComparisonEngine:
                 "currentEvidenceId": current["integrity"]["contentDigest"], "baselineEvidenceId": previous["integrity"]["contentDigest"],
                 "baselineId": baseline_id, "schemaCompatibility": "COMPATIBLE", "metricDeltas": metric_deltas,
                 "findingTransitions": finding_transitions, "regressions": regressions, "improvements": improvements,
+                "unchangedFindings": [item["findingId"] for item in finding_transitions if item["transition"] == "UNCHANGED"],
                 "capabilityComparison": self._capabilities(current, previous), "limitations": metric_limitations, "status": "VALID"}
 
     @staticmethod
@@ -83,7 +86,7 @@ class ComparisonEngine:
     def _blocked(self, current: Mapping[str, Any], baseline_id: str, reason: str) -> dict[str, Any]:
         return {"comparisonId": self._identity(current, baseline_id), "currentEvidenceId": current["integrity"]["contentDigest"],
                 "baselineEvidenceId": "unknown", "baselineId": baseline_id, "schemaCompatibility": "INCOMPATIBLE",
-                "metricDeltas": [], "findingTransitions": [], "regressions": [], "improvements": [], "capabilityComparison": [],
+                "metricDeltas": [], "findingTransitions": [], "regressions": [], "improvements": [], "unchangedFindings": [], "capabilityComparison": [],
                 "limitations": [{"reason": reason, "blocking": True}], "status": "BLOCKED"}
 
     @staticmethod
@@ -136,3 +139,58 @@ class ComparisonEngine:
     @staticmethod
     def _identity(current: Mapping[str, Any], baseline_id: str) -> str:
         return "comparison." + sha256(f"{current['integrity']['contentDigest']}:{baseline_id}".encode()).hexdigest()[:16]
+
+
+class ComparisonRepository:
+    """Immutable repository for comparison evidence and its policy projection."""
+
+    def __init__(self, location: str | Path) -> None:
+        self.location = Path(location)
+
+    def persist(self, comparison: Mapping[str, Any], policy_evidence: Mapping[str, Any],
+                baseline: Mapping[str, Any]) -> dict[str, Any]:
+        if comparison.get("status") not in {"VALID", "BLOCKED"} or not comparison.get("comparisonId"):
+            raise BaselineError("comparison requires canonical comparison evidence")
+        payload = {"comparison": dict(comparison), "policyEvidence": dict(policy_evidence),
+                   "qualificationDelta": self._qualification_delta(
+                       baseline.get("evidence", {}).get("policyEvidence", {}).get("decision", "NOT_APPLICABLE"),
+                       policy_evidence.get("decision", "BLOCKED"))}
+        digest = "sha256:" + sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        comparison_id = str(comparison["comparisonId"])
+        path = self.location / f"{comparison_id}.json"
+        if path.exists():
+            existing = self.load(comparison_id)
+            if existing["comparisonDigest"] != digest:
+                raise BaselineError(f"comparison identity collision: {comparison_id}")
+            return existing
+        record = {"comparisonId": comparison_id, "baselineId": comparison.get("baselineId"),
+                  "currentIdentity": comparison.get("currentEvidenceId"),
+                  "baselineIdentity": comparison.get("baselineEvidenceId"), "createdAt": utc_now(),
+                  "comparisonDigest": digest, **payload}
+        self.location.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(record, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        return record
+
+    def load(self, reference: str | Path) -> dict[str, Any]:
+        path = Path(reference)
+        path = path if path.is_absolute() or path.exists() else self.location / f"{reference}.json"
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise BaselineError(f"cannot load comparison {reference}: {error}") from error
+        payload = {key: record.get(key) for key in ("comparison", "policyEvidence", "qualificationDelta")}
+        digest = "sha256:" + sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if digest != record.get("comparisonDigest"):
+            raise BaselineError("comparison evidence integrity check failed")
+        return record
+
+    def history(self) -> list[dict[str, Any]]:
+        return [self.load(path) for path in sorted(self.location.glob("*.json"))] if self.location.is_dir() else []
+
+    @staticmethod
+    def _qualification_delta(baseline: str, current: str) -> dict[str, str]:
+        # A baseline without applicable policy evidence is neutral; a newly
+        # applicable passing policy is not a qualification regression.
+        rank = {"NOT_APPLICABLE": 1, "PASS": 1, "PASS_WITH_WARNINGS": 2, "FAIL": 3, "BLOCKED": 4}
+        direction = "REGRESSED" if rank.get(current, 4) > rank.get(baseline, 4) else "IMPROVED" if rank.get(current, 4) < rank.get(baseline, 4) else "UNCHANGED"
+        return {"baselineDecision": baseline, "currentDecision": current, "direction": direction}
