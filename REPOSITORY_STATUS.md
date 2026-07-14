@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | RUNTIME_FOUNDATION |
+| Status | CLI_FOUNDATION |
 | Canonical CLI | `tde` |
 | Runtime | Foundation implemented; no capability-specific logic |
 | Analyzers | Not implemented |
@@ -15,5 +15,6 @@
 | Capability contracts | Established by Prompt 5; no capabilities implemented |
 | Adapter SDK | Established by Prompt 6; no adapters implemented |
 | Runtime foundation | Implemented by Prompt 7; no CLI or capabilities |
+| CLI foundation | Implemented by Prompt 8; no capability or adapter behavior |
 
-Product Bootstrap, Engineering Workflow Alignment, the AI-Native Engineering Method, Canonical Runtime Architecture, Canonical Domain and Evidence Schemas, Capability Contracts, and Adapter SDK are complete. Prompt 7 implements the generic Runtime Foundation with empty capability and adapter registries, runtime evidence, validation, qualification, and reporting. Adapters, analyzers, CLI, and capabilities are not implemented; no release exists. Prompt 7's focused reviewable pull request is required before a subsequent canonical prompt begins. Merge remains a separate decision.
+Product Bootstrap, Engineering Workflow Alignment, the AI-Native Engineering Method, Canonical Runtime Architecture, Canonical Domain and Evidence Schemas, Capability Contracts, Adapter SDK, and Runtime Foundation are complete. Prompt 8 implements the thin Canonical CLI Foundation over the Runtime public API, with framework command routing, help, version, logging, configuration loading, output, and canonical exit codes. Adapters, analyzers, and capabilities are not implemented; no release exists. Prompt 8's focused reviewable pull request is required before a subsequent canonical prompt begins. Merge remains a separate decision.
