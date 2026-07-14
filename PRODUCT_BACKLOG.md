@@ -7,6 +7,10 @@
 - P1: make persisted Evidence Store records queryable and prove baseline/compare on real capability evidence, following [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md).
 - P1: establish repeatable package dependencies, provenance and an approved release workflow before any release claim, following the canonical [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md).
 
+## Completed
+
+- P1: qualify Policy Engine evaluation and CLI decision exits using persisted Code Size and Complexity evidence.
+
 ## Planned
 
 - Add Complexity only after isolated package execution is proven.

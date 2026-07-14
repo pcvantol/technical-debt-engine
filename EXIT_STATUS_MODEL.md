@@ -10,4 +10,4 @@ The runtime emits one canonical execution state:
 | `BLOCKED` | The runtime cannot safely continue because required identity, validation, configuration, policy, or evidence is missing or incompatible. |
 | `NOT_SUPPORTED` | The requested target, capability, adapter, or format is unsupported. |
 
-Future policy may map these states to CI exit codes. Until then, the states are semantic contracts rather than numeric implementation choices. Unknown states fail closed as `BLOCKED`.
+Policy decisions now map deterministically to CLI exits: `PASS` → 0, `PASS_WITH_WARNINGS` → 1, `FAIL` → 2, `BLOCKED` → 3 and `NOT_APPLICABLE` → 4. Unknown states fail closed as `BLOCKED`.

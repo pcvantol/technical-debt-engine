@@ -23,7 +23,7 @@
 | Complexity | Public `tde assess --capability complexity` validated through an installed wheel with host Radon 6.0.1; repository/language/file/symbol evidence, immutable persistence, Query and report are operational on the macOS audit host |
 | Maintainability | Derived implementation exists; no validated public CLI evidence |
 | Dependency Health | Declarative Python/npm implementation exists; no validated public CLI evidence |
-| Policy Engine | Operational with versioned, dynamically discovered policy files and evidence |
+| Policy Engine | Operational and qualified on real persisted Code Size and Complexity evidence; deterministic policy decision-to-CLI-exit mapping verified |
 | Baseline & Comparison | Operational immutable baseline persistence and canonical-evidence comparison |
 | Trend Engine | Operational normalized baseline-history aggregation and CLI reporting |
 | Query Engine | Code Size Query consumes only integrity-verified persisted Evidence Store records |
@@ -70,6 +70,8 @@ P1-1 completes the macOS Code Size vertical slice: `.tde.yml` discovery and CLI 
 P1-2 completes the remaining persisted-evidence flow for Code Size. An installed CLI assessment automatically persists validated canonical evidence; persisted record identity and integrity are verified before Query or report consumption; Query and Code Size report no longer execute Runtime or consume Runtime memory. The vertical slice is operational on the macOS audit host. Cross-platform analyzer qualification and release evidence remain separate blockers.
 
 P1-4 qualifies the existing Code Size vertical slice on GitHub-hosted Ubuntu, macOS and Windows runners for Python 3.11 and 3.13. Each matrix target installs one candidate wheel into an isolated environment, provisions checksum-verified `cloc 2.10`, executes assessment, persists evidence, reads persisted Query and report output, verifies store integrity and tamper detection, and dogfoods TDE. The six normalized records are analytically equivalent; missing, unsupported and timed-out analyzers fail closed. No release is created.
+
+P1-5 qualifies the Policy Engine against real persisted Code Size and Complexity evidence. Policies use canonical decisions (`PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, and `NOT_APPLICABLE`), workspace/repository precedence, explicit provenance, deterministic threshold evidence, persisted Query retrieval, and CLI exits derived only from policy output. Invalid and missing policy inputs fail closed. No release is created.
 
 PD-1 establishes the canonical Deployment Strategy. Generation 1 product targets are PyPI, GitHub Releases, Homebrew, Docker, GitHub Action and the Python Runtime API; distribution execution remains unimplemented and no target is currently published. Generation 2 package-manager and IDE targets are planned; Generation 3 service targets remain research. Runtime Architecture and implementation are unchanged.
 

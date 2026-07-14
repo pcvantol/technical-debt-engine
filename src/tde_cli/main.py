@@ -32,6 +32,13 @@ class ExitCode:
     NOT_SUPPORTED = 4
 
 
+def _policy_exit_code(decision: str) -> int:
+    """The CLI maps canonical Policy decisions; it never re-evaluates policy."""
+    return {"PASS": ExitCode.SUCCESS, "PASS_WITH_WARNINGS": ExitCode.WARNING,
+            "FAIL": ExitCode.FAILED, "BLOCKED": ExitCode.BLOCKED,
+            "NOT_APPLICABLE": ExitCode.NOT_SUPPORTED}.get(decision, ExitCode.BLOCKED)
+
+
 COMMANDS: dict[str, dict[str, str]] = {
     "help": {"purpose": "Show generated CLI help."},
     "validate": {"purpose": "Validate runtime configuration and context."},
@@ -121,10 +128,12 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
                "evidence": result.evidence, "evidenceId": result.evidence["integrity"]["contentDigest"]}
     if store is not None:
         payload["evidenceStore"] = store.persist(result.evidence)
-    blocked = result.report["qualification"]["status"] == "BLOCKED" or (
-        command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED"
-    )
-    return (ExitCode.BLOCKED if blocked else ExitCode.SUCCESS), payload
+    decision = result.evidence["policyEvidence"]["decision"]
+    if decision == "BLOCKED":
+        return ExitCode.BLOCKED, payload
+    if command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
+        return ExitCode.BLOCKED, payload
+    return (_policy_exit_code(decision) if command in {"assess", "run"} else ExitCode.SUCCESS), payload
 
 
 def _render_capability_report(evidence: dict[str, Any], capability: str, output_format: str, stream: TextIO) -> None:
@@ -231,7 +240,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             normalized = {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"],
                           "capabilityResults": current.evidence["capabilityResults"], "comparison": comparison}
             policy_evidence = PolicyEngine().evaluate(policy, normalized, current.context.configuration)
-            status = ExitCode.BLOCKED if policy_evidence["decision"] == "BLOCKED" else ExitCode.SUCCESS
+            status = ExitCode.SUCCESS if policy_evidence["decision"] != "BLOCKED" else ExitCode.BLOCKED
             _render({"command": "compare", "comparison": comparison, "policyEvidence": policy_evidence}, arguments.format, stream)
             return status
         except (BaselineError, PolicyError, ValueError) as error:
@@ -246,7 +255,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
             policy_evidence = PolicyEngine().evaluate(policy, {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"], "capabilityResults": current.evidence["capabilityResults"], "trend": trend}, current.context.configuration)
             _render({"command": "trend", "trendEvidence": trend, "policyEvidence": policy_evidence}, arguments.format, stream)
-            return ExitCode.SUCCESS
+            return ExitCode.SUCCESS if policy_evidence["decision"] != "BLOCKED" else ExitCode.BLOCKED
         except (ValueError, PolicyError) as error:
             _render({"command": "trend", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
