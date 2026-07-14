@@ -9,13 +9,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def normalize(value: object) -> object:
+    """Remove the documented non-deterministic execution envelope only."""
+    if isinstance(value, list):
+        return [normalize(item) for item in value]
+    if isinstance(value, dict):
+        return {key: normalize(item) for key, item in value.items()
+                if key not in {"executionTiming", "executionId", "qualificationId", "evaluatedAt", "executionDurationMs"}}
+    return value
+
+
 def main() -> int:
     records = [json.loads(path.read_text(encoding="utf-8")) for path in sorted((ROOT / "qualification").glob("complexity-*.json"))]
     operating_systems = {record["operatingSystem"].split("-")[0].lower() for record in records}
     if len(records) < 6 or not {"linux", "darwin", "windows"}.issubset(operating_systems):
         raise SystemExit("qualification matrix is incomplete")
-    baseline = records[0]["analyticalProjection"]
-    differences = [record["operatingSystem"] for record in records if record["analyticalProjection"] != baseline]
+    baseline = normalize(records[0]["analyticalProjection"])
+    differences = [record["operatingSystem"] for record in records if normalize(record["analyticalProjection"]) != baseline]
     if differences:
         raise SystemExit(f"analytical output differs: {differences}")
     result = {"decision": "COMPLEXITY_CROSS_PLATFORM_QUALIFIED", "records": len(records),

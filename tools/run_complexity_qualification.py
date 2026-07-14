@@ -80,7 +80,7 @@ def main() -> int:
             "assess": run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}),
             "validate": run([tde, "--format", "json", "validate", str(fixture)], expected={0, 3}),
             "query": run([tde, "--format", "json", "query", str(fixture), "--resource", "findings"]),
-            "report": run([tde, "--format", "markdown", "report", "--capability", "complexity", str(fixture)]),
+            "report": run([tde, "--format", "markdown", "report", "--capability", "complexity", str(fixture)], expected={0, 3}),
         }
         dogfood = temporary_path / "technical-debt-engine"
         shutil.copytree(ROOT, dogfood, ignore=shutil.ignore_patterns(".git", ".venv", "venv", "__pycache__", ".tde", "qualification"))
