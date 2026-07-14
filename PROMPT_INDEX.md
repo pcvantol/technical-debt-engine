@@ -23,5 +23,6 @@
 | 17 | Canonical Evidence Store | Complete |
 | 18 | Capability Execution Engine | Complete |
 | 19 | Runtime Qualification Engine | Complete |
+| 20 | Platform Qualification | Complete |
 
 Prompt lifecycle is **Draft → Active → Completed → Deprecated → Archived**. Exactly one canonical prompt may be Active. Future prompts must preserve the standalone TDE boundary, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index when they establish a durable scope.

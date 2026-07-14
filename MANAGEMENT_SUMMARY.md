@@ -41,3 +41,5 @@ Prompt 17 adds an immutable, storage-independent Evidence Store with filesystem 
 Prompt 18 establishes the Capability Execution Engine as the single execution coordinator. Runtime now orchestrates only; `tde run` uses planned, sequential, isolated capability execution with execution evidence.
 
 Prompt 19 adds Runtime Qualification: evidence-only completeness, confidence, limitations and capability support assessment through `tde qualify`, without any consumer release decision.
+
+Prompt 20 completes the first Generation 1 platform qualification. The platform is operational for continued internal engineering but partially qualified: reporting, persisted-query integration, empty-evidence confidence hardening, and broader analyzer qualification remain explicit gaps. No release or package has been created.
