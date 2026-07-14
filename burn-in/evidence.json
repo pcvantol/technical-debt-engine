@@ -1,0 +1,75 @@
+{
+  "memoryMaxRss": 24739840,
+  "normalizationExclusions": [
+    "executionId",
+    "qualificationId",
+    "timestamps",
+    "integrity"
+  ],
+  "orphanProcesses": "none observed",
+  "overallDeterministic": true,
+  "releaseVersion": "0.1.0",
+  "runs": {
+    "empty": {
+      "deterministic": true,
+      "runs": [
+        {
+          "durationMs": 1.182,
+          "normalizedEvidenceHash": "bf7c81dff2df51cea33a1ac03d423f048ec517425aef267165d1bf9a2addce26",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 1.086,
+          "normalizedEvidenceHash": "bf7c81dff2df51cea33a1ac03d423f048ec517425aef267165d1bf9a2addce26",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 1.026,
+          "normalizedEvidenceHash": "bf7c81dff2df51cea33a1ac03d423f048ec517425aef267165d1bf9a2addce26",
+          "qualification": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "multi_language": {
+      "deterministic": true,
+      "runs": [
+        {
+          "durationMs": 1.032,
+          "normalizedEvidenceHash": "e4dc62a31a91a449770419c859830e3f7a428c581e020166f0f982a0db1302a2",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 1.045,
+          "normalizedEvidenceHash": "e4dc62a31a91a449770419c859830e3f7a428c581e020166f0f982a0db1302a2",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 0.941,
+          "normalizedEvidenceHash": "e4dc62a31a91a449770419c859830e3f7a428c581e020166f0f982a0db1302a2",
+          "qualification": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "tde": {
+      "deterministic": true,
+      "runs": [
+        {
+          "durationMs": 3.155,
+          "normalizedEvidenceHash": "adc38d824750600e2a80c44596c7daee91344c1aa914db30a11187590025c03e",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 1.45,
+          "normalizedEvidenceHash": "adc38d824750600e2a80c44596c7daee91344c1aa914db30a11187590025c03e",
+          "qualification": "NOT_APPLICABLE"
+        },
+        {
+          "durationMs": 1.306,
+          "normalizedEvidenceHash": "adc38d824750600e2a80c44596c7daee91344c1aa914db30a11187590025c03e",
+          "qualification": "NOT_APPLICABLE"
+        }
+      ]
+    }
+  },
+  "temporaryDirectories": "Runtime TemporaryDirectory lifecycle exercised"
+}
