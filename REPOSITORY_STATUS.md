@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Generation | 1 |
-| Status | RUNTIME_QUALIFICATION_ENGINE_OPERATIONAL |
+| Status | PLATFORM_PARTIALLY_QUALIFIED |
 | Canonical CLI | `tde` |
 | Runtime | Foundation implemented; Policy Engine is the qualification decision layer |
 | Analyzers | Not implemented |
@@ -27,6 +27,7 @@
 | Evidence Store | Operational immutable filesystem persistence and history listing |
 | Execution Engine | Operational dependency-ordered capability execution and evidence |
 | Runtime Qualification | Operational evidence-only trustworthiness and confidence assessment |
+| Platform Qualification | Partially qualified for continued internal engineering; no release created |
 
 Prompt 9 implements the first Code Size vertical slice through Runtime, registry, `code_size.cloc`, normalization, canonical evidence, and CLI assess routing. The slice is validated on macOS with explicitly installed cloc 2.10 but is not cross-platform qualified. Other capabilities remain unimplemented; no release exists.
 
