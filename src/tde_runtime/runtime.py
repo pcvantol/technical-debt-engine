@@ -119,7 +119,10 @@ class Runtime:
                                               context.runtime_version, context.schema_version)
             return self._policy_engine.evaluate(policy, normalized, context.configuration)
         except PolicyError as error:
-            return {"policy": None, "decision": "BLOCKED", "triggeredRules": [{"ruleId": "policy.validation", "outcome": "BLOCKING", "reason": str(error)}], "qualificationInputs": {}}
+            return {"policy": None, "decision": "BLOCKED", "decisionReason": str(error),
+                    "triggeredRules": [{"ruleId": "policy.validation", "outcome": "BLOCKED", "reason": str(error)}],
+                    "thresholds": {}, "affectedCapabilities": [],
+                    "qualificationReference": {"executionId": context.execution_id}, "qualificationInputs": {}}
 
     @staticmethod
     def _qualification(policy_evidence: dict[str, Any]) -> dict[str, Any]:

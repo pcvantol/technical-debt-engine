@@ -42,7 +42,7 @@ class RuntimeFoundationTests(unittest.TestCase):
         })
         result = Runtime().execute(self.root, configuration)
         qualification = next(stage for stage in result.stages if stage.identifier == "qualification")
-        self.assertEqual("BLOCKED", qualification.outputs["status"])
+        self.assertEqual("FAIL", qualification.outputs["status"])
 
     def test_context_contains_canonical_runtime_values(self) -> None:
         result = Runtime().execute(self.root)
