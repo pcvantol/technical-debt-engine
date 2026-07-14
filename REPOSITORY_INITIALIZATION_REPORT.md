@@ -20,7 +20,7 @@ Date: 2026-07-14
 - Auto-merge is enabled. Issues are enabled; discussions and wiki are disabled. No project was created.
 - GitHub Actions is enabled with all actions allowed, a read-only default `GITHUB_TOKEN`, and workflow pull-request approval disabled. Native SHA pinning is disabled, matching DJConnect; no cross-repository workflow exists yet, so no exception is claimed or inherited.
 - Security read-back: Dependabot alerts and security updates are enabled; secret scanning and push protection are enabled; private vulnerability reporting is enabled. CodeQL default setup was deliberately not enabled because the product languages and workflow do not yet exist.
-- The active `Trusted Delivery main integrity` ruleset applies to the default branch, prohibits deletion and non-fast-forward updates, and has no bypass actors. No required status check, review count, or branch protection rule was added because the trusted-delivery workflow and checks do not yet exist.
+- The active `Trusted Delivery main integrity` ruleset applies to the default branch, requires a pull request, requires resolved review conversations, prohibits deletion and non-fast-forward updates, and has no bypass actors. Its approval count is zero: this enforces the normal pull-request path without an artificial independent-review deadlock for the single maintainer. No required status check was added because the trusted-delivery workflow and checks do not yet exist.
 
 ## DJConnect baseline and deviations
 
@@ -29,7 +29,7 @@ Live `pcvantol/djconnect` read-back on 2026-07-14 established: `main`, squash-on
 Intentional deviations:
 
 - Wiki is disabled for TDE per its initialization brief (DJConnect currently enables it).
-- TDE has no required status check or PR requirement until its governed workflows exist. The eventual intended check is the Trusted Delivery qualification check; its enforcement is pending a future governance prompt. This preserves single-maintainer compatibility and does not create an artificial independent-review deadlock.
+- TDE has no required status check until its governed workflows exist. The eventual intended check is the Trusted Delivery qualification check; its enforcement is pending a future governance prompt. The current pull-request rule preserves single-maintainer compatibility and does not create an artificial independent-review deadlock.
 - No reusable workflow, release/artifact contract, package, deployment, environment, release secret, signing setup, or broad PAT was created.
 
 ## GitHub App authorization — blocker
