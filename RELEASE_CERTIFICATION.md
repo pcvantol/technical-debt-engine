@@ -52,6 +52,14 @@ R1-GOV-2 preserves this immutable certification but classifies its sibling
 candidate as `SUPERSEDED_NON_MAINLINE_CANDIDATE`. It cannot authorize
 publication; a replacement must be certified from an ancestor of main.
 
+## Current mainline candidate (R1-3A)
+
+Run `29451595432` certified mainline candidate
+`3fda62e72850f1c67f1554f7612580eccf16ae34` as `RELEASE_CERTIFIED` with ID
+`release-certification.sha256.0d7b4ba25494ced37ad39d114e0854f9b88d20f4050ddd9b2e19b8c3f5696b59`.
+Its complete preserved bundle is verified and remains unpublished pending
+explicit human authorization.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**

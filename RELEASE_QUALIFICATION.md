@@ -56,3 +56,11 @@ rebuilding it, is the retrieval path.
 This evidence is historical only. R1-GOV-2 classifies its candidate as a
 non-mainline sibling and therefore not publishable; future qualification starts
 from an exact mainline snapshot as defined in [RELEASE_ARCHITECTURE.md](RELEASE_ARCHITECTURE.md).
+
+## Current mainline candidate (R1-3A)
+
+Run `29451595432` qualified mainline candidate
+`3fda62e72850f1c67f1554f7612580eccf16ae34` as `RELEASE_QUALIFIED` / `READY`.
+Runtime Qualification is `QUALIFIED`, Policy is `PASS_WITH_WARNINGS`, and
+Software Assurance and Trusted Delivery are `PASS`. Its immutable manifest
+digest is `sha256:38074717a76e056faff176fa37fa0981b3b12a8c11de63bc5fa8428a052d1670`.
