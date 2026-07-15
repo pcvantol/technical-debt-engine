@@ -9,7 +9,7 @@
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | P1-9 / PR #57 is `MERGED_RECONCILED`: merged to `main` at `9a612192cdf0777b7c7758d068a47339f8771fb8` on 2026-07-15 05:11:59 UTC; immutable Freeze-Point history preserved |
+| Post-merge lifecycle | P1-10 Release Qualification / PR #59 is `MERGED_RECONCILED`: merged to `main` at `93de40b8d16c748a67a213c3b373b1ee8fd2192e` on 2026-07-15 05:51:01 UTC; immutable Freeze-Point history preserved |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
@@ -38,7 +38,7 @@
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
 | Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
 | Release Qualification | Operational evidence-only qualification: reproducible artifacts, Software Assurance, Trusted Delivery, manifest and candidate identity are verified; no publication occurred |
-| Release Certification | Release process not certified; no publication exists |
+| Release Certification | Operational `tde certify` validates existing Release Qualification evidence and produces canonical certification reports; dogfooding returns `RELEASE_NOT_CERTIFIED` because Runtime Qualification and Policy evidence are not passing for the default unselected-capability candidate. No publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
