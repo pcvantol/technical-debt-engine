@@ -48,6 +48,10 @@ verified bundle checksum is
 Certification is evidence only: no Docker Hub login, registry push, tag, or
 release was performed.
 
+R1-GOV-2 preserves this immutable certification but classifies its sibling
+candidate as `SUPERSEDED_NON_MAINLINE_CANDIDATE`. It cannot authorize
+publication; a replacement must be certified from an ancestor of main.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**

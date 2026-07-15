@@ -25,3 +25,9 @@ Innovation Lab.
 Read the backlog applicable to the active program after the product roadmap.
 When the active program is not yet known, read both; determine the program from
 current repository state rather than from prompt text or history.
+
+## Current release-governance transition
+
+The first Internal Release remains unpublished. Its next release increment is
+the mainline-snapshot candidate creation recorded in `ENGINEERING_STATUS.md`;
+the superseded R1-2B sibling candidate is historical evidence only.

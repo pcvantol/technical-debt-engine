@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -69,6 +70,7 @@ class TrustedDelivery:
     @staticmethod
     def _candidate(root: Path, limitations: list[str]) -> dict[str, Any]:
         sha_ok, sha = _git(root, "rev-parse", "HEAD"); _, branch = _git(root, "branch", "--show-current")
+        branch = branch or os.environ.get("TDE_CANDIDATE_SOURCE_BRANCH", "")
         _, repository = _git(root, "config", "--get", "remote.origin.url"); status_ok, dirty = _git(root, "status", "--porcelain")
         integrity = sha_ok and bool(_GIT_SHA.fullmatch(sha)) and bool(branch) and status_ok and not dirty
         if not integrity:

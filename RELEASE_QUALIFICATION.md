@@ -52,3 +52,7 @@ non-published multi-architecture OCI archive included as a checksum-verified
 artifact. The certified bundle is the retained Actions artifact documented in
 [RELEASE_ARTIFACTS.md](RELEASE_ARTIFACTS.md); downloading it, rather than
 rebuilding it, is the retrieval path.
+
+This evidence is historical only. R1-GOV-2 classifies its candidate as a
+non-mainline sibling and therefore not publishable; future qualification starts
+from an exact mainline snapshot as defined in [RELEASE_ARCHITECTURE.md](RELEASE_ARCHITECTURE.md).
