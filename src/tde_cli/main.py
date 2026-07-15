@@ -175,6 +175,25 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     stream = stdout or sys.stdout
     parser = build_parser()
     arguments = parser.parse_args(argv)
+    prepared = _prepare_command(arguments, parser, stream)
+    if isinstance(prepared, int): return prepared
+    configuration = prepared
+    if arguments.command in {"store", "history"}:
+        store = EvidenceStore(_store_location(arguments, arguments.target))
+        try:
+            if arguments.command == "history":
+                _render({"command": "history", "records": store.history()}, arguments.format, stream)
+                return ExitCode.SUCCESS
+            record = Runtime().execute(arguments.target, configuration)
+            _render({"command": "store", "record": store.persist(record.evidence)}, arguments.format, stream)
+            return ExitCode.SUCCESS
+        except (ValueError, OSError, json.JSONDecodeError) as error:
+            _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
+    return _execute_command(arguments, configuration, stream)
+
+
+def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentParser, stream: TextIO) -> RuntimeConfiguration | int:
     if arguments.version:
         _render({"cliVersion": CLI_VERSION, "runtimeVersion": RUNTIME_VERSION,
                  "schemaVersion": EVIDENCE_SCHEMA_VERSION, "generation": GENERATION}, arguments.format, stream)
@@ -237,81 +256,16 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             return ExitCode.BLOCKED
         for capability in sorted(set(arguments.release_capability)):
             configuration = configuration.with_capability(supported[capability])
-    if arguments.command in {"store", "history"}:
-        store = EvidenceStore(_store_location(arguments, arguments.target))
-        try:
-            if arguments.command == "history":
-                _render({"command": "history", "records": store.history()}, arguments.format, stream)
-                return ExitCode.SUCCESS
-            record = Runtime().execute(arguments.target, configuration)
-            _render({"command": "store", "record": store.persist(record.evidence)}, arguments.format, stream)
-            return ExitCode.SUCCESS
-        except (ValueError, OSError, json.JSONDecodeError) as error:
-            _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
+    return configuration
+
+
+def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
     if arguments.command in {"baseline", "compare"}:
-        location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
-        repository = BaselineRepository(Path(arguments.target) / location if not Path(location).is_absolute() else location)
-        comparison_location = repository.location.parent / "comparisons"
-        evidence_store = EvidenceStore(_store_location(arguments, arguments.target))
-        try:
-            current = Runtime().execute(arguments.target, configuration)
-            persisted_current = evidence_store.persist(current.evidence)
-            current_evidence = evidence_store.retrieve(persisted_current["id"])["evidence"]
-            if arguments.command == "baseline":
-                baseline = repository.create(current_evidence, arguments.name)
-                _render({"command": "baseline", "status": "VALID", "evidenceStore": persisted_current, "baseline": baseline}, arguments.format, stream)
-                return ExitCode.SUCCESS
-            if not arguments.baseline:
-                raise BaselineError("compare requires --baseline")
-            baseline = repository.load(arguments.baseline)
-            comparison = ComparisonEngine().compare(current_evidence, baseline)
-            policy = PolicyEngine().load(current.context.configuration, current.context.repository_root,
-                                         current.context.runtime_version, current.context.schema_version)
-            normalized = {"measurements": current_evidence["measurements"], "findings": current_evidence["findings"],
-                          "capabilityResults": current_evidence["capabilityResults"], "comparison": comparison}
-            policy_evidence = PolicyEngine().evaluate(policy, normalized, current.context.configuration)
-            persisted_comparison = ComparisonRepository(comparison_location).persist(comparison, policy_evidence, baseline)
-            status = ExitCode.SUCCESS if policy_evidence["decision"] != "BLOCKED" else ExitCode.BLOCKED
-            _render({"command": "compare", "evidenceStore": persisted_current, "comparison": comparison,
-                     "comparisonStore": persisted_comparison, "policyEvidence": policy_evidence,
-                     "qualificationDelta": persisted_comparison["qualificationDelta"]}, arguments.format, stream)
-            return status
-        except (BaselineError, PolicyError, ValueError) as error:
-            _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
+        return _baseline_command(arguments, configuration, stream)
     if arguments.command == "trend":
-        location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
-        location = Path(arguments.target) / location if not Path(location).is_absolute() else Path(location)
-        try:
-            current = Runtime().execute(arguments.target, configuration)
-            trend = TrendEngine().build(current.evidence, location, configuration.execution_options.get("trend", {}).get("historyDepth"))
-            policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
-            policy_evidence = PolicyEngine().evaluate(policy, {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"], "capabilityResults": current.evidence["capabilityResults"], "trend": trend}, current.context.configuration)
-            _render({"command": "trend", "trendEvidence": trend, "policyEvidence": policy_evidence}, arguments.format, stream)
-            return ExitCode.SUCCESS if policy_evidence["decision"] != "BLOCKED" else ExitCode.BLOCKED
-        except (ValueError, PolicyError) as error:
-            _render({"command": "trend", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
+        return _trend_command(arguments, configuration, stream)
     if arguments.command == "query":
-        try:
-            filters = dict(item.split("=", 1) for item in arguments.filter)
-            store = EvidenceStore(_store_location(arguments, arguments.target))
-            records = store.history()
-            if not records:
-                raise ValueError("no persisted evidence is available; run assess first")
-            evidence = records[-1]["evidence"]
-            baseline_location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
-            baseline_path = Path(arguments.target) / baseline_location if not Path(baseline_location).is_absolute() else Path(baseline_location)
-            comparisons = ComparisonRepository(baseline_path.parent / "comparisons").history()
-            baselines = [BaselineRepository(baseline_path).load(path) for path in sorted(baseline_path.glob("*.json"))] if baseline_path.is_dir() else []
-            response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate,
-                                                  "baselines": baselines, "comparisons": comparisons})
-            _render({"command": "query", "evidenceId": evidence["integrity"]["contentDigest"], **response}, arguments.format, stream)
-            return ExitCode.SUCCESS
-        except (ValueError, PolicyError) as error:
-            _render({"command": "query", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
+        return _query_command(arguments, configuration, stream)
     if arguments.command == "qualify":
         try:
             result=Runtime().execute(arguments.target,configuration)
@@ -322,24 +276,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         except ValueError as error:
             _render({"command":"qualify","status":"BLOCKED","reason":str(error)},arguments.format,stream); return ExitCode.BLOCKED
     if arguments.command == "report":
-        supported = {"code-size": "code_size", "complexity": "complexity"}
-        if len(arguments.capability) != 1 or arguments.capability[0] not in supported:
-            _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size or --capability complexity"}, arguments.format, stream)
-            return ExitCode.NOT_SUPPORTED
-        try:
-            records = EvidenceStore(_store_location(arguments, arguments.target)).history()
-            capability = supported[arguments.capability[0]]
-            evidence = next((record["evidence"] for record in reversed(records) if any(item.get("capabilityId") == capability for item in record["evidence"].get("capabilityResults", []))), None)
-            if evidence is None:
-                raise ValueError("no persisted evidence is available for this capability; run assess first")
-        except ValueError as error:
-            _render({"command": "report", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
-        if evidence["runtimeQualification"]["level"] != "QUALIFIED":
-            _render({"command": "report", "status": "BLOCKED", "reason": "capability evidence is not qualified"}, arguments.format, stream)
-            return ExitCode.BLOCKED
-        _render_capability_report(evidence, supported[arguments.capability[0]], arguments.format, stream)
-        return ExitCode.SUCCESS
+        return _report_command(arguments, stream)
     if arguments.command == "assure":
         evidence=SoftwareAssurance().assure(arguments.target,arguments.artifact_directory)
         _render({"command":"assure","assuranceEvidence":evidence},arguments.format,stream)
@@ -376,6 +313,86 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     _render({"command": arguments.command, "status": "NOT_IMPLEMENTED",
              "reason": "This command framework is present; its capability behavior is not delivered."}, arguments.format, stream)
     return ExitCode.NOT_SUPPORTED
+
+
+def _baseline_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
+    location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+    repository = BaselineRepository(Path(arguments.target) / location if not Path(location).is_absolute() else location)
+    evidence_store = EvidenceStore(_store_location(arguments, arguments.target))
+    try:
+        current = Runtime().execute(arguments.target, configuration)
+        persisted = evidence_store.persist(current.evidence)
+        evidence = evidence_store.retrieve(persisted["id"])["evidence"]
+        if arguments.command == "baseline": return _create_baseline(arguments, repository, evidence, persisted, stream)
+        return _compare_baseline(arguments, repository, current, evidence, persisted, stream)
+    except (BaselineError, PolicyError, ValueError) as error:
+        _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+        return ExitCode.BLOCKED
+
+
+def _create_baseline(arguments, repository, evidence, persisted, stream):
+    baseline = repository.create(evidence, arguments.name)
+    _render({"command": "baseline", "status": "VALID", "evidenceStore": persisted, "baseline": baseline}, arguments.format, stream)
+    return ExitCode.SUCCESS
+
+
+def _compare_baseline(arguments, repository, current, evidence, persisted, stream):
+    if not arguments.baseline: raise BaselineError("compare requires --baseline")
+    baseline = repository.load(arguments.baseline)
+    comparison = ComparisonEngine().compare(evidence, baseline)
+    policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
+    normalized = {"measurements": evidence["measurements"], "findings": evidence["findings"], "capabilityResults": evidence["capabilityResults"], "comparison": comparison}
+    policy_evidence = PolicyEngine().evaluate(policy, normalized, current.context.configuration)
+    persisted_comparison = ComparisonRepository(repository.location.parent / "comparisons").persist(comparison, policy_evidence, baseline)
+    _render({"command": "compare", "evidenceStore": persisted, "comparison": comparison, "comparisonStore": persisted_comparison, "policyEvidence": policy_evidence, "qualificationDelta": persisted_comparison["qualificationDelta"]}, arguments.format, stream)
+    return ExitCode.BLOCKED if policy_evidence["decision"] == "BLOCKED" else ExitCode.SUCCESS
+
+
+def _trend_command(arguments, configuration, stream):
+    location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+    location = Path(arguments.target) / location if not Path(location).is_absolute() else Path(location)
+    try:
+        current = Runtime().execute(arguments.target, configuration)
+        trend = TrendEngine().build(current.evidence, location, configuration.execution_options.get("trend", {}).get("historyDepth"))
+        policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
+        inputs = {"measurements": current.evidence["measurements"], "findings": current.evidence["findings"], "capabilityResults": current.evidence["capabilityResults"], "trend": trend}
+        evidence = PolicyEngine().evaluate(policy, inputs, current.context.configuration)
+        _render({"command": "trend", "trendEvidence": trend, "policyEvidence": evidence}, arguments.format, stream)
+        return ExitCode.BLOCKED if evidence["decision"] == "BLOCKED" else ExitCode.SUCCESS
+    except (ValueError, PolicyError) as error:
+        _render({"command": "trend", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream); return ExitCode.BLOCKED
+
+
+def _query_command(arguments, configuration, stream):
+    try:
+        filters = dict(item.split("=", 1) for item in arguments.filter)
+        records = EvidenceStore(_store_location(arguments, arguments.target)).history()
+        if not records: raise ValueError("no persisted evidence is available; run assess first")
+        evidence = records[-1]["evidence"]
+        location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+        baseline_path = Path(arguments.target) / location if not Path(location).is_absolute() else Path(location)
+        comparisons = ComparisonRepository(baseline_path.parent / "comparisons").history()
+        baselines = [BaselineRepository(baseline_path).load(path) for path in sorted(baseline_path.glob("*.json"))] if baseline_path.is_dir() else []
+        response = Runtime().query(evidence, {"resource": arguments.resource, "filter": filters, "aggregate": arguments.aggregate, "baselines": baselines, "comparisons": comparisons})
+        _render({"command": "query", "evidenceId": evidence["integrity"]["contentDigest"], **response}, arguments.format, stream); return ExitCode.SUCCESS
+    except (ValueError, PolicyError) as error:
+        _render({"command": "query", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream); return ExitCode.BLOCKED
+
+
+def _report_command(arguments, stream):
+    supported = {"code-size": "code_size", "complexity": "complexity"}
+    if len(arguments.capability) != 1 or arguments.capability[0] not in supported:
+        _render({"command": "report", "status": "NOT_SUPPORTED", "reason": "report requires --capability code-size or --capability complexity"}, arguments.format, stream); return ExitCode.NOT_SUPPORTED
+    try:
+        capability = supported[arguments.capability[0]]
+        records = EvidenceStore(_store_location(arguments, arguments.target)).history()
+        evidence = next((record["evidence"] for record in reversed(records) if any(item.get("capabilityId") == capability for item in record["evidence"].get("capabilityResults", []))), None)
+        if evidence is None: raise ValueError("no persisted evidence is available for this capability; run assess first")
+    except ValueError as error:
+        _render({"command": "report", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream); return ExitCode.BLOCKED
+    if evidence["runtimeQualification"]["level"] != "QUALIFIED":
+        _render({"command": "report", "status": "BLOCKED", "reason": "capability evidence is not qualified"}, arguments.format, stream); return ExitCode.BLOCKED
+    _render_capability_report(evidence, capability, arguments.format, stream); return ExitCode.SUCCESS
 
 
 def console_main() -> None:

@@ -30,35 +30,41 @@ def validate(value, schema, current, path="$", errors=None):
     if "$ref" in schema:
         resolved, target = resolve(schema["$ref"], current)
         return validate(value, resolved, target, path, errors)
-    if "const" in schema and value != schema["const"]:
-        errors.append(f"{path}: expected constant {schema['const']!r}")
-    if "enum" in schema and value not in schema["enum"]:
-        errors.append(f"{path}: value is not an allowed enum")
+    if not _scalar_valid(value, schema, path, errors): return errors
+    _validate_object(value, schema, current, path, errors)
+    _validate_items(value, schema, current, path, errors)
+    return errors
+
+def _scalar_valid(value, schema, path, errors):
+    if "const" in schema and value != schema["const"]: errors.append(f"{path}: expected constant {schema['const']!r}")
+    if "enum" in schema and value not in schema["enum"]: errors.append(f"{path}: value is not an allowed enum")
     expected = schema.get("type")
-    if expected:
-        expected = expected if isinstance(expected, list) else [expected]
-        actual = {"object": isinstance(value, dict), "array": isinstance(value, list),
-                  "string": isinstance(value, str), "number": isinstance(value, (int, float)) and not isinstance(value, bool),
-                  "integer": isinstance(value, int) and not isinstance(value, bool), "boolean": isinstance(value, bool)}
-        if not any(actual.get(item, False) for item in expected):
-            errors.append(f"{path}: expected {expected}")
-            return errors
+    if expected and not any(_is_type(value, item) for item in (expected if isinstance(expected, list) else [expected])):
+        errors.append(f"{path}: expected {expected}"); return False
     if isinstance(value, str) and "pattern" in schema:
         import re
         if not re.search(schema["pattern"], value): errors.append(f"{path}: pattern mismatch")
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        if "minimum" in schema and value < schema["minimum"]: errors.append(f"{path}: below minimum")
-        if "maximum" in schema and value > schema["maximum"]: errors.append(f"{path}: above maximum")
-    if isinstance(value, dict):
-        for key in schema.get("required", []):
-            if key not in value: errors.append(f"{path}: missing required {key}")
-        properties = schema.get("properties", {})
-        for key, item in value.items():
-            if key in properties: validate(item, properties[key], current, f"{path}.{key}", errors)
-            elif schema.get("additionalProperties") is False: errors.append(f"{path}: unexpected property {key}")
+        if value < schema.get("minimum", value): errors.append(f"{path}: below minimum")
+        if value > schema.get("maximum", value): errors.append(f"{path}: above maximum")
+    return True
+
+def _is_type(value, expected):
+    return {"object": isinstance(value, dict), "array": isinstance(value, list), "string": isinstance(value, str),
+            "number": isinstance(value, (int, float)) and not isinstance(value, bool), "integer": isinstance(value, int) and not isinstance(value, bool), "boolean": isinstance(value, bool)}.get(expected, False)
+
+def _validate_object(value, schema, current, path, errors):
+    if not isinstance(value, dict): return
+    for key in schema.get("required", []):
+        if key not in value: errors.append(f"{path}: missing required {key}")
+    properties = schema.get("properties", {})
+    for key, item in value.items():
+        if key in properties: validate(item, properties[key], current, f"{path}.{key}", errors)
+        elif schema.get("additionalProperties") is False: errors.append(f"{path}: unexpected property {key}")
+
+def _validate_items(value, schema, current, path, errors):
     if isinstance(value, list) and "items" in schema:
         for index, item in enumerate(value): validate(item, schema["items"], current, f"{path}[{index}]", errors)
-    return errors
 
 def main():
     schemas = sorted(SCHEMAS.glob("*.json"))

@@ -85,7 +85,10 @@ def main() -> int:
         }
         dogfood = temporary_path / "technical-debt-engine"
         shutil.copytree(ROOT, dogfood, ignore=shutil.ignore_patterns(".git", ".venv", "venv", "__pycache__", ".tde", "qualification"))
-        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 2}, env=isolated_env)
+        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "complexity", str(dogfood)], expected={0, 1, 2}, env=isolated_env)
+        dogfood_policy = json.loads(dogfood_assessment["_raw"])["evidence"]["policyEvidence"]["decision"]
+        if dogfood_assessment["exitCode"] == 1 and dogfood_policy != "PASS_WITH_WARNINGS":
+            raise RuntimeError("warning exit must be backed by PASS_WITH_WARNINGS policy evidence")
         assessment = json.loads(commands["assess"]["_raw"])
         evidence_id = assessment["evidenceId"].removeprefix("sha256:")
         evidence_path = fixture / ".tde" / "evidence" / "evidence" / f"{evidence_id}.json"
@@ -113,7 +116,8 @@ def main() -> int:
             "configurationDigest": evidence["configurationDigest"], "evidenceId": assessment["evidenceId"],
             "commands": {name: command_record(command) for name, command in commands.items()},
             "dogfooding": {"target": "technical-debt-engine", "assessment": command_record(dogfood_assessment),
-                            "note": "A policy-blocking exit is product debt, not analyzer qualification failure."},
+                            "policyDecision": dogfood_policy,
+                            "note": "A policy warning or failure is product debt, not analyzer qualification failure."},
             "persistence": {"result": "PASS", "evidencePath": ".tde/evidence/evidence/<digest>.json"},
             "missingAnalyzer": {"result": "PASS", "command": command_record(missing_analyzer)},
             "persistedEvidenceValidation": command_record(validation),

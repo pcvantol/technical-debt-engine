@@ -9,7 +9,7 @@
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | P1-10 Release Certification / PR #60 is `MERGED_RECONCILED`: merged to `main` at `6559f16487ed296d872544761931cd2b9e98112a` on 2026-07-15; immutable Freeze-Point history preserved |
+| Post-merge lifecycle | P1-11 Release Evidence Qualification / PR #61 is `MERGED_RECONCILED`: merged to `main` at `5267876`; immutable Freeze-Point history preserved |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
@@ -38,7 +38,7 @@
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
 | Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
 | Release Qualification | Operational evidence-only qualification requires explicit release capability selection, executes and persists Runtime Qualification and Policy evidence, and binds them with reproducible artifacts, Software Assurance, Trusted Delivery, manifest and candidate identity; no publication occurred |
-| Release Certification | Operational `tde certify` validates persisted integrity-bound Release Evidence without duplicating Runtime or Policy logic. Dogfooding selected Code Size and Complexity and returned `RELEASE_NOT_CERTIFIED` because Policy objectively returned `FAIL`, not because evidence was absent or not applicable. No publication exists |
+| Release Certification | Operational `tde certify` validates persisted integrity-bound Release Evidence without duplicating Runtime or Policy logic. Fresh dogfooding selected Code Size and Complexity, returned policy `PASS_WITH_WARNINGS`, and objectively produced `RELEASE_CERTIFIED`. No publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
