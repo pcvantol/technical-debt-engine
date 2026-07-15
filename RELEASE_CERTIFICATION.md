@@ -30,6 +30,15 @@ Release Evidence checks passed. The evidence example is
 `release/current-candidate-r1-1.json`. Certification is not human release
 authorization and no publication occurred.
 
+## Publication boundary
+
+Certification attests to the immutable candidate and its evidence. It remains
+valid across later administrative merges, but not across a non-administrative
+change to the release-producing repository state. Publication verifies the
+commit classification and uses the certified candidate SHA, as defined in
+[RELEASE_PUBLICATION.md](RELEASE_PUBLICATION.md); it does not require current
+`main` to equal the candidate.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**
