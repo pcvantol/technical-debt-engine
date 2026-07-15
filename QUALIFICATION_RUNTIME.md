@@ -5,3 +5,9 @@ Qualification consumes validated normalized evidence only and remains analyzer-i
 Generation 1 concepts are baseline, comparison, policy, severity, regression, and trend. A baseline and comparison are immutable compatible evidence references; a trend is a sequence of compatible comparisons. Qualification never consumes raw analyzer output, substitutes incompatible baselines, or hides missing policy.
 
 The outcome is a deterministic qualification record bound to evidence and policy provenance. Missing, incompatible, or incomplete inputs fail closed. This runtime contract implements the architecture of [QUALIFICATION_MODEL.md](QUALIFICATION_MODEL.md), not an analyzer-specific policy.
+
+For a release candidate, the selected release capabilities are required inputs.
+Release Qualification records the selected set, verifies every selected
+capability executed, preserves the Runtime Qualification level/confidence/
+limitations and Policy decision, and fails closed if either record is absent or
+not passing.

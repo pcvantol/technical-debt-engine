@@ -37,6 +37,20 @@ class ReleaseCertification:
         manifest = qualification.get("manifest", {})
         runtime = qualification.get("runtimeEvidence", {})
         checks = qualification.get("checks", {})
+        release_evidence_reference = qualification.get("releaseEvidence", {})
+        release_evidence, release_evidence_digest = _read(release_evidence_reference.get("path", "")) if isinstance(release_evidence_reference, dict) else (None, None)
+        expected_release_evidence_id = None
+        if release_evidence:
+            unsigned = {key: value for key, value in release_evidence.items() if key != "releaseEvidenceId"}
+            expected_release_evidence_id = "release-evidence.sha256." + sha256(_canonical(unsigned)).hexdigest()
+        release_evidence_integrity = bool(
+            release_evidence
+            and release_evidence_digest == release_evidence_reference.get("digest")
+            and release_evidence.get("releaseEvidenceId") == release_evidence_reference.get("id")
+            and release_evidence.get("releaseEvidenceId") == expected_release_evidence_id
+            and release_evidence.get("candidate") == candidate
+            and release_evidence.get("releaseQualification", {}).get("checks") == checks
+        )
         evidence_checks = {
             "candidateIdentity": isinstance(candidate.get("sha"), str) and len(candidate["sha"]) == 40,
             "artifactIdentity": isinstance(artifacts, list) and bool(artifacts) and all(item.get("digest", "").startswith("sha256:") for item in artifacts if isinstance(item, dict)),
@@ -48,6 +62,7 @@ class ReleaseCertification:
             "releaseQualification": qualification.get("decision") == "RELEASE_QUALIFIED" and qualification.get("releaseDecision") == "READY",
             "buildProvenance": bool(checks.get("buildReproducibility")),
             "canonicalEvidence": bool(digest) and bool(manifest.get("integrity")),
+            "releaseEvidence": release_evidence_integrity,
             "runtimeQualification": (runtime.get("validation", {}).get("status") == "VALID"
                                      and runtime.get("runtimeQualification") == "QUALIFIED"),
             "policyEvidence": runtime.get("policyDecision") in {"PASS", "PASS_WITH_WARNINGS"},
@@ -62,7 +77,8 @@ class ReleaseCertification:
             "certificationInputs": {"releaseQualification": {"path": str(qualification_path), "digest": digest},
                                     "softwareAssuranceId": qualification.get("softwareAssurance", {}).get("assuranceId"),
                                     "trustedDeliveryId": qualification.get("trustedDelivery", {}).get("trustedDeliveryId"),
-                                    "manifest": manifest, "artifacts": artifacts, "runtimeEvidence": runtime},
+                                    "manifest": manifest, "artifacts": artifacts, "runtimeEvidence": runtime,
+                                    "releaseEvidence": {"reference": release_evidence_reference, "digest": release_evidence_digest}},
             "checks": evidence_checks, "decision": decision, "limitations": limitations,
             "decisionRationale": "All required canonical evidence passed." if decision == "RELEASE_CERTIFIED" else "Certification is fail-closed because required canonical evidence did not pass.",
         }
