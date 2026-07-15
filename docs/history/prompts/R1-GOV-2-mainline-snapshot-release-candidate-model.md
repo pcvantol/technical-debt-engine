@@ -9,7 +9,7 @@
 | Reconciled main | `0d7fea6961b1ad495525427fb473c0629b3eb53b` |
 | Shared parent | `a07271b9643961ab6f3b75672513a9fa253c6b92` |
 | Pull Request | [#67](https://github.com/pcvantol/technical-debt-engine/pull/67) |
-| Implementation commit | `08ea35b0d70ba71c29ec4d0808c1a7414d5e8c9b` |
+| Implementation commit | `08ea35bd2e0e217915513a8d0af3f4494940bc44` |
 | Freeze | Immediately when the sole pull request becomes reviewable. |
 
 ## Incident and decision
