@@ -12,7 +12,8 @@
 | Release Qualification | `RELEASE_BLOCKED` / `NOT_READY` |
 | Release Certification | Not started |
 | Bundle identity/checksum | Not created |
-| Pull Request | Recorded by the reviewable pull request for this branch. |
+| Pull Request | [#68](https://github.com/pcvantol/technical-debt-engine/pull/68) |
+| Implementation commit | `a362ede4ec2d9025247c81245cee08390b856eeb` |
 | Freeze | Immediately when the sole pull request becomes reviewable. |
 
 ## Validation and blocker
