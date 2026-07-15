@@ -57,6 +57,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | P1-8 | Operational Software Assurance | Active — canonical assurance evidence and artifact verification |
 | [P1-9](docs/history/prompts/P1-9-operational-trusted-delivery.md) | Operational Trusted Delivery | [Merged — #57](https://github.com/pcvantol/technical-debt-engine/pull/57) at [merge commit](https://github.com/pcvantol/technical-debt-engine/commit/9a612192cdf0777b7c7758d068a47339f8771fb8) · [implementation commit](https://github.com/pcvantol/technical-debt-engine/commit/65cbb9d010d7c6156e18a355f66b6b0cc42c9e0b) |
 | [G2-GOV-6](docs/history/prompts/G2-GOV-6-post-merge-engineering-state-reconciliation.md) | Post-Merge Engineering State Reconciliation | [Draft — #58](https://github.com/pcvantol/technical-debt-engine/pull/58) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/g2-gov-6-post-merge-reconciliation) · [reconciliation commit](https://github.com/pcvantol/technical-debt-engine/commit/c32175ca615419f63318d9896162cc727bdd8691) |
+| P1-10 | Operational Release Qualification | Active — canonical release candidate and evidence qualification |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
