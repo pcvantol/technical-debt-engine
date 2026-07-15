@@ -2,18 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-8` — Operational Software Assurance |
-| Freeze state | `ACTIVE` — implementation and deterministic validation in progress. |
-| Current branch | `main` |
-| Current pull request | Not created. |
-| Current decision | Pending final validation. |
-| Current repository truth | `tde assure` now produces canonical, fail-closed Software Assurance evidence for repository, dependencies, workflows, configuration, documentation and explicitly supplied package candidates. Artifact checksum, identity, provenance and independent-build reproducibility verification reuses the P1-7 evidence contract. No Trusted Delivery, release qualification, certification, release, or publication is performed. |
-| Next recommended prompt | Complete P1-8 validation and review. |
+| Current prompt | `P1-9` — Operational Trusted Delivery |
+| Freeze state | `DRAFT` — finalization records are in PR #57; reviewable transition pending. |
+| Current branch | `codex/p1-9-trusted-delivery` |
+| Current pull request | [#57](https://github.com/pcvantol/technical-debt-engine/pull/57) (draft) |
+| Current decision | `TRUSTED_DELIVERY_OPERATIONAL` |
+| Current repository truth | `tde trusted-delivery` now validates clean Git candidate SHA/repository/branch identity; consumes canonical Software Assurance; validates a versioned supplied delivery manifest and its checksum references; validates reproducible artifact/provenance records; and records immutable, least-privilege workflow hashes. It is evidence-only and creates no release. |
+| Next recommended prompt | Release Qualification, after review and merge, using an external canonical manifest and independently reproducible release-candidate artifacts. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- | --- |
-| Qualify non-Python Complexity across the supported language roadmap. | This increment qualifies policy use of the existing Python Complexity evidence only. | Complexity language expansion | `P1` |
-| Add organization, cloud, and release policy providers. | The canonical local-first policy architecture remains deliberately scoped to bundled/workspace/repository policies. | Policy provider evolution | `P2` |
-| Obtain passing hosted package-build evidence. | Review feedback moved generated workflow artifacts outside the checkout after run `29367913517` exposed the checkout output location. | Build reproducibility workflow follow-up | `P1` |
+| Run Trusted Delivery with a real release-candidate manifest and two independent artifact directories. | This increment does not create a release, manifest, or release artifacts. Dogfooding correctly returns `PASS_WITH_WARNINGS` until those external inputs exist. | Release Qualification | `P1` |
