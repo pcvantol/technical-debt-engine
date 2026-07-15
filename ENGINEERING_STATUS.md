@@ -2,18 +2,19 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-GOV-2 Mainline Snapshot Release Candidate Model |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #67 contains the completed mainline-snapshot release-governance correction. |
-| Current branch | `codex/r1-gov-2-mainline-snapshot-model` |
-| Current pull request | Reviewable [#67](https://github.com/pcvantol/technical-debt-engine/pull/67). |
-| Current decision | `MAINLINE_SNAPSHOT_RELEASE_MODEL_ESTABLISHED` |
-| Current repository truth | PR #66 merged at `0d7fea6`. Its sibling candidate `2d6132061807a433178a1ababc1709340cb937de` is preserved but non-publishable because it is not an ancestor of main. No release has been published. |
-| Next recommended prompt | R1-3A — Create and Certify Mainline Internal Release Candidate. |
+| Current prompt | R1-3A Create and Certify Mainline Internal Release Candidate |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #68 records the fail-closed mainline candidate result. |
+| Current branch | `codex/r1-3a-mainline-internal-release-candidate` |
+| Current pull request | Reviewable [#68](https://github.com/pcvantol/technical-debt-engine/pull/68). |
+| Current decision | `MAINLINE_INTERNAL_RELEASE_CANDIDATE_BLOCKED` |
+| Current repository truth | PR #67 is `MERGED_RECONCILED` at `a507838`. Its mainline candidate attempt in workflow run `29450643140` failed at Release Qualification because detached-checkout source-branch identity diverged between Release Qualification and Trusted Delivery. No certification or bundle exists. |
+| Next recommended prompt | R1-GOV-3 — Canonical Candidate Source-Branch Identity Correction. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Create and certify a replacement mainline candidate after R1-GOV-2 merges. | The sibling R1-2B candidate cannot be published. | R1-3A — Create and Certify Mainline Internal Release Candidate | `P1` |
-| Human release approval and publication. | It requires a certified preserved bundle and protected workflow after R1-3A. | Human Release Authorization & Internal Publication | `P1` |
+| Correct candidate source-branch identity across Release Qualification and Trusted Delivery. | R1-3A's exact-SHA detached checkout fails closed on divergent branch evidence. | R1-GOV-3 — Canonical Candidate Source-Branch Identity Correction | `P0` |
+| Create and certify a fresh mainline candidate. | R1-3A did not reach certification or bundle preservation. | R1-3A retry after R1-GOV-3 merges | `P1` |
+| Human release approval and publication. | It requires a certified preserved bundle after a successful future candidate. | Human Release Authorization & Internal Publication | `P1` |
 | Reduce remaining Complexity policy warnings (maximum 23; warning threshold 15). | Certification permits warnings; no blocking threshold is reached. | Complexity Quality Improvement | `P2` |
