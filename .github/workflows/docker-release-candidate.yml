@@ -1,0 +1,70 @@
+name: Docker release candidate
+
+on:
+  pull_request:
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'src/**'
+      - 'tests/test_docker_artifact.py'
+      - 'tools/build_docker_candidate.py'
+      - 'tools/package_build.py'
+      - '.github/workflows/docker-release-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-oci-candidate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+      - id: candidate
+        name: Identify checked-out candidate
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - name: Install deterministic build tools
+        run: |
+          python -m pip install --require-hashes -r requirements/build-tools.txt
+          python -m pip install radon==6.0.1
+          curl --fail --location --silent --show-error https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl --output /usr/local/bin/cloc
+          echo 'bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  /usr/local/bin/cloc' | sha256sum --check
+          chmod +x /usr/local/bin/cloc
+      - name: Run Docker artifact tests
+        run: PYTHONPATH=src python -m unittest tests.test_docker_artifact -v
+      - name: Build package candidate
+        run: |
+          python tools/package_build.py --output "$RUNNER_TEMP/package-one"
+          python tools/package_build.py --output "$RUNNER_TEMP/package-two"
+          cmp "$RUNNER_TEMP/package-one/SHA256SUMS" "$RUNNER_TEMP/package-two/SHA256SUMS"
+      - name: Build non-published OCI archive
+        run: python tools/build_docker_candidate.py --wheel "$RUNNER_TEMP"/package-one/*.whl --sdist "$RUNNER_TEMP"/package-one/*.tar.gz --output "$RUNNER_TEMP/oci"
+      - name: Qualify and certify the complete candidate without publication
+        run: |
+          set -o pipefail
+          PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json release-qualify . --release-capability code-size --release-capability complexity --artifact-directory "$RUNNER_TEMP/package-one" --artifact-directory "$RUNNER_TEMP/package-two" --docker-artifact-directory "$RUNNER_TEMP/oci" --manifest-output "$RUNNER_TEMP/release-manifest.json" | tee "$RUNNER_TEMP/release-qualification.json"
+          PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json certify . --qualification-evidence "$RUNNER_TEMP/release-qualification.json" --report-output "$RUNNER_TEMP/release-certification.json" | tee "$RUNNER_TEMP/certify-output.json"
+      - name: Assemble checksum-bound certified bundle
+        run: |
+          PYTHONPATH=src python tools/assemble_release_bundle.py --candidate-sha "$(git rev-parse HEAD)" --output "$RUNNER_TEMP/bundle" --wheel "$RUNNER_TEMP"/package-one/*.whl --sdist "$RUNNER_TEMP"/package-one/*.tar.gz --oci-archive "$RUNNER_TEMP/oci/tde-oci.tar" --docker-provenance "$RUNNER_TEMP/oci/docker-provenance.json" --release-manifest "$RUNNER_TEMP/release-manifest.json" --release-qualification "$RUNNER_TEMP/release-qualification.json" --release-certification "$RUNNER_TEMP/release-certification.json" --release-evidence "$RUNNER_TEMP/release-manifest.release-evidence.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docker-release-candidate-${{ steps.candidate.outputs.sha }}
+          path: |
+            ${{ runner.temp }}/package-one/
+            ${{ runner.temp }}/package-two/
+            ${{ runner.temp }}/oci/
+            ${{ runner.temp }}/bundle/
+            ${{ runner.temp }}/release-manifest.json
+            ${{ runner.temp }}/release-qualification.json
+            ${{ runner.temp }}/release-certification.json
+          retention-days: 90
+          if-no-files-found: error

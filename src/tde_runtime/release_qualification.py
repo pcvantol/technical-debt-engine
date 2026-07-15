@@ -32,12 +32,11 @@ class ReleaseQualification:
     """Compose already-generated evidence into a qualified, immutable release record."""
 
     def qualify(self, root: str | Path, runtime_evidence: Mapping[str, Any], artifact_directories: Sequence[str | Path],
-                manifest_output: str | Path, selected_capabilities: Sequence[str] = ()) -> dict[str, Any]:
+                manifest_output: str | Path, selected_capabilities: Sequence[str] = (), docker_artifact_directory: str | Path | None = None) -> dict[str, Any]:
         root = Path(root).resolve()
         output = Path(manifest_output).resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
         selection = sorted(set(selected_capabilities))
-        assurance = SoftwareAssurance().assure(root, list(artifact_directories))
         candidate = {
             "sha": _git(root, "rev-parse", "HEAD"),
             "repository": _git(root, "config", "--get", "remote.origin.url") or "local",
@@ -47,6 +46,7 @@ class ReleaseQualification:
             "selectedCapabilities": selection,
             "policyVersion": runtime_evidence.get("policyEvidence", {}).get("policy", {}).get("version"),
         }
+        assurance = SoftwareAssurance().assure(root, list(artifact_directories), docker_artifact_directory)
         artifacts = [item for record in assurance["artifacts"]["records"] for item in record["artifacts"]]
         delivery_manifest = {"schemaId": "tde.trusted-delivery-manifest", "schemaVersion": "1.0.0",
                              "candidate": {key: candidate[key] for key in ("sha", "repository", "branch")}, "artifacts": artifacts}
@@ -68,6 +68,7 @@ class ReleaseQualification:
             "requiredCapabilitiesExecuted": required_executed,
             "runtimeQualification": qualification.get("level") == "QUALIFIED",
             "policyEvidence": policy.get("decision") in {"PASS", "PASS_WITH_WARNINGS"},
+            "dockerArtifact": docker_artifact_directory is None or bool(assurance["artifacts"].get("docker", {}).get("verified")),
         }
         ready = all(checks.values())
         decision = "RELEASE_QUALIFIED" if ready else "RELEASE_BLOCKED"
