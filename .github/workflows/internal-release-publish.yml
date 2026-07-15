@@ -1,0 +1,164 @@
+name: Internal release publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact SHA bound by the certified bundle
+        required: true
+        type: string
+      release_version:
+        description: Immutable version, for example 0.1.0
+        required: true
+        type: string
+      candidate_run_id:
+        description: Workflow run that retained the certified bundle
+        required: true
+        type: string
+      bundle_artifact:
+        description: Exact certified-bundle artifact name
+        required: true
+        type: string
+      authorization_json:
+        description: Structurally bound authorization assertion (validated; approval is enforced by the protected environment)
+        required: true
+        type: string
+      dry_run:
+        description: Verify only; publication requires false and protected-environment approval
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  preflight:
+    name: Verify preserved certified bundle
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.candidate_run_id }}
+          name: ${{ inputs.bundle_artifact }}
+          path: ${{ runner.temp }}/candidate
+      - name: Verify retrieved bundle and authorization structure
+        env:
+          AUTHORIZATION_JSON: ${{ inputs.authorization_json }}
+        run: |
+          set -euo pipefail
+          bundle_directory="$(find "$RUNNER_TEMP/candidate" -name bundle-manifest.json -print -quit | xargs -n1 dirname)"
+          test -n "$bundle_directory"
+          PYTHONPATH=src python tools/verify_publication_bundle.py --bundle-directory "$bundle_directory" --candidate-sha "${{ inputs.candidate_sha }}" --release-version "${{ inputs.release_version }}" --authorization-json "$AUTHORIZATION_JSON" --evidence-output "$RUNNER_TEMP/publication-preflight.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: internal-release-publication-preflight-${{ inputs.candidate_sha }}
+          path: ${{ runner.temp }}/publication-preflight.json
+          retention-days: 90
+          if-no-files-found: error
+
+  publish:
+    name: Publish previously verified immutable bundle
+    needs: preflight
+    if: ${{ inputs.dry_run == false }}
+    runs-on: ubuntu-24.04
+    environment: internal-release
+    permissions:
+      actions: read
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.candidate_run_id }}
+          name: ${{ inputs.bundle_artifact }}
+          path: ${{ runner.temp }}/candidate
+      - name: Re-verify the immutable bundle immediately before publication
+        env:
+          AUTHORIZATION_JSON: ${{ inputs.authorization_json }}
+        run: |
+          set -euo pipefail
+          bundle_directory="$(find "$RUNNER_TEMP/candidate" -name bundle-manifest.json -print -quit | xargs -n1 dirname)"
+          test -n "$bundle_directory"
+          PYTHONPATH=src python tools/verify_publication_bundle.py --bundle-directory "$bundle_directory" --candidate-sha "${{ inputs.candidate_sha }}" --release-version "${{ inputs.release_version }}" --authorization-json "$AUTHORIZATION_JSON" --evidence-output "$RUNNER_TEMP/publication-preflight.json"
+          echo "BUNDLE_DIRECTORY=$bundle_directory" >> "$GITHUB_ENV"
+      - name: Create immutable Git tag and GitHub Release from the certified bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.release_version }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          if git rev-parse --verify --quiet "refs/tags/$VERSION"; then
+            echo "immutable tag already exists: $VERSION"
+            exit 1
+          fi
+          git tag --annotate "$VERSION" "$CANDIDATE_SHA" --message "Internal release $VERSION"
+          git push origin "refs/tags/$VERSION"
+          gh release create "$VERSION" "$BUNDLE_DIRECTORY/SHA256SUMS" "$BUNDLE_DIRECTORY/bundle-manifest.json" --target "$CANDIDATE_SHA" --title "Technical Debt Engine $VERSION" --generate-notes
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish the certified OCI archive using only its immutable version tag
+        env:
+          VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes skopeo
+          oci_archive="$(find "$BUNDLE_DIRECTORY" -type f -name '*.tar' -print -quit)"
+          test -n "$oci_archive"
+          skopeo copy --all "oci-archive:$oci_archive" "docker://docker.io/pcvantol/technical-debt-engine:$VERSION"
+          skopeo inspect "docker://docker.io/pcvantol/technical-debt-engine:$VERSION" > "$RUNNER_TEMP/docker-publication.json"
+          test -s "$RUNNER_TEMP/docker-publication.json"
+      - name: Stage only the certified Python distributions
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/pypi"
+          find "$BUNDLE_DIRECTORY" -maxdepth 1 -type f \( -name '*.whl' -o -name '*.tar.gz' \) -exec cp {} "$RUNNER_TEMP/pypi/" \;
+          test "$(find "$RUNNER_TEMP/pypi" -type f | wc -l)" = 2
+          echo "PYPI_DIRECTORY=$RUNNER_TEMP/pypi" >> "$GITHUB_ENV"
+      - name: Publish the certified Python distributions using Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@6733eb7d741f0b11ec6a39b58540dab7590f9b7d # v1.14.0
+        with:
+          packages-dir: ${{ env.PYPI_DIRECTORY }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          verbose: true
+      - name: Record publication evidence
+        env:
+          VERSION: ${{ inputs.release_version }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          python - <<'PY' > "$RUNNER_TEMP/publication-evidence.json"
+          import json, os
+          docker = json.load(open(os.environ["RUNNER_TEMP"] + "/docker-publication.json", encoding="utf-8"))
+          print(json.dumps({"schemaId": "tde.internal-release-publication", "schemaVersion": "1.0.0", "candidateSha": os.environ["CANDIDATE_SHA"], "releaseVersion": os.environ["VERSION"], "githubRelease": os.environ["VERSION"], "pypi": {"mode": "trusted-publishing"}, "docker": {"repository": "docker.io/pcvantol/technical-debt-engine", "tag": os.environ["VERSION"], "digest": docker.get("Digest")}, "latestPublished": False}, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: internal-release-publication-evidence-${{ inputs.candidate_sha }}
+          path: |
+            ${{ runner.temp }}/publication-preflight.json
+            ${{ runner.temp }}/publication-evidence.json
+            ${{ runner.temp }}/docker-publication.json
+          retention-days: 90
+          if-no-files-found: error

@@ -7,10 +7,10 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | No published release; R1-3A mainline candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` is certified and bundle-preserved, pending explicit human authorization |
+| Releases | No published release; R1-3A mainline candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` is certified and bundle-preserved. R1-3B adds manual checksum-bound publication preflight and a protected Environment contract; human authorization remains required. |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #70 is `MERGED_RECONCILED` at `3fda62e`; R1-GOV-3 corrected detached-SHA source-branch identity. R1-3A successfully certified that synchronized mainline candidate; see `RELEASE_CANDIDATE_STATUS.md` |
+| Post-merge lifecycle | PR #71 is `MERGED_RECONCILED` at `6441ff6`; it records R1-3A certified-candidate evidence. R1-3B establishes publication infrastructure only; see `RELEASE_CANDIDATE_STATUS.md` and `RELEASE_PUBLICATION.md`. |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
