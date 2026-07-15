@@ -93,6 +93,10 @@ def build_parser() -> argparse.ArgumentParser:
         if identifier == "assure":
             command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY",
                                  help="Candidate build directory; repeat for independent reproducibility verification.")
+        if identifier == "trusted-delivery":
+            command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY",
+                                 help="Candidate build directory; repeat for independent reproducibility verification.")
+            command.add_argument("--manifest", metavar="PATH", help="Canonical JSON delivery manifest for this candidate.")
     return parser
 
 
@@ -322,9 +326,10 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         return _policy_exit_code(evidence["decision"])
     if arguments.command == "trusted-delivery":
         result=Runtime().execute(arguments.target,configuration)
-        evidence=TrustedDelivery().validate(arguments.target,result.evidence)
-        _render({"command":"trusted-delivery","trustedDeliveryEvidence":evidence,"softwareAssurance":SoftwareAssurance().assure(arguments.target)},arguments.format,stream)
-        return ExitCode.FAILED if evidence["qualification"] in {"FAIL","BLOCKED"} else ExitCode.WARNING if evidence["qualification"]=="PASS_WITH_WARNINGS" else ExitCode.SUCCESS
+        assurance=SoftwareAssurance().assure(arguments.target,arguments.artifact_directory)
+        evidence=TrustedDelivery().validate(arguments.target,result.evidence,assurance,arguments.manifest)
+        _render({"command":"trusted-delivery","trustedDeliveryEvidence":evidence,"softwareAssurance":assurance},arguments.format,stream)
+        return _policy_exit_code(evidence["qualification"])
     if arguments.command in {"validate", "inspect", "assess", "run"}:
         if arguments.command in {"assess", "run"}:
             if not arguments.capability:
