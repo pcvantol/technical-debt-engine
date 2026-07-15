@@ -103,6 +103,7 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--manifest", metavar="PATH", help="Canonical JSON delivery manifest for this candidate.")
         if identifier == "release-qualify":
             command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY")
+            command.add_argument("--docker-artifact-directory", metavar="DIRECTORY")
             command.add_argument("--manifest-output", required=True, metavar="PATH")
             command.add_argument("--release-capability", action="append", default=[], metavar="CAPABILITY",
                                  help="Required release capability; repeat for every selected capability.")
@@ -290,7 +291,7 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
     if arguments.command == "release-qualify":
         result=Runtime().execute(arguments.target,configuration)
         evidence=ReleaseQualification().qualify(arguments.target,result.evidence,arguments.artifact_directory,arguments.manifest_output,
-                                                 [item.replace("-", "_") for item in arguments.release_capability])
+                                                 [item.replace("-", "_") for item in arguments.release_capability], arguments.docker_artifact_directory)
         _render({"command":"release-qualify","releaseQualificationEvidence":evidence},arguments.format,stream)
         return ExitCode.SUCCESS if evidence["decision"] == "RELEASE_QUALIFIED" else ExitCode.FAILED
     if arguments.command == "certify":

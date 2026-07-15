@@ -34,12 +34,22 @@ def _git(root: Path, *arguments: str) -> tuple[bool, str]:
 class SoftwareAssurance:
     """Evaluate repository and candidate artifacts without delivery or release behavior."""
 
-    def assure(self, root: str | Path, artifact_directories: Iterable[str | Path] = ()) -> dict[str, Any]:
+    def assure(self, root: str | Path, artifact_directories: Iterable[str | Path] = (), docker_artifact_directory: str | Path | None = None) -> dict[str, Any]:
         root = Path(root).resolve(); limitations: list[str] = []
         repository = self._repository(root, limitations); dependencies = self._dependencies(root, limitations)
         workflows = self._workflows(root, limitations); configuration = self._configuration(root, limitations)
         documentation = self._documentation(root, limitations)
         artifacts = self._artifacts(tuple(Path(item).resolve() for item in artifact_directories), limitations)
+        if docker_artifact_directory is not None:
+            from .docker_artifact import validate as validate_docker
+            candidate = repository["candidateIdentity"].removeprefix("candidate.git.") if repository.get("candidateIdentity") else ""
+            docker = validate_docker(docker_artifact_directory, candidate)
+            artifacts["docker"] = docker
+            artifacts["records"].append({"directory": str(Path(docker_artifact_directory).resolve()), "artifactCount": 1,
+                                         "verified": docker["verified"], "artifacts": [{key: docker[key] for key in ("filename", "digest")} ]})
+            artifacts["integrity"] = artifacts["integrity"] and docker["verified"]
+            if not docker["verified"]:
+                limitations.append("candidate Docker archive or provenance is invalid")
         checks = {"repositoryIntegrity": repository["integrity"], "dependencyIntegrity": dependencies["integrity"],
                   "artifactIntegrity": artifacts["integrity"], "workflowIntegrity": workflows["integrity"],
                   "configurationIntegrity": configuration["integrity"], "documentationIntegrity": documentation["integrity"],

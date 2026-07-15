@@ -8,6 +8,7 @@
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
 | Releases | No published release; current Internal Release Candidate is certified for human authorization only |
+| Docker candidate | `2d6132061807a433178a1ababc1709340cb937de` is hosted-validated for linux/amd64 and linux/arm64; the retained OCI bundle is not published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
 | Post-merge lifecycle | R1-1 / PR #64 is `MERGED_RECONCILED` at `df8a36b`: the certified candidate is `5932411`; the sole intervening merge is `ADMINISTRATIVE` and does not invalidate certification |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |

@@ -39,6 +39,15 @@ commit classification and uses the certified candidate SHA, as defined in
 [RELEASE_PUBLICATION.md](RELEASE_PUBLICATION.md); it does not require current
 `main` to equal the candidate.
 
+## Current Docker-integrated candidate (R1-2B)
+
+Hosted run `29446629544` certified candidate
+`2d6132061807a433178a1ababc1709340cb937de` as `RELEASE_CERTIFIED`. Its
+verified bundle checksum is
+`sha256:9fecca747da109ecdc8f9b60c453885b5446359577ba5459cd0e24e1179f7d8b`.
+Certification is evidence only: no Docker Hub login, registry push, tag, or
+release was performed.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**

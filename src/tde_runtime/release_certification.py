@@ -53,6 +53,7 @@ class ReleaseCertification:
             "runtimeQualification": (runtime.get("validation", {}).get("status") == "VALID"
                                      and runtime.get("runtimeQualification") == "QUALIFIED"),
             "policyEvidence": runtime.get("policyDecision") in {"PASS", "PASS_WITH_WARNINGS"},
+            "dockerArtifact": bool(checks.get("dockerArtifact", True)),
         }
         for name, valid in evidence_checks.items():
             if not valid:

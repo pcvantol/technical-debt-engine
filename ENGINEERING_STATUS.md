@@ -2,13 +2,13 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-GOV-1 Certified Candidate Publication Boundary |
-| Lifecycle state | Active; the R1-1 merge is reconciled as administrative-only and freeze occurs when this branch's sole pull request becomes reviewable. |
-| Current branch | `codex/r1-gov-1-certified-candidate-boundary` |
-| Current pull request | Pending creation. |
-| Current decision | `CERTIFIED_CANDIDATE_PUBLICATION_BOUNDARY_ESTABLISHED` |
-| Current repository truth | Certified candidate `5932411201556be628fb5ca93912a26f95b9d424` remains immutable and `RELEASE_CERTIFIED`. Current main `df8a36bc1b553c85e6a4e81abfdc20eaee2c2b08` is an administrative R1-1 merge only; publication therefore targets the candidate after human authorization, not current main. |
-| Next recommended prompt | R1-2 — Human Release Authorization & Internal Publication |
+| Current prompt | R1-2B Docker-integrated Release Candidate |
+| Lifecycle state | Evidence complete; draft PR #66 awaits final documentation/reviewability. |
+| Current branch | `codex/r1-2b-docker-release-candidate` |
+| Current pull request | Draft [#66](https://github.com/pcvantol/technical-debt-engine/pull/66). |
+| Current decision | `RELEASE_CERTIFIED_NOT_PUBLISHED` |
+| Current repository truth | Candidate `2d6132061807a433178a1ababc1709340cb937de` passed hosted multi-architecture OCI qualification and certification; its checksum-bound bundle is retained in GitHub Actions run `29446629544` for 90 days. |
+| Next recommended prompt | Human review and explicit publication authorization. |
 
 ## Deferred Work
 
