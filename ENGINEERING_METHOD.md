@@ -29,7 +29,7 @@ This is TDE's canonical engineering constitution. It defines how the independent
 
 ## Lifecycle, freeze point, and definition of done
 
-The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request. Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded** for a prompt replaced before merge. Only one prompt may be Active.
+The engineering lifecycle is defined by [ENGINEERING_WORKFLOW.md](ENGINEERING_WORKFLOW.md). Every increment validates its stated scope and produces one reviewable pull request. Prompt lifecycle is **Draft → Active → REVIEWABLE_FROZEN → MERGED_UNRECONCILED → MERGED_RECONCILED → Archived**, with optional **Superseded** for a prompt replaced before merge. `REVIEWABLE_FROZEN` means a ready pull request exists and implementation is frozen; it does not predict a human merge. `MERGED_UNRECONCILED` is the permitted transition in which GitHub proves merge into `main` but rolling current-state documents still truthfully describe the preceding Freeze Point. `MERGED_RECONCILED` means those rolling documents have been reconciled from objective GitHub evidence and the next increment may proceed. Only one prompt may be Active.
 
 Each prompt owns exactly one engineering objective, one engineering increment, and one reviewable pull request. The increment ends when that reviewable pull request exists; merging is a separate human decision. A draft pull request may be used before reviewable state only to prepare mandatory finalization records in the same pull request. It is not a reviewable pull request and does not reach the Freeze Point.
 
@@ -55,10 +55,10 @@ Roadmaps and prompt archives guide context but do not override observable curren
 
 ## Prompt initialization
 
-Repository synchronization is the first engineering step of every prompt:
+Repository synchronization and post-merge reconciliation are the first engineering steps of every prompt:
 
 ```text
-Repository Synchronization → Current Main Verification → Canonical Repository Read → Implementation Reality Check → Engineering Planning
+Repository Synchronization → Current Main Verification → Objective Previous Pull Request Verification → Post-Merge State Classification → Rolling Status Reconciliation → Canonical Repository Read → Implementation Reality Check → Engineering Planning
 ```
 
 The synchronization commands are `git switch main` followed by `git pull
@@ -69,6 +69,16 @@ listed in [BOOTSTRAP.md](BOOTSTRAP.md), perform the implementation reality
 check, and plan the increment. Current `main` overrides conversation history,
 historical prompts, previous AI assumptions, prompt examples, and engineering
 memory.
+
+A reviewable pull request cannot truthfully record its own future merge. After
+human merge, the next session verifies the previous PR through GitHub, confirms
+that current `main` contains its accepted merge commit and that its immutable
+Prompt History exists, then classifies the state. When only rolling status
+documents lag, reconcile them as mandatory initialization inside the next
+substantive prompt; this is not a second objective or a historical rewrite.
+Stop for a material inconsistency: an unmerged or unverifiable PR, stale main,
+uncommitted work, missing Prompt History, absent accepted change, or current
+status claiming implementation absent from main.
 
 ## Validation and documentation
 

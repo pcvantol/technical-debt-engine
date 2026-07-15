@@ -27,3 +27,13 @@ The immutable prompt archive is the Prompt Execution Report. It must record the 
 Before the Pull Request becomes reviewable, include the Prompt Execution Report and final status records in that Pull Request wherever possible. After the Freeze Point, complete only the permitted finalization records and leave the repository working tree clean. The repository may not retain untracked operating-system artifacts.
 
 The archive is never edited after creation. Any correction is a later prompt with its own archive.
+
+## Post-merge reconciliation
+
+The immutable archive truthfully records `REVIEWABLE_FROZEN`; it cannot predict
+a future human merge. The next engineering session must verify the previous PR
+and its merge commit through GitHub, confirm current `main` contains it, and
+confirm the archive exists. If only rolling status documents lag, classify the
+state `MERGED_UNRECONCILED` and reconcile them before substantive planning.
+This mandatory initialization is not a retroactive archive edit or a separate
+prompt objective. Material discrepancies remain fail-closed.

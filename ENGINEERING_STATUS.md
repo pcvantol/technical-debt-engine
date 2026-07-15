@@ -2,16 +2,17 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-9` — Operational Trusted Delivery |
-| Freeze state | `DRAFT` — finalization records are in PR #57; reviewable transition pending. |
-| Current branch | `codex/p1-9-trusted-delivery` |
-| Current pull request | [#57](https://github.com/pcvantol/technical-debt-engine/pull/57) (draft) |
-| Current decision | `TRUSTED_DELIVERY_OPERATIONAL` |
-| Current repository truth | `tde trusted-delivery` now validates clean Git candidate SHA/repository/branch identity; consumes canonical Software Assurance; validates a versioned supplied delivery manifest and its checksum references; validates reproducible artifact/provenance records; and records immutable, least-privilege workflow hashes. It is evidence-only and creates no release. |
-| Next recommended prompt | Release Qualification, after review and merge, using an external canonical manifest and independently reproducible release-candidate artifacts. |
+| Current prompt | `G2-GOV-6` — Post-Merge Engineering State Reconciliation |
+| Lifecycle state | `MERGED_RECONCILED` for P1-9; G2-GOV-6 is draft pending reviewable transition. |
+| Reconciled pull request | [#57](https://github.com/pcvantol/technical-debt-engine/pull/57), merged into `main` at `9a612192cdf0777b7c7758d068a47339f8771fb8` on 2026-07-15 05:11:59 UTC. |
+| Previous decision | `TRUSTED_DELIVERY_OPERATIONAL` |
+| Current branch | `codex/g2-gov-6-post-merge-reconciliation` |
+| Current pull request | [#58](https://github.com/pcvantol/technical-debt-engine/pull/58) (draft) |
+| Current repository truth | Trusted Delivery is operational on current `main`. Its immutable P1-9 history truthfully records its pre-merge Freeze Point; rolling documents now record the verified human merge. No release, tag, certification, or publication occurred. |
+| Next recommended prompt | `P1-10` — Operational Release Qualification. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- | --- |
-| Run Trusted Delivery with a real release-candidate manifest and two independent artifact directories. | This increment does not create a release, manifest, or release artifacts. Dogfooding correctly returns `PASS_WITH_WARNINGS` until those external inputs exist. | Release Qualification | `P1` |
+| Run Trusted Delivery with a real release-candidate manifest and two independent artifact directories. | P1-9 deliberately created no release inputs; Release Qualification owns their creation and consumption. | `P1-10` — Operational Release Qualification | `P1` |

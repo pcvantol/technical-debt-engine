@@ -16,7 +16,12 @@ fast-forward synchronization, verify the current branch, `HEAD`, repository and
 working-tree cleanliness, tracking branch, and fast-forward status. If any
 check fails, stop.
 
-Only then read [BOOTSTRAP.md](BOOTSTRAP.md),
+Then verify the immediately preceding pull request through GitHub, confirm its
+merge commit is contained in current `main`, and verify its immutable Prompt
+History. Classify a merge with only stale rolling status as
+`MERGED_UNRECONCILED`; reconcile rolling status as the first administrative
+step in this same increment before substantive planning. Stop for material
+inconsistency. Only then read [BOOTSTRAP.md](BOOTSTRAP.md),
 [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md),
 [REPOSITORY_STATUS.md](REPOSITORY_STATUS.md),
 [MANAGEMENT_SUMMARY.md](MANAGEMENT_SUMMARY.md),
