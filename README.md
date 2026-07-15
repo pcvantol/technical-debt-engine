@@ -11,6 +11,8 @@ candidate-build foundation. No package has been published and no release exists.
 
 Consumers integrate only through the future `tde` CLI, configuration, evidence schema, exit codes, and stable released contracts—not runtime internals. See [INTEGRATION_MODEL.md](INTEGRATION_MODEL.md).
 
+Operational repository assurance is available through `tde assure`; see [SOFTWARE_ASSURANCE.md](SOFTWARE_ASSURANCE.md) for its canonical evidence and candidate-artifact verification contract.
+
 ## Documentation
 
 - [Product architecture](PRODUCT_ARCHITECTURE.md)

@@ -2,13 +2,13 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-7` — Build Reproducibility Foundation |
-| Freeze state | `REVIEWABLE` — P1-7 engineering is frozen at PR #54. |
-| Current branch | `codex/p1-7-build-reproducibility-foundation` |
-| Current pull request | [Reviewable #54](https://github.com/pcvantol/technical-debt-engine/pull/54). |
-| Current decision | `BUILD_REPRODUCIBILITY_FOUNDATION_PARTIALLY_OPERATIONAL` |
-| Current repository truth | The package build uses exact, hash-locked tooling and creates normalized wheel and sdist artifacts with SHA-256 checksums and deterministic identity/provenance. Local independent builds and isolated installed-artifact qualification pass. GitHub run `29367913517` reached the second-build guard; its workflow output location is corrected in review feedback and hosted revalidation is pending. |
-| Next recommended prompt | Determine after review and hosted workflow revalidation. |
+| Current prompt | `P1-8` — Operational Software Assurance |
+| Freeze state | `ACTIVE` — implementation and deterministic validation in progress. |
+| Current branch | `main` |
+| Current pull request | Not created. |
+| Current decision | Pending final validation. |
+| Current repository truth | `tde assure` now produces canonical, fail-closed Software Assurance evidence for repository, dependencies, workflows, configuration, documentation and explicitly supplied package candidates. Artifact checksum, identity, provenance and independent-build reproducibility verification reuses the P1-7 evidence contract. No Trusted Delivery, release qualification, certification, release, or publication is performed. |
+| Next recommended prompt | Complete P1-8 validation and review. |
 
 ## Deferred Work
 

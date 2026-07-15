@@ -90,6 +90,9 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--resource", default="repositories", help="Evidence resource.")
             command.add_argument("--filter", action="append", default=[], metavar="KEY=VALUE")
             command.add_argument("--aggregate", choices=("count",))
+        if identifier == "assure":
+            command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY",
+                                 help="Candidate build directory; repeat for independent reproducibility verification.")
     return parser
 
 
@@ -314,9 +317,9 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         _render_capability_report(evidence, supported[arguments.capability[0]], arguments.format, stream)
         return ExitCode.SUCCESS
     if arguments.command == "assure":
-        evidence=SoftwareAssurance().assure(arguments.target)
+        evidence=SoftwareAssurance().assure(arguments.target,arguments.artifact_directory)
         _render({"command":"assure","assuranceEvidence":evidence},arguments.format,stream)
-        return ExitCode.FAILED if evidence["qualification"] in {"FAIL","BLOCKED"} else ExitCode.WARNING if evidence["qualification"]=="PASS_WITH_WARNINGS" else ExitCode.SUCCESS
+        return _policy_exit_code(evidence["decision"])
     if arguments.command == "trusted-delivery":
         result=Runtime().execute(arguments.target,configuration)
         evidence=TrustedDelivery().validate(arguments.target,result.evidence)
