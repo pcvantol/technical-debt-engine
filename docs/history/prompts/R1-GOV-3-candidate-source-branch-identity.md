@@ -6,7 +6,8 @@
 | Branch | `codex/r1-gov-3-candidate-source-branch-identity` |
 | Decision | `CANDIDATE_SOURCE_BRANCH_IDENTITY_CORRECTED` |
 | Incident | R1-3A workflow run `29450643140` |
-| Pull Request | Recorded by the reviewable pull request for this branch. |
+| Pull Request | [#70](https://github.com/pcvantol/technical-debt-engine/pull/70) |
+| Implementation commit | `d325a937c7f94c3536a9e49cdee30ffca9cde987` |
 | Freeze | Immediately when the sole pull request becomes reviewable. |
 
 ## Correction

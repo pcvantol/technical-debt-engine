@@ -3,9 +3,9 @@
 | Field | Current state |
 | --- | --- |
 | Current prompt | R1-GOV-3 Canonical Candidate Source-Branch Identity Correction |
-| Lifecycle state | Active release-governance correction; PR #69 is merged and reconciled. |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #70 contains the completed candidate source-branch identity correction. |
 | Current branch | `codex/r1-gov-3-candidate-source-branch-identity` |
-| Current pull request | To be created after final validation. |
+| Current pull request | Reviewable [#70](https://github.com/pcvantol/technical-debt-engine/pull/70). |
 | Current decision | `CANDIDATE_SOURCE_BRANCH_IDENTITY_CORRECTED` |
 | Current repository truth | PR #69 is `MERGED_RECONCILED` at `933849f`. R1-3A remains blocked historically; the detached-SHA source-branch mismatch is corrected for a future fresh candidate attempt. |
 | Next recommended prompt | R1-3A — Create and Certify Mainline Internal Release Candidate. |
