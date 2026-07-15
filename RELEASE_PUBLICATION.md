@@ -52,3 +52,8 @@ merge SHA(s), per-commit classification, publication SHA, artifact identities,
 and timestamps.
 
 This boundary does not publish anything itself.
+
+R1-2B provides a retained, checksum-bound non-published OCI bundle for candidate
+`2d6132061807a433178a1ababc1709340cb937de`. Any future Docker Hub action must
+use that certified image evidence after explicit human authorization; it must
+not rebuild from a later branch or `main`.

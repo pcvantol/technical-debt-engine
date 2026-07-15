@@ -43,3 +43,12 @@ Later administrative merges do not rerun or invalidate this qualification.
 Before publication, classify every intervening commit according to
 [RELEASE_PUBLICATION.md](RELEASE_PUBLICATION.md); any non-administrative change
 requires a new candidate and fresh qualification.
+
+## Current Docker-integrated candidate (R1-2B)
+
+Hosted run `29446629544` qualified candidate
+`2d6132061807a433178a1ababc1709340cb937de` as `RELEASE_QUALIFIED` with the
+non-published multi-architecture OCI archive included as a checksum-verified
+artifact. The certified bundle is the retained Actions artifact documented in
+[RELEASE_ARTIFACTS.md](RELEASE_ARTIFACTS.md); downloading it, rather than
+rebuilding it, is the retrieval path.
