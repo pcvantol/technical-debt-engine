@@ -35,3 +35,11 @@ Release Qualification was `RELEASE_QUALIFIED` / `READY`. The immutable
 candidate, manifest, artifact, provenance, and qualification identities are
 recorded in `release/current-candidate-r1-1.json`. This is evidence only; it
 does not authorize or publish a release.
+
+## Publication boundary
+
+Qualification binds an immutable candidate, not a moving `main` reference.
+Later administrative merges do not rerun or invalidate this qualification.
+Before publication, classify every intervening commit according to
+[RELEASE_PUBLICATION.md](RELEASE_PUBLICATION.md); any non-administrative change
+requires a new candidate and fresh qualification.
