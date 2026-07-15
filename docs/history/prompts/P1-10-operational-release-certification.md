@@ -27,5 +27,7 @@ Updated artifacts: Release Qualification evidence projection and rolling status
 documents. Known limitation: certification cannot pass without qualified Runtime
 and policy evidence for a selected capability. Deferred work: create those
 inputs and recertify. Recommended next prompt: Release Certification Input
-Completion. Freeze reached: pending reviewable PR. Prompt completed: pending
-reviewable PR. No release, tag, GitHub Release, or package publication occurred.
+Completion. Freeze point: this record is complete before PR #60 becomes
+reviewable; the branch is frozen at that transition. Prompt completed and Pull
+Request created: yes. Engineering stopped at the reviewable transition. No
+release, tag, GitHub Release, or package publication occurred.
