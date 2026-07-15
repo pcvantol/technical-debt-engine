@@ -9,6 +9,12 @@ Repository Synchronization
   ↓
 Current Main Verification
   ↓
+Objective Previous Pull Request Verification
+  ↓
+Post-Merge State Classification
+  ↓
+Rolling Status Reconciliation
+  ↓
 Canonical Repository Read
   ↓
 Implementation Reality Check
@@ -43,6 +49,18 @@ Immediately after synchronization, verify the checked-out branch, `HEAD`
 commit, repository and working-tree cleanliness, tracking branch, and
 fast-forward status. If any verification fails, stop. Current `main` is the
 only repository state from which engineering may be planned.
+
+## Post-merge verification and reconciliation
+
+Before the canonical read, verify the immediately preceding pull request with
+GitHub, confirm its merge commit is in current `main`, and confirm its immutable
+Prompt History exists. `REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED`, and
+`MERGED_RECONCILED` are engineering lifecycle states only. A merged PR whose
+rolling status still records its real Freeze Point is an expected
+`MERGED_UNRECONCILED` transition: reconcile rolling status documents before
+planning, without editing immutable history. Stop for material inconsistencies
+such as unmerged/unverifiable PRs, stale main, missing history, uncommitted
+work, or implementation absent from main.
 
 ## Canonical repository read
 

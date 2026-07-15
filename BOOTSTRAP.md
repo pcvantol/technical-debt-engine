@@ -21,7 +21,11 @@ fast-forward status. If any verification fails, stop.
 
 ## Canonical reading order
 
-Only after successful synchronization and verification, read:
+After successful synchronization and verification, objectively verify the
+immediately preceding pull request, its merged commit in current `main`, and
+its immutable Prompt History. Classify a merge with only stale rolling status
+as `MERGED_UNRECONCILED`, reconcile the rolling status before planning, and
+stop for material inconsistency. Only then read:
 
 1. [BOOTSTRAP.md](BOOTSTRAP.md)
 2. [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md)
@@ -42,7 +46,9 @@ required for engineering continuity. If sources conflict, use the canonical
 hierarchy; current `main` overrides conversation history, historical prompts,
 prompt examples, and AI memory. Do not infer a replacement architecture. One
 prompt owns one objective, one increment, and one reviewable Pull Request. A
-draft Pull Request is not frozen; when it becomes reviewable, the Prompt Freeze
-Point is reached. Do not continue engineering or add implementation after that
-point; record any late discovery as Deferred Work for the next prompt. Confirm
+draft Pull Request is not frozen; `REVIEWABLE_FROZEN` begins when it becomes
+reviewable. After human merge, `MERGED_UNRECONCILED` is permitted only while
+rolling status awaits objective reconciliation; `MERGED_RECONCILED` permits the
+next increment. Do not continue engineering or add implementation after the
+Freeze Point; record any late discovery as Deferred Work for the next prompt. Confirm
 repository hygiene with `git status --short` before completion.
