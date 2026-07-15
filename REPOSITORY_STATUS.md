@@ -9,7 +9,7 @@
 | Analyzers | Not implemented |
 | Releases | None |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | P1-11 Release Evidence Qualification / PR #61 is `MERGED_RECONCILED`: merged to `main` at `5267876`; immutable Freeze-Point history preserved |
+| Post-merge lifecycle | P1-12 Release Policy Remediation / PR #62 is `MERGED_RECONCILED`: merged to `main` at `958ce5b`; immutable Freeze-Point history preserved |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
