@@ -3,9 +3,9 @@
 | Field | Current state |
 | --- | --- |
 | Current prompt | `P1-11` — Release Evidence Qualification |
-| Lifecycle state | P1-11 active on dedicated branch; P1-10 Release Certification / PR #60 is merged and reconciled on current main. |
+| Lifecycle state | `REVIEWABLE_FROZEN`; P1-11 PR #61 is ready for review. P1-10 Release Certification / PR #60 is merged and reconciled on current main. |
 | Current branch | `codex/p1-11-release-evidence-qualification` |
-| Current pull request | [#61](https://github.com/pcvantol/technical-debt-engine/pull/61) (draft; finalization in progress) |
+| Current pull request | [#61](https://github.com/pcvantol/technical-debt-engine/pull/61) (reviewable; implementation frozen) |
 | Current decision | `RELEASE_EVIDENCE_PARTIALLY_QUALIFIED` |
 | Current repository truth | `tde release-qualify` requires an explicit release capability, executes it through Runtime, persists integrity-bound Runtime, Policy, assurance, delivery, and Release Qualification evidence, and `tde certify` validates that record without re-running Runtime or Policy. |
 | Next recommended prompt | Release policy remediation for the selected candidate, followed by recertification. |
