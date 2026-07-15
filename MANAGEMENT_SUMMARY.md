@@ -2,6 +2,8 @@
 
 Technical Debt Engine is being established as an independent engineering product that measures, normalizes, qualifies, and reports maintainability and technical debt across projects and languages.
 
+R1-GOV-3 Candidate Source-Branch Identity decision: `CANDIDATE_SOURCE_BRANCH_IDENTITY_CORRECTED`. Release Qualification now consumes the same validated `TDE_CANDIDATE_SOURCE_BRANCH` fallback as Software Assurance and Trusted Delivery for detached exact-SHA checkouts. The regression test reproduces that topology and the full 91-test suite passes. No candidate was recreated, certified, bundled, tagged, or published; a fresh R1-3A attempt is deferred until this correction merges.
+
 CI-1 GitHub CI Tooling Refresh: upgrades the hash-verified pip bootstrap to `26.1.2`, moves `actions/setup-python` to v6.3.0, and moves Docker QEMU/Buildx setup actions to v4.2.0. The existing hash-locked package build chain is intentionally unchanged because those versions are release-producing inputs; their upgrade requires a separate reproducibility review.
 
 R1-3A Mainline Internal Release Candidate decision: `MAINLINE_INTERNAL_RELEASE_CANDIDATE_BLOCKED`. Candidate `a507838` is an exact merged mainline snapshot and its deterministic wheel/sdist and non-published multi-platform OCI build passed in [run 29450643140](https://github.com/pcvantol/technical-debt-engine/actions/runs/29450643140). Release Qualification correctly failed closed because its detached-checkout candidate branch was empty while Trusted Delivery used the validated `main` branch. Certification, bundle preservation, and publication did not occur. The bounded next increment is R1-GOV-3 source-branch identity correction.

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Any, Mapping, Sequence
@@ -14,6 +15,11 @@ from .trusted_delivery import TrustedDelivery
 
 def _git(root: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(root), *args], text=True, capture_output=True, check=False).stdout.strip()
+
+
+def _candidate_branch(root: Path) -> str:
+    """Preserve the validated mainline branch when an exact SHA is detached."""
+    return _git(root, "branch", "--show-current") or os.environ.get("TDE_CANDIDATE_SOURCE_BRANCH", "")
 
 
 def _canonical(value: Mapping[str, Any]) -> bytes:
@@ -40,7 +46,7 @@ class ReleaseQualification:
         candidate = {
             "sha": _git(root, "rev-parse", "HEAD"),
             "repository": _git(root, "config", "--get", "remote.origin.url") or "local",
-            "branch": _git(root, "branch", "--show-current"),
+            "branch": _candidate_branch(root),
             "runtimeVersion": RUNTIME_VERSION,
             "schemaVersion": EVIDENCE_SCHEMA_VERSION,
             "selectedCapabilities": selection,

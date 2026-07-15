@@ -1,10 +1,19 @@
-import json, subprocess, tempfile, unittest
+import json, os, subprocess, tempfile, unittest
 from pathlib import Path
 from hashlib import sha256
+from unittest.mock import patch
 from tde_cli.main import ExitCode, main
-from tde_runtime.release_qualification import ReleaseQualification
+from tde_runtime.release_qualification import ReleaseQualification, _candidate_branch
 
 class ReleaseQualificationTests(unittest.TestCase):
+ def test_detached_candidate_uses_validated_source_branch(self):
+  with tempfile.TemporaryDirectory() as temporary:
+   root=Path(temporary)/"repo"; root.mkdir(); subprocess.run(["git","init","-q","-b","main",str(root)],check=True)
+   for key,value in (("user.email","test@example.invalid"),("user.name","Test")): subprocess.run(["git","-C",str(root),"config",key,value],check=True)
+   (root/"x").write_text("x"); subprocess.run(["git","-C",str(root),"add","."],check=True); subprocess.run(["git","-C",str(root),"commit","-qm","x"],check=True)
+   subprocess.run(["git","-C",str(root),"switch","--detach","HEAD"],check=True,stdout=subprocess.DEVNULL)
+   with patch.dict(os.environ,{"TDE_CANDIDATE_SOURCE_BRANCH":"main"}): self.assertEqual("main",_candidate_branch(root))
+
  def test_cli_blocks_missing_release_capability(self):
   output=[]
   class Stream:

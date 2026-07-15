@@ -10,7 +10,7 @@
 | Releases | No published release; R1-3A mainline candidate `a507838` is blocked before certification by a detached-checkout source-branch identity mismatch |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #68 is `MERGED_RECONCILED` at `03ae48b`; R1-3A remains blocked before certification as recorded in `RELEASE_CANDIDATE_STATUS.md`. CI-1 refreshes hash-pinned CI bootstrap/tool actions only |
+| Post-merge lifecycle | PR #69 is `MERGED_RECONCILED` at `933849f`; CI tooling is current. R1-GOV-3 corrects detached-SHA source-branch identity before a fresh R1-3A candidate may be created |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
