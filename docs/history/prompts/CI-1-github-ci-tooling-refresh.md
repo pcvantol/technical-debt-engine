@@ -5,7 +5,8 @@
 | Prompt ID | `CI-1` |
 | Branch | `codex/ci-tooling-refresh` |
 | Decision | `CI_TOOLING_REFRESH_IMPLEMENTED` |
-| Pull Request | Recorded by the reviewable pull request for this branch. |
+| Pull Request | [#69](https://github.com/pcvantol/technical-debt-engine/pull/69) |
+| Implementation commit | `6c6d51d2ca3fe10ec900a3da5ae5d297537a3ad0` |
 | Freeze | Immediately when the sole pull request becomes reviewable. |
 
 ## Changes

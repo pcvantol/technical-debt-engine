@@ -3,10 +3,10 @@
 | Field | Current state |
 | --- | --- |
 | Current prompt | CI-1 GitHub CI Tooling Refresh |
-| Lifecycle state | Active CI-maintenance increment; PR #68 is merged and reconciled. |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #69 contains the completed CI tooling refresh. |
 | Current branch | `codex/ci-tooling-refresh` |
-| Current pull request | To be created after workflow validation. |
-| Current decision | `CI_TOOLING_REFRESH_IN_PROGRESS` |
+| Current pull request | Reviewable [#69](https://github.com/pcvantol/technical-debt-engine/pull/69). |
+| Current decision | `CI_TOOLING_REFRESH_IMPLEMENTED` |
 | Current repository truth | PR #68 is `MERGED_RECONCILED` at `03ae48b`. The R1-3A candidate remains blocked before certification; this increment updates only the CI bootstrap and immutable action references. |
 | Next recommended prompt | R1-GOV-3 — Canonical Candidate Source-Branch Identity Correction. |
 

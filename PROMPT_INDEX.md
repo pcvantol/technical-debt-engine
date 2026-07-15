@@ -65,7 +65,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [R1-GOV-1](docs/history/prompts/R1-GOV-1-certified-candidate-publication-boundary.md) | Certified Candidate Publication Boundary | Active — administrative-merge boundary established; pull request pending |
 | [R1-GOV-2](docs/history/prompts/R1-GOV-2-mainline-snapshot-release-candidate-model.md) | Mainline Snapshot Release Candidate Model | [Merged — #67](https://github.com/pcvantol/technical-debt-engine/pull/67) at `a507838` |
 | [R1-3A](docs/history/prompts/R1-3A-mainline-internal-release-candidate.md) | Create and Certify Mainline Internal Release Candidate | [Merged — #68](https://github.com/pcvantol/technical-debt-engine/pull/68) at `03ae48b` |
-| CI-1 | GitHub CI Tooling Refresh | Active — hash-verified pip bootstrap and immutable action-reference refresh |
+| [CI-1](docs/history/prompts/CI-1-github-ci-tooling-refresh.md) | GitHub CI Tooling Refresh | [Reviewable — #69](https://github.com/pcvantol/technical-debt-engine/pull/69) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/ci-tooling-refresh) · implementation commit `6c6d51d` |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
