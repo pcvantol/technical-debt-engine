@@ -12,7 +12,8 @@
 | Bundle ID | `bundle.sha256.e0c12c31b0ecf4b0bc6a9a4054717ed4d449c70ff90af9fc917f0ac87c6deeef` |
 | Bundle checksum | `sha256:a4cbaab6cf23b294d9777c1086798a2e68bb1f1d916276eaeb32627f52b68377` |
 | Decision | `MAINLINE_INTERNAL_RELEASE_CANDIDATE_CERTIFIED` |
-| Pull Request | Recorded by the reviewable pull request for this branch. |
+| Pull Request | [#71](https://github.com/pcvantol/technical-debt-engine/pull/71) |
+| Implementation commit | `7c404b41198bb0b57221d33ae1772237fcfb2fbd` |
 | Freeze | Immediately when the sole pull request becomes reviewable. |
 
 ## Evidence
