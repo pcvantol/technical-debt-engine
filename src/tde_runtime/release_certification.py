@@ -37,20 +37,7 @@ class ReleaseCertification:
         manifest = qualification.get("manifest", {})
         runtime = qualification.get("runtimeEvidence", {})
         checks = qualification.get("checks", {})
-        release_evidence_reference = qualification.get("releaseEvidence", {})
-        release_evidence, release_evidence_digest = _read(release_evidence_reference.get("path", "")) if isinstance(release_evidence_reference, dict) else (None, None)
-        expected_release_evidence_id = None
-        if release_evidence:
-            unsigned = {key: value for key, value in release_evidence.items() if key != "releaseEvidenceId"}
-            expected_release_evidence_id = "release-evidence.sha256." + sha256(_canonical(unsigned)).hexdigest()
-        release_evidence_integrity = bool(
-            release_evidence
-            and release_evidence_digest == release_evidence_reference.get("digest")
-            and release_evidence.get("releaseEvidenceId") == release_evidence_reference.get("id")
-            and release_evidence.get("releaseEvidenceId") == expected_release_evidence_id
-            and release_evidence.get("candidate") == candidate
-            and release_evidence.get("releaseQualification", {}).get("checks") == checks
-        )
+        release_evidence_reference, release_evidence_digest, release_evidence_integrity = _release_evidence_check(qualification, candidate, checks)
         evidence_checks = {
             "candidateIdentity": isinstance(candidate.get("sha"), str) and len(candidate["sha"]) == 40,
             "artifactIdentity": isinstance(artifacts, list) and bool(artifacts) and all(item.get("digest", "").startswith("sha256:") for item in artifacts if isinstance(item, dict)),
@@ -85,3 +72,15 @@ class ReleaseCertification:
         report["certificationId"] = "release-certification.sha256." + sha256(_canonical(report)).hexdigest()
         output = Path(report_output).resolve(); output.parent.mkdir(parents=True, exist_ok=True); output.write_bytes(_canonical(report))
         return {**report, "report": {"path": str(output), "digest": "sha256:" + sha256(output.read_bytes()).hexdigest(), "integrity": True}}
+
+
+def _release_evidence_check(qualification: Mapping[str, Any], candidate: Mapping[str, Any], checks: Mapping[str, Any]) -> tuple[dict[str, Any], str | None, bool]:
+    reference = qualification.get("releaseEvidence", {})
+    if not isinstance(reference, dict): return {}, None, False
+    evidence, digest = _read(reference.get("path", ""))
+    if not evidence: return reference, digest, False
+    unsigned = {key: value for key, value in evidence.items() if key != "releaseEvidenceId"}
+    expected = "release-evidence.sha256." + sha256(_canonical(unsigned)).hexdigest()
+    valid = digest == reference.get("digest") and evidence.get("releaseEvidenceId") == reference.get("id")
+    valid = valid and evidence.get("releaseEvidenceId") == expected and evidence.get("candidate") == candidate
+    return reference, digest, valid and evidence.get("releaseQualification", {}).get("checks") == checks
