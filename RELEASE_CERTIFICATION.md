@@ -19,6 +19,17 @@ Release Qualification, workflow integrity, and the canonical evidence envelope.
 It consumes that evidence and does not repeat Runtime or Policy evaluation. The only decisions are `RELEASE_CERTIFIED` and
 `RELEASE_NOT_CERTIFIED`.
 
+## Current Internal Release Candidate (R1-1)
+
+Fresh R1-1 certification is `RELEASE_CERTIFIED` for current main
+`5932411201556be628fb5ca93912a26f95b9d424`. Its certification identity is
+`release-certification.sha256.1faddeb93d49956055e59449bd70d2f897493650ad7b9d2362cb81c4e7996a2d`.
+All candidate, artifact, reproducibility, provenance, manifest, Runtime,
+Policy, Software Assurance, Trusted Delivery, Release Qualification, and
+Release Evidence checks passed. The evidence example is
+`release/current-candidate-r1-1.json`. Certification is not human release
+authorization and no publication occurred.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**
