@@ -5,7 +5,7 @@
 | Prompt ID | `P1-12` |
 | Branch | `codex/p1-12-release-policy-remediation` |
 | Implementation commits | `c4336e5`, `7db5bf6` |
-| Pull request | Pending finalization |
+| Pull request | [#62](https://github.com/pcvantol/technical-debt-engine/pull/62) (draft) |
 | Decision | `RELEASE_POLICY_REMEDIATED` |
 | Freeze reached | No — reviewable PR pending |
 
