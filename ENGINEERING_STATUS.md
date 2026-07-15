@@ -2,17 +2,17 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-11` — Release Evidence Qualification |
-| Lifecycle state | `REVIEWABLE_FROZEN`; P1-11 PR #61 is ready for review. P1-10 Release Certification / PR #60 is merged and reconciled on current main. |
-| Current branch | `codex/p1-11-release-evidence-qualification` |
-| Current pull request | [#61](https://github.com/pcvantol/technical-debt-engine/pull/61) (reviewable; implementation frozen) |
-| Current decision | `RELEASE_EVIDENCE_PARTIALLY_QUALIFIED` |
-| Current repository truth | `tde release-qualify` requires an explicit release capability, executes it through Runtime, persists integrity-bound Runtime, Policy, assurance, delivery, and Release Qualification evidence, and `tde certify` validates that record without re-running Runtime or Policy. |
-| Next recommended prompt | Release policy remediation for the selected candidate, followed by recertification. |
+| Current prompt | `P1-12` — Release Policy Remediation |
+| Lifecycle state | P1-12 active on its dedicated branch; final validation succeeded and PR finalization is pending. |
+| Current branch | `codex/p1-12-release-policy-remediation` |
+| Current pull request | Pending creation. |
+| Current decision | `RELEASE_POLICY_REMEDIATED` |
+| Current repository truth | The unchanged policy accepts the current candidate with `PASS_WITH_WARNINGS`; Runtime Qualification, Release Qualification, and Release Certification pass on fresh evidence. |
+| Next recommended prompt | Human review of P1-12, then Internal Release approval if authorized. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Resolve the selected release candidate's Policy `FAIL` decision, then produce a new candidate and recertify. | Dogfooding selected `code_size` and `complexity`; Runtime Qualification was `QUALIFIED`, but policy objectively returned `FAIL`. | Release Policy Remediation and Recertification | `P1` |
-| Human release approval and any publication. | Release creation and publication are excluded. | Internal Release | `P1` |
+| Reduce remaining Complexity policy warnings (maximum 23; warning threshold 15). | Certification permits warnings; no blocking threshold is reached. | Complexity Quality Improvement | `P2` |
+| Human release approval and any publication. | Outside this increment. | Internal Release | `P1` |
