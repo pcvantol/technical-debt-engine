@@ -7,10 +7,10 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | No published release; current Internal Release Candidate is certified for human authorization only |
-| Docker candidate | `2d6132061807a433178a1ababc1709340cb937de` is hosted-validated for linux/amd64 and linux/arm64; the retained OCI bundle is not published |
+| Releases | No published release; no publishable Internal Release Candidate exists until a new mainline snapshot is created and certified |
+| Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | R1-1 / PR #64 is `MERGED_RECONCILED` at `df8a36b`: the certified candidate is `5932411`; the sole intervening merge is `ADMINISTRATIVE` and does not invalidate certification |
+| Post-merge lifecycle | PR #66 is `MERGED_RECONCILED` at `0d7fea6`; its prior draft status is corrected by R1-GOV-2. The sibling R1-2B candidate is non-publishable and a fresh candidate must originate from main |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |

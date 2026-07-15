@@ -104,3 +104,12 @@ The final report must contain:
 - Recommended next prompt
 
 The next canonical prompt must not begin until this prompt has produced its reviewable pull request. Merge remains a separate explicit engineering decision.
+
+## Release-candidate contract
+
+Any prompt that creates, qualifies, certifies, preserves, authorizes, or
+publishes a release candidate must use [RELEASE_ARCHITECTURE.md](RELEASE_ARCHITECTURE.md).
+Its candidate is an exact SHA already reachable from main, verified with
+`git merge-base --is-ancestor <candidate-sha> main`; a feature-branch or
+sibling SHA is rejected. Candidate workflows check out the exact SHA, preserve
+the complete bundle, and never publish on push or pull-request events.

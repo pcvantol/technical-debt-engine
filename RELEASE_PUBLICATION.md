@@ -1,8 +1,8 @@
-# Certified Candidate Publication Boundary
+# Certified Mainline Candidate Publication Boundary
 
 ## Canonical rule
 
-Publication publishes the immutable, certified release candidate. It does not
+Publication publishes the immutable, certified mainline release candidate. It does not
 automatically publish the later `main` commit. The candidate SHA, its certified
 artifacts, their checksums, provenance, Release Qualification, and Release
 Certification are the publication inputs and remain immutable.
@@ -27,6 +27,7 @@ classify every commit in `candidate..main`:
 ```sh
 git rev-list --reverse <candidate-sha>..main
 git diff-tree --no-commit-id --name-only -r <commit-sha>
+git merge-base --is-ancestor <candidate-sha> main
 ```
 
 A commit is `ADMINISTRATIVE` only when every change is limited to rolling
@@ -41,6 +42,10 @@ commit after the candidate invalidates the publication boundary. Stop and
 create a new release candidate; never reinterpret such a commit as
 administrative.
 
+A candidate for which the ancestry command fails is a
+`SUPERSEDED_NON_MAINLINE_CANDIDATE`, not an administrative exception. Preserve
+its evidence and create a fresh candidate from synchronized main.
+
 ## Publication contract
 
 When all intervening commits are `ADMINISTRATIVE` and a human authorizes the
@@ -53,7 +58,8 @@ and timestamps.
 
 This boundary does not publish anything itself.
 
-R1-2B provides a retained, checksum-bound non-published OCI bundle for candidate
-`2d6132061807a433178a1ababc1709340cb937de`. Any future Docker Hub action must
-use that certified image evidence after explicit human authorization; it must
-not rebuild from a later branch or `main`.
+R1-2B provides retained historical evidence for sibling candidate
+`2d6132061807a433178a1ababc1709340cb937de`. It is not publishable because it
+is not an ancestor of main; it must never be promoted or rebuilt. Future Docker
+Hub action uses only a certified bundle from a mainline candidate after explicit
+human authorization.

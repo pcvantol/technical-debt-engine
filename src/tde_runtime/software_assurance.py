@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -68,6 +69,7 @@ class SoftwareAssurance:
     @staticmethod
     def _repository(root: Path, limitations: list[str]) -> dict[str, Any]:
         valid, candidate = _git(root, "rev-parse", "HEAD"); _, branch = _git(root, "branch", "--show-current")
+        branch = branch or os.environ.get("TDE_CANDIDATE_SOURCE_BRANCH", "")
         _, remote = _git(root, "config", "--get", "remote.origin.url"); status_ok, dirty = _git(root, "status", "--porcelain")
         integrity = valid and status_ok and not dirty and bool(branch)
         if not valid: limitations.append("repository identity is unavailable")
