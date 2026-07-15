@@ -2,19 +2,19 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-3B Establish Internal Release Publication Infrastructure |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #72 contains the complete R1-3B implementation. |
-| Current branch | `codex/r1-3b-publication-infrastructure` |
-| Current pull request | Reviewable [#72](https://github.com/pcvantol/technical-debt-engine/pull/72). |
-| Current decision | `PUBLICATION_INFRASTRUCTURE_OPERATIONAL` |
-| Current repository truth | Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` remains certified. R1-3B adds a checksum-, evidence-, candidate-, and authorization-structure preflight against its retained Actions bundle without rebuilding or publishing. |
-| Next recommended prompt | R1-3C — Human Release Authorization. |
+| Current prompt | R1-3C Human Release Authorization |
+| Lifecycle state | `ACTIVE`; one reviewable PR is pending. |
+| Current branch | `codex/r1-3c-human-release-authorization` |
+| Current pull request | Not yet created. |
+| Current decision | `HUMAN_RELEASE_AUTHORIZATION_BLOCKED` pending review validation. |
+| Current repository truth | PR #72 merged at `969c0e5`. Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` and its retained certified bundle remain valid. The immutable authorization record has explicit approvals for every target but GitHub reports no `internal-release` Environment, so protected publication is blocked. |
+| Next recommended prompt | R1-3D — Internal Publication. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Human release authorization and protected non-dry-run dispatch. | R1-3B establishes the workflow and Environment contract but cannot supply reviewer approval or Environment configuration. | R1-3C — Human Release Authorization | `P0` |
+| Create and protect the `internal-release` GitHub Environment. | API verification returned `404`; required reviewers, Docker Hub credentials, and PyPI Trusted Publishing cannot be verified. | R1-3D — Internal Publication | `P0` |
 | Review hash-pinned build-toolchain upgrades separately. | `build` and `setuptools` updates alter release-producing inputs and require explicit reproducibility/release review. | Build Toolchain Refresh | `P1` |
 | Create and certify a fresh mainline candidate. | R1-3A did not reach certification or bundle preservation. | R1-3A retry after R1-GOV-3 merges | `P1` |
 | Human release approval and publication. | It requires a certified preserved bundle after a successful future candidate. | Human Release Authorization & Internal Publication | `P1` |
