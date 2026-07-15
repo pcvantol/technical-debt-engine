@@ -35,7 +35,7 @@
 | Platform Release Engineering | Release Runtime architecture established; no package or release created |
 | Build Reproducibility | Local deterministic wheel and source-distribution build foundation with hash-locked tooling, SHA-256 evidence, provenance and isolated installed-artifact qualification; hosted workflow run `29367776918` is blocked by a tracked egg-info mutation between independent builds |
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
-| Trusted Delivery | Operational immutable-candidate validation with explicit workflow and artifact limitations |
+| Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
 | Release Qualification | Candidate manifest established; publication blocked by objective gaps |
 | Release Certification | Release process not certified; no publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
@@ -75,6 +75,8 @@ P1-4 qualifies the existing Code Size vertical slice on GitHub-hosted Ubuntu, ma
 P1-5 qualifies the Policy Engine against real persisted Code Size and Complexity evidence. Policies use canonical decisions (`PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, and `NOT_APPLICABLE`), workspace/repository precedence, explicit provenance, deterministic threshold evidence, persisted Query retrieval, and CLI exits derived only from policy output. Invalid and missing policy inputs fail closed. No release is created.
 
 P1-7 establishes the Build Reproducibility Foundation. Exact SHA-256-hash-locked build tooling and an exact setuptools backend create a wheel and source distribution from a clean candidate. The canonical builder derives a stable source epoch, normalizes wheel and tar/gzip metadata, emits artifact/build/candidate identities, `SHA256SUMS`, and versioned provenance. Local independent artifacts are byte-equivalent and isolated wheel/sdist installations dogfood the installed CLI, Runtime, Code Size, Complexity, Policy, baseline, comparison, Query, and report. GitHub-hosted workflow run `29367776918` failed because its first build rewrote a tracked egg-info manifest before the clean-candidate guard started build two; this repair is deferred. No release or publication is created.
+
+P1-9 operationalizes Trusted Delivery. `tde trusted-delivery` validates a clean candidate SHA, repository and branch; consumes canonical Software Assurance without repeating its assurance rules; verifies a versioned JSON manifest against candidate and artifact checksums; validates assurance-backed reproducibility/provenance; and records SHA-256 workflow-source provenance with immutable-action and least-privilege checks. It creates no release, certification, tag, or publication. Dogfooding TDE's clean committed candidate returned `PASS_WITH_WARNINGS` only because this non-release increment intentionally supplied no external manifest or independent artifact directories.
 
 PD-1 establishes the canonical Deployment Strategy. Generation 1 product targets are PyPI, GitHub Releases, Homebrew, Docker, GitHub Action and the Python Runtime API; distribution execution remains unimplemented and no target is currently published. Generation 2 package-manager and IDE targets are planned; Generation 3 service targets remain research. Runtime Architecture and implementation are unchanged.
 

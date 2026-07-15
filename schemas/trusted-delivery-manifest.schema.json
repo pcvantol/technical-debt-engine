@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tde.trusted-delivery-manifest/1.0.0",
+  "type": "object",
+  "required": ["schemaId", "schemaVersion", "candidate", "artifacts"],
+  "properties": {
+    "schemaId": {"const": "tde.trusted-delivery-manifest"},
+    "schemaVersion": {"const": "1.0.0"},
+    "candidate": {"type": "object", "required": ["sha", "repository", "branch"]},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["filename", "digest"], "properties": {"filename": {"type": "string"}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}}
+  }
+}
