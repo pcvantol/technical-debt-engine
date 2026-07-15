@@ -37,7 +37,7 @@
 | Build Reproducibility | Local deterministic wheel and source-distribution build foundation with hash-locked tooling, SHA-256 evidence, provenance and isolated installed-artifact qualification; hosted workflow run `29367776918` is blocked by a tracked egg-info mutation between independent builds |
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
 | Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
-| Release Qualification | Candidate manifest established; publication blocked by objective gaps |
+| Release Qualification | Operational evidence-only qualification: reproducible artifacts, Software Assurance, Trusted Delivery, manifest and candidate identity are verified; no publication occurred |
 | Release Certification | Release process not certified; no publication exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |
