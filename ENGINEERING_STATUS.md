@@ -3,10 +3,10 @@
 | Field | Current state |
 | --- | --- |
 | Current prompt | R1-3C Human Release Authorization |
-| Lifecycle state | `ACTIVE`; one reviewable PR is pending. |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #73 contains the complete R1-3C authorization record. |
 | Current branch | `codex/r1-3c-human-release-authorization` |
-| Current pull request | Not yet created. |
-| Current decision | `HUMAN_RELEASE_AUTHORIZATION_BLOCKED` pending review validation. |
+| Current pull request | Reviewable [#73](https://github.com/pcvantol/technical-debt-engine/pull/73). |
+| Current decision | `HUMAN_RELEASE_AUTHORIZATION_BLOCKED` |
 | Current repository truth | PR #72 merged at `969c0e5`. Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` and its retained certified bundle remain valid. The immutable authorization record has explicit approvals for every target but GitHub reports no `internal-release` Environment, so protected publication is blocked. |
 | Next recommended prompt | R1-3D — Internal Publication. |
 
