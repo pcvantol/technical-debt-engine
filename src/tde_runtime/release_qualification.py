@@ -51,4 +51,8 @@ class ReleaseQualification:
                 "manifest": {"path": str(output), "digest": digest, "integrity": True}, "artifacts": artifacts,
                 "softwareAssurance": {"assuranceId": assurance["assuranceId"], "decision": assurance["decision"]},
                 "trustedDelivery": {"trustedDeliveryId": delivery["trustedDeliveryId"], "decision": delivery["decision"]},
+                "runtimeEvidence": {"validation": runtime_evidence.get("validation", {}),
+                                    "policyDecision": runtime_evidence.get("policyEvidence", {}).get("decision"),
+                                    "runtimeQualification": runtime_evidence.get("runtimeQualification", {}).get("level"),
+                                    "identity": runtime_evidence.get("integrity", {}).get("contentDigest")},
                 "checks": checks, "releaseDecision": "READY" if ready else "NOT_READY", "decision": decision}

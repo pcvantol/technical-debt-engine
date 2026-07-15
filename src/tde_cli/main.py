@@ -18,6 +18,7 @@ from tde_runtime.runtime_qualification import RuntimeQualificationEngine
 from tde_runtime.software_assurance import SoftwareAssurance
 from tde_runtime.trusted_delivery import TrustedDelivery
 from tde_runtime.release_qualification import ReleaseQualification
+from tde_runtime.release_certification import ReleaseCertification
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 
 
@@ -56,6 +57,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "assure": {"purpose": "Assure repository and artifact integrity."},
     "trusted-delivery": {"purpose": "Validate immutable candidate and delivery evidence."},
     "release-qualify": {"purpose": "Qualify a release candidate without publication."},
+    "certify": {"purpose": "Certify a qualified Internal Release candidate without publication."},
     "report": {"purpose": "Render a Code Size evidence projection."},
     "explain": {"purpose": "Explain a result (not implemented)."},
 }
@@ -102,6 +104,9 @@ def build_parser() -> argparse.ArgumentParser:
         if identifier == "release-qualify":
             command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY")
             command.add_argument("--manifest-output", required=True, metavar="PATH")
+        if identifier == "certify":
+            command.add_argument("--qualification-evidence", required=True, metavar="PATH")
+            command.add_argument("--report-output", required=True, metavar="PATH")
     return parser
 
 
@@ -340,6 +345,10 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         evidence=ReleaseQualification().qualify(arguments.target,result.evidence,arguments.artifact_directory,arguments.manifest_output)
         _render({"command":"release-qualify","releaseQualificationEvidence":evidence},arguments.format,stream)
         return ExitCode.SUCCESS if evidence["decision"] == "RELEASE_QUALIFIED" else ExitCode.FAILED
+    if arguments.command == "certify":
+        evidence = ReleaseCertification().certify(arguments.qualification_evidence, arguments.report_output)
+        _render({"command": "certify", "releaseCertificationEvidence": evidence}, arguments.format, stream)
+        return ExitCode.SUCCESS if evidence["decision"] == "RELEASE_CERTIFIED" else ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess", "run"}:
         if arguments.command in {"assess", "run"}:
             if not arguments.capability:

@@ -1,6 +1,24 @@
-# Release Certification — Generation 1
+# Operational Release Certification
 
 ## Decision
+
+`tde certify` consumes the canonical JSON produced by `tde release-qualify` and
+creates a deterministic certification report. It does not rebuild, tag,
+publish, or otherwise release a package.
+
+```sh
+tde --format json certify . \
+  --qualification-evidence /path/to/release-qualification.json \
+  --report-output /path/to/release-certification.json
+```
+
+It validates candidate and artifact identities, checksums, reproducibility and
+provenance, Runtime Qualification and policy evidence, Software Assurance,
+Trusted Delivery, Release Qualification, workflow integrity, and the canonical
+evidence envelope. The only decisions are `RELEASE_CERTIFIED` and
+`RELEASE_NOT_CERTIFIED`.
+
+## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**
 
