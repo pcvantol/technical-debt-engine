@@ -68,7 +68,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [CI-1](docs/history/prompts/CI-1-github-ci-tooling-refresh.md) | GitHub CI Tooling Refresh | [Merged — #69](https://github.com/pcvantol/technical-debt-engine/pull/69) at `933849f` |
 | [R1-GOV-3](docs/history/prompts/R1-GOV-3-candidate-source-branch-identity.md) | Canonical Candidate Source-Branch Identity Correction | [Merged — #70](https://github.com/pcvantol/technical-debt-engine/pull/70) at `3fda62e` |
 | [R1-3A retry](docs/history/prompts/R1-3A-mainline-internal-release-candidate-certified.md) | Create and Certify Mainline Internal Release Candidate | [Merged — #71](https://github.com/pcvantol/technical-debt-engine/pull/71) at `6441ff6` |
-| [R1-3B](docs/history/prompts/R1-3B-publication-infrastructure.md) | Establish Internal Release Publication Infrastructure | Active — manual preflight, protected Environment contract, and no publication |
+| [R1-3B](docs/history/prompts/R1-3B-publication-infrastructure.md) | Establish Internal Release Publication Infrastructure | [Reviewable — #72](https://github.com/pcvantol/technical-debt-engine/pull/72) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-3b-publication-infrastructure) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 

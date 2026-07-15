@@ -3,10 +3,10 @@
 | Field | Current state |
 | --- | --- |
 | Current prompt | R1-3B Establish Internal Release Publication Infrastructure |
-| Lifecycle state | `ACTIVE`; one reviewable PR is pending. |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #72 contains the complete R1-3B implementation. |
 | Current branch | `codex/r1-3b-publication-infrastructure` |
-| Current pull request | Not yet created. |
-| Current decision | `PUBLICATION_INFRASTRUCTURE_OPERATIONAL` pending review validation. |
+| Current pull request | Reviewable [#72](https://github.com/pcvantol/technical-debt-engine/pull/72). |
+| Current decision | `PUBLICATION_INFRASTRUCTURE_OPERATIONAL` |
 | Current repository truth | Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` remains certified. R1-3B adds a checksum-, evidence-, candidate-, and authorization-structure preflight against its retained Actions bundle without rebuilding or publishing. |
 | Next recommended prompt | R1-3C — Human Release Authorization. |
 

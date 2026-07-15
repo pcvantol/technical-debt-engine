@@ -6,7 +6,8 @@
 | Branch | `codex/r1-3b-publication-infrastructure` |
 | Candidate | `3fda62e72850f1c67f1554f7612580eccf16ae34` / version `0.1.0` |
 | Source bundle | Actions run `29451595432`, artifact `8357722985` |
-| Decision | `PUBLICATION_INFRASTRUCTURE_OPERATIONAL` pending review validation |
+| Pull request | [#72](https://github.com/pcvantol/technical-debt-engine/pull/72) |
+| Decision | `PUBLICATION_INFRASTRUCTURE_OPERATIONAL` |
 
 R1-3B adds the canonical manual-only internal-release workflow and its read-only preflight verifier. It retrieves the retained certified bundle rather than rebuilding, validates checksums, candidate identity, all bundle artifact identities, release qualification/certification, and an authorization assertion's structural binding. Its dry run emits publication preflight evidence and has no external publication side effect.
 
