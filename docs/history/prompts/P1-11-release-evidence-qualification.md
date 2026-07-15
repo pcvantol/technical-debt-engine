@@ -5,13 +5,13 @@
 | Prompt ID | `P1-11` |
 | Branch | `codex/p1-11-release-evidence-qualification` |
 | Implementation commit | `39f6331` |
-| Pull request | Pending finalization |
+| Pull request | [#61](https://github.com/pcvantol/technical-debt-engine/pull/61) (draft) |
 | Decision | `RELEASE_EVIDENCE_PARTIALLY_QUALIFIED` |
 | Created | 2026-07-15 |
 | Updated | 2026-07-15 |
 | Freeze reached | No — final validation and reviewable PR pending |
 | Prompt completed | No |
-| Pull request created | No |
+| Pull request created | Yes (draft) |
 | Engineering stopped | No |
 
 ## Objective evidence
