@@ -39,6 +39,11 @@ tag. A release branch may contain administrative documentation or explicitly
 authorized emergency remediation, but cannot be a candidate source until its
 contents are merged to main and a new mainline snapshot is selected.
 
+An exact-SHA checkout is detached by design. Candidate-bound build, assurance,
+delivery, qualification, and manifest evidence therefore use the validated
+`TDE_CANDIDATE_SOURCE_BRANCH` value when Git cannot report a checked-out branch;
+they must record the same source branch rather than an empty detached value.
+
 ## Candidate-bound evidence and supersession
 
 Every wheel, source distribution, OCI archive/index, checksum, provenance
