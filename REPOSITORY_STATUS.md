@@ -7,7 +7,7 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | None |
+| Releases | No published release; current Internal Release Candidate is certified for human authorization only |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
 | Post-merge lifecycle | P1-12 Release Policy Remediation / PR #62 is `MERGED_RECONCILED`: merged to `main` at `958ce5b`; immutable Freeze-Point history preserved |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
@@ -37,8 +37,8 @@
 | Build Reproducibility | Local deterministic wheel and source-distribution build foundation with hash-locked tooling, SHA-256 evidence, provenance and isolated installed-artifact qualification; hosted workflow run `29367776918` is blocked by a tracked egg-info mutation between independent builds |
 | Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
 | Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
-| Release Qualification | Operational evidence-only qualification requires explicit release capability selection, executes and persists Runtime Qualification and Policy evidence, and binds them with reproducible artifacts, Software Assurance, Trusted Delivery, manifest and candidate identity; no publication occurred |
-| Release Certification | Operational `tde certify` validates persisted integrity-bound Release Evidence without duplicating Runtime or Policy logic. Fresh dogfooding selected Code Size and Complexity, returned policy `PASS_WITH_WARNINGS`, and objectively produced `RELEASE_CERTIFIED`. No publication exists |
+| Release Qualification | R1-1 regenerated current-main candidate `5932411201556be628fb5ca93912a26f95b9d424` from two byte-identical wheel/sdist builds; Runtime Qualification was `QUALIFIED`, Policy `PASS_WITH_WARNINGS`, Software Assurance and Trusted Delivery `PASS`, and Release Qualification `RELEASE_QUALIFIED` / `READY`; no publication occurred |
+| Release Certification | R1-1 independently regenerated certification from the fresh qualification evidence: `RELEASE_CERTIFIED` (`release-certification.sha256.1faddeb93d49956055e59449bd70d2f897493650ad7b9d2362cb81c4e7996a2d`). No tag, GitHub Release, Docker image, package publication, or human authorization exists |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |

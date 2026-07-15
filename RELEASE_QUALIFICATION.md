@@ -23,3 +23,15 @@ immutable: its digest and content-derived identity are referenced by the
 manifest and then validated by Release Certification. Missing selection,
 Runtime evidence, policy evidence, or an unexecuted required capability causes
 `RELEASE_BLOCKED`.
+
+## Current Internal Release Candidate (R1-1)
+
+The refreshed candidate is current main
+`5932411201556be628fb5ca93912a26f95b9d424`, with Code Size and Complexity
+selected. Two independent local builds produced byte-identical wheel and sdist
+checksums. Fresh Runtime Qualification was `QUALIFIED`, Policy was
+`PASS_WITH_WARNINGS`, Software Assurance and Trusted Delivery were `PASS`, and
+Release Qualification was `RELEASE_QUALIFIED` / `READY`. The immutable
+candidate, manifest, artifact, provenance, and qualification identities are
+recorded in `release/current-candidate-r1-1.json`. This is evidence only; it
+does not authorize or publish a release.
