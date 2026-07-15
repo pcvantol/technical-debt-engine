@@ -63,3 +63,23 @@ R1-2B provides retained historical evidence for sibling candidate
 is not an ancestor of main; it must never be promoted or rebuilt. Future Docker
 Hub action uses only a certified bundle from a mainline candidate after explicit
 human authorization.
+
+## Internal publication infrastructure (R1-3B)
+
+The canonical workflow is [`.github/workflows/internal-release-publish.yml`](.github/workflows/internal-release-publish.yml). It has `workflow_dispatch` as its only trigger. Its default `dry_run: true` retrieves the named bundle artifact, verifies every checksum and identity, verifies `RELEASE_QUALIFIED` / `READY` and `RELEASE_CERTIFIED`, and validates the authorization assertion's structural binding. It neither rebuilds nor publishes an artifact.
+
+The guarded `publish` job requires `dry_run: false` and the protected `internal-release` Environment. It re-verifies the same preserved bundle, then defines the GitHub Release, PyPI Trusted Publishing, and Docker Hub path. Docker uses only `docker.io/pcvantol/technical-debt-engine:<version>` and never `latest`; its published digest becomes publication evidence.
+
+### `internal-release` Environment contract
+
+Configure this Environment outside R1-3B before any non-dry-run dispatch:
+
+| Control | Required configuration |
+| --- | --- |
+| Approval | Require the release owner and an independent repository maintainer; prevent self-review and restrict the Environment to the default branch. |
+| Permissions | Preflight is read-only (`actions: read`, `contents: read`). Only the protected publish job receives `contents: write` and `id-token: write`. |
+| PyPI | Configure PyPI Trusted Publishing for this repository, workflow, and Environment. A future fallback may use only a project-scoped, upload-only `PYPI_API_TOKEN`, never a broad account token. |
+| Docker Hub | Set `DOCKERHUB_USERNAME` as an Environment variable and `DOCKERHUB_TOKEN` as an Environment secret, scoped to `pcvantol/technical-debt-engine` with push-only access. |
+| Inputs | Require exact candidate SHA, version, source run, artifact name, and a JSON assertion binding reviewer identity/time, candidate, bundle ID/checksum, and all three targets. |
+
+Environment approval is the human authorization boundary. The JSON input is deliberately only a deterministic structure/binding check; R1-3C owns human authorization.
