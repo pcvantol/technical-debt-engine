@@ -2,17 +2,17 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | `P1-10` — Operational Release Certification |
-| Lifecycle state | P1-10 active on dedicated branch; preceding P1-10 Release Qualification merge objectively verified and reconciled. |
-| Current branch | `codex/p1-10-release-certification` |
-| Current pull request | [#60](https://github.com/pcvantol/technical-debt-engine/pull/60) (draft) |
-| Current decision | `RELEASE_NOT_CERTIFIED` |
-| Current repository truth | `tde certify` consumes canonical Release Qualification evidence and fail-closes if any certification input is unavailable or does not pass. It creates no release. |
-| Next recommended prompt | Runtime Qualification and policy-evidence release-input completion. |
+| Current prompt | `P1-11` — Release Evidence Qualification |
+| Lifecycle state | `REVIEWABLE_FROZEN`; P1-11 PR #61 is ready for review. P1-10 Release Certification / PR #60 is merged and reconciled on current main. |
+| Current branch | `codex/p1-11-release-evidence-qualification` |
+| Current pull request | [#61](https://github.com/pcvantol/technical-debt-engine/pull/61) (reviewable; implementation frozen) |
+| Current decision | `RELEASE_EVIDENCE_PARTIALLY_QUALIFIED` |
+| Current repository truth | `tde release-qualify` requires an explicit release capability, executes it through Runtime, persists integrity-bound Runtime, Policy, assurance, delivery, and Release Qualification evidence, and `tde certify` validates that record without re-running Runtime or Policy. |
+| Next recommended prompt | Release policy remediation for the selected candidate, followed by recertification. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Runtime Qualification and Policy evidence for an explicitly selected release capability. | Dogfooding produced `BLOCKED` Runtime Qualification and `NOT_APPLICABLE` policy evidence; certification fails closed. | Release Certification Input Completion | `P1` |
+| Resolve the selected release candidate's Policy `FAIL` decision, then produce a new candidate and recertify. | Dogfooding selected `code_size` and `complexity`; Runtime Qualification was `QUALIFIED`, but policy objectively returned `FAIL`. | Release Policy Remediation and Recertification | `P1` |
 | Human release approval and any publication. | Release creation and publication are excluded. | Internal Release | `P1` |

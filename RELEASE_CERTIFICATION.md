@@ -13,9 +13,10 @@ tde --format json certify . \
 ```
 
 It validates candidate and artifact identities, checksums, reproducibility and
-provenance, Runtime Qualification and policy evidence, Software Assurance,
-Trusted Delivery, Release Qualification, workflow integrity, and the canonical
-evidence envelope. The only decisions are `RELEASE_CERTIFIED` and
+provenance, persisted Release Evidence identity and digest, Runtime
+Qualification and policy evidence, Software Assurance, Trusted Delivery,
+Release Qualification, workflow integrity, and the canonical evidence envelope.
+It consumes that evidence and does not repeat Runtime or Policy evaluation. The only decisions are `RELEASE_CERTIFIED` and
 `RELEASE_NOT_CERTIFIED`.
 
 ## Historical Baseline

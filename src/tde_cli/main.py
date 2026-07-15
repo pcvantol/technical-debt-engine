@@ -104,6 +104,8 @@ def build_parser() -> argparse.ArgumentParser:
         if identifier == "release-qualify":
             command.add_argument("--artifact-directory", action="append", default=[], metavar="DIRECTORY")
             command.add_argument("--manifest-output", required=True, metavar="PATH")
+            command.add_argument("--release-capability", action="append", default=[], metavar="CAPABILITY",
+                                 help="Required release capability; repeat for every selected capability.")
         if identifier == "certify":
             command.add_argument("--qualification-evidence", required=True, metavar="PATH")
             command.add_argument("--report-output", required=True, metavar="PATH")
@@ -227,6 +229,14 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
             _render({"command": arguments.command, "status": "NOT_SUPPORTED", "reason": "This vertical slice supports code-size and complexity."}, arguments.format, stream)
             return ExitCode.NOT_SUPPORTED
         configuration = configuration.with_capability(supported[arguments.capability[0]])
+    if arguments.command == "release-qualify":
+        supported = {"code-size": "code_size", "complexity": "complexity"}
+        if not arguments.release_capability or any(item not in supported for item in arguments.release_capability):
+            _render({"command": "release-qualify", "status": "BLOCKED",
+                     "reason": "release-qualify requires one or more supported --release-capability values"}, arguments.format, stream)
+            return ExitCode.BLOCKED
+        for capability in sorted(set(arguments.release_capability)):
+            configuration = configuration.with_capability(supported[capability])
     if arguments.command in {"store", "history"}:
         store = EvidenceStore(_store_location(arguments, arguments.target))
         try:
@@ -342,7 +352,8 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
         return _policy_exit_code(evidence["qualification"])
     if arguments.command == "release-qualify":
         result=Runtime().execute(arguments.target,configuration)
-        evidence=ReleaseQualification().qualify(arguments.target,result.evidence,arguments.artifact_directory,arguments.manifest_output)
+        evidence=ReleaseQualification().qualify(arguments.target,result.evidence,arguments.artifact_directory,arguments.manifest_output,
+                                                 [item.replace("-", "_") for item in arguments.release_capability])
         _render({"command":"release-qualify","releaseQualificationEvidence":evidence},arguments.format,stream)
         return ExitCode.SUCCESS if evidence["decision"] == "RELEASE_QUALIFIED" else ExitCode.FAILED
     if arguments.command == "certify":
