@@ -2,19 +2,19 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-GOV-3 Canonical Candidate Source-Branch Identity Correction |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #70 contains the completed candidate source-branch identity correction. |
-| Current branch | `codex/r1-gov-3-candidate-source-branch-identity` |
-| Current pull request | Reviewable [#70](https://github.com/pcvantol/technical-debt-engine/pull/70). |
-| Current decision | `CANDIDATE_SOURCE_BRANCH_IDENTITY_CORRECTED` |
-| Current repository truth | PR #69 is `MERGED_RECONCILED` at `933849f`. R1-3A remains blocked historically; the detached-SHA source-branch mismatch is corrected for a future fresh candidate attempt. |
-| Next recommended prompt | R1-3A — Create and Certify Mainline Internal Release Candidate. |
+| Current prompt | R1-3A Create and Certify Mainline Internal Release Candidate (retry) |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #71 records the certified mainline candidate evidence. |
+| Current branch | `codex/r1-3a-mainline-candidate-retry` |
+| Current pull request | Reviewable [#71](https://github.com/pcvantol/technical-debt-engine/pull/71). |
+| Current decision | `MAINLINE_INTERNAL_RELEASE_CANDIDATE_CERTIFIED` |
+| Current repository truth | Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` is a certified mainline snapshot. Its complete checksum-bound bundle is retained in Actions run `29451595432`, artifact `8357722985`, and has been retrieved and verified without rebuilding. |
+| Next recommended prompt | R1-3B — Human Release Authorization & Internal Publication. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Create and certify a fresh mainline candidate after R1-GOV-3 merges. | The previous R1-3A candidate remains blocked and cannot be retried from a branch. | R1-3A — Create and Certify Mainline Internal Release Candidate | `P0` |
+| Explicit human authorization and Internal Release publication. | A certified, retrieved mainline bundle is now available; publication must use only those preserved artifacts. | R1-3B — Human Release Authorization & Internal Publication | `P0` |
 | Review hash-pinned build-toolchain upgrades separately. | `build` and `setuptools` updates alter release-producing inputs and require explicit reproducibility/release review. | Build Toolchain Refresh | `P1` |
 | Create and certify a fresh mainline candidate. | R1-3A did not reach certification or bundle preservation. | R1-3A retry after R1-GOV-3 merges | `P1` |
 | Human release approval and publication. | It requires a certified preserved bundle after a successful future candidate. | Human Release Authorization & Internal Publication | `P1` |
