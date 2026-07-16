@@ -118,3 +118,13 @@ repository-local Git identity `Technical Debt Engine Release Automation` with
 `technical-debt-engine-release[bot]@users.noreply.github.com`. The job verifies
 both effective local values and retains `tagger-identity.json` with its
 publication evidence. It does not read runner-global or developer Git settings.
+
+## R1-4G publication outcome
+
+Protected run `29529932503` published immutable tag `0.1.0` at
+`223ccfe4b3646f1907ee7e2d7a8c07e8989badd7`, its GitHub Release, and Docker
+Hub OCI index `sha256:aa648019045a442a0dbce029ee11ecb15c7755d845205fa8f07467e0faf18679`.
+PyPI did not receive the certified distributions because the pinned
+`pypa/gh-action-pypi-publish` GHCR container returned `manifest unknown`.
+The workflow therefore skipped publication evidence. No `latest` tag exists;
+the preserved artifacts must not be rebuilt for any completion operation.
