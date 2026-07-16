@@ -28,7 +28,8 @@ current repository state rather than from prompt text or history.
 
 ## Current release-governance transition
 
-The first Internal Release remains unpublished. Its next release increment is
-human authorization and publication of the certified preserved mainline bundle
-recorded in `ENGINEERING_STATUS.md`; the superseded R1-2B sibling candidate is
-historical evidence only.
+The first Internal Release remains unpublished. Current-main candidate
+`04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` is technically certified and its
+preserved bundle is recorded in `ENGINEERING_STATUS.md`; R1-4B owns the
+remaining Environment-contract completion and human release authorization. The
+superseded R1-2B sibling candidate is historical evidence only.

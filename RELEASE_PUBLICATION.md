@@ -83,3 +83,13 @@ Configure this Environment outside R1-3B before any non-dry-run dispatch:
 | Inputs | Require exact candidate SHA, version, source run, artifact name, and a JSON assertion binding reviewer identity/time, candidate, bundle ID/checksum, and all three targets. |
 
 Environment approval is the human authorization boundary. The JSON input is deliberately only a deterministic structure/binding check; R1-3C owns human authorization.
+
+## Current R1-4A publication readiness
+
+Candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` has a complete,
+retrieved, checksum-verified certified bundle from run `29483960813`. Its
+qualification and certification are passing, and the publication workflow is
+manual-only and bundle-consuming. GitHub confirms that `internal-release`
+exists, but its Environment configuration has only reviewer `pcvantol` and
+allows self-review. That does not meet the contract above. R1-4B must complete
+the protection/authorization boundary before any non-dry-run dispatch.

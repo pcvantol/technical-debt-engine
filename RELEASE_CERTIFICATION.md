@@ -60,6 +60,15 @@ Run `29451595432` certified mainline candidate
 Its complete preserved bundle is verified and remains unpublished pending
 explicit human authorization.
 
+## Current mainline candidate (R1-4A)
+
+Run `29483960813` certified current-main candidate
+`04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` as `RELEASE_CERTIFIED` with ID
+`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`.
+Certification consumes only the candidate-bound qualification chain; it did
+not rerun Runtime, Policy, Software Assurance, or Trusted Delivery. The
+preserved bundle is retrievable without rebuilding and remains unpublished.
+
 ## Historical Baseline
 
 **RELEASE_NOT_CERTIFIED**

@@ -2,12 +2,13 @@
 
 | Requirement | Result |
 | --- | --- |
-| Wheel creation and checksum | Validated locally |
-| Isolated wheel installation and CLI startup | Validated |
-| Runtime startup | Validated through installed CLI invocation |
-| Source archive / standalone executable / evidence bundle | Not available |
-| Internal distribution destination | Not configured |
-| Software Assurance / Trusted Delivery | Still warning-bound |
-| Release certification | Not certified |
+| Wheel and source distribution creation/checksums | Validated in run `29483960813` |
+| Non-published multi-platform OCI archive | Validated for `linux/amd64` and `linux/arm64` |
+| Runtime Qualification / Policy | `QUALIFIED` / `PASS_WITH_WARNINGS` |
+| Software Assurance / Trusted Delivery | `PASS` / `PASS` |
+| Release Qualification / Certification | `RELEASE_QUALIFIED` / `RELEASE_CERTIFIED` |
+| Certified bundle | Artifact `8369651393`, retrieved and checksum-verified without rebuild |
+| Internal distribution destination | Environment exists but does not meet the required reviewer/self-review contract |
 
-The internal release is blocked from distribution.
+The internal release remains blocked from distribution pending R1-4B human
+authorization and Environment-contract completion. No artifact has been published.

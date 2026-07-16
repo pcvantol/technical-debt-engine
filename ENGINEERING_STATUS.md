@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-GOV-4 Immutable GitHub Action Reference Parser Repair |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #74 contains the complete parser repair and finalization record. |
-| Current branch | `codex/immutable-action-parser` |
-| Current pull request | Reviewable [#74](https://github.com/pcvantol/technical-debt-engine/pull/74). |
-| Current decision | `IMMUTABLE_ACTION_PARSER_OPERATIONAL` |
-| Current repository truth | PR #73 merged at `73e198d` on 2026-07-16 and its immutable archive exists. Software Assurance now recognizes all 40 SHA-pinned workflow references, including `.github/workflows/internal-release-publish.yml` job `publish`, step `Publish the certified Python distributions using Trusted Publishing`, `pypa/gh-action-pypi-publish@6733eb7d741f0b11ec6a39b58540dab7590f9b7d`. The parser and its fail-closed mutable-reference behavior are covered by 98 tests. |
-| Next recommended prompt | R1-4A — Create and Certify Current Mainline Release Candidate. |
+| Current prompt | R1-4A Create and Certify Current Mainline Release Candidate |
+| Lifecycle state | `DRAFT`; finalization records are being prepared in the one draft PR before reviewable freeze. |
+| Current branch | `codex/r1-4a-mainline-release-candidate` |
+| Current pull request | Pending creation after finalization records are committed. |
+| Current decision | `CURRENT_MAINLINE_RELEASE_CANDIDATE_PARTIALLY_CERTIFIED` |
+| Current repository truth | PR #74 merged at `04b39c5`; its immutable parser-repair archive exists. Current-main candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` was built, qualified, certified, bundled, uploaded, retrieved, and verified by successful Actions run `29483960813`. The bundle is release-ready technically, but external Environment protections do not meet the documented publication contract. |
+| Next recommended prompt | R1-4B — Human Release Authorization. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
-| --- | --- | --- | --- |
-| Create and certify the current mainline release candidate. | This parser-repair increment neither creates a Release Candidate nor publishes. | R1-4A — Create and Certify Current Mainline Release Candidate | `P0` |
+| --- | --- | --- |
+| Complete the `internal-release` Environment protection and obtain human release authorization for the preserved bundle. | GitHub reports only reviewer `pcvantol` and `prevent_self_review: false`; publication remains outside this increment. | R1-4B — Human Release Authorization | `P0` |
