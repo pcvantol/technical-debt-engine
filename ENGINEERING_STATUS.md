@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-4G Internal Release Publication |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #82 contains the partial-publication record and finalization. |
-| Current branch | `codex/r1-4g-internal-release-publication` |
-| Current pull request | Reviewable [#82](https://github.com/pcvantol/technical-debt-engine/pull/82). |
-| Current decision | `INTERNAL_RELEASE_PARTIALLY_COMPLETED` |
-| Current repository truth | Protected run `29529932503` passed bundle preflight and published tag `0.1.0` at candidate `223ccfe`, GitHub Release, and Docker Hub OCI index. PyPI failed before upload because the pinned `pypa/gh-action-pypi-publish` GHCR container returned `manifest unknown`; publication evidence was consequently not produced. |
-| Next recommended prompt | Release Publication Completion and PyPI Action Availability Repair. |
+| Current prompt | R1-4H Release Publication Completion — PyPI Publication Repair |
+| Lifecycle state | `DRAFT`; failure evidence and finalization are being prepared. |
+| Current branch | `codex/r1-4h-pypi-publication-repair` |
+| Current pull request | Pending creation after repair evidence is committed. |
+| Current decision | `PYPI_PUBLICATION_BLOCKED` |
+| Current repository truth | PR #83 repaired the unavailable PyPI Action pin to a current verified `release/v1` commit. Protected run `29531471511` re-verified the bundle and authorization, then stopped before PyPI because the existing immutable remote tag `0.1.0` was recreated locally and rejected on push. Tag, GitHub Release, Docker index, and PyPI absence are unchanged. |
+| Next recommended prompt | Resumable PyPI Publication Workflow and Completion Evidence. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Publish the preserved certified Python distributions after repairing the unavailable pinned PyPI Action container reference, then produce publication evidence. | GitHub tag/release and Docker publication are complete, but PyPI is absent and the workflow fail-closed before evidence creation. | Release Publication Completion and PyPI Action Availability Repair | `P0` |
+| Add a separately guarded resumable completion path that verifies existing tag/release/Docker identities, skips all completed targets, and publishes only the preserved PyPI artifacts plus evidence. | The current all-target workflow rejects the immutable existing tag before reaching PyPI. | Resumable PyPI Publication Workflow and Completion Evidence | `P0` |
