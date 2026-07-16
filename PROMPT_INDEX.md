@@ -78,7 +78,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [R1-4E](docs/history/prompts/R1-4E-release-publication-workflow-identity-repair.md) | Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh | [Merged — #80](https://github.com/pcvantol/technical-debt-engine/pull/80) at `2c3d6f9` |
 | [R1-4F](docs/history/prompts/R1-4F-human-release-authorization.md) | Human Release Authorization | [Merged — #81](https://github.com/pcvantol/technical-debt-engine/pull/81) at `84478b5` |
 | [R1-4G](docs/history/prompts/R1-4G-internal-release-publication.md) | Internal Release Publication | [Merged — #82](https://github.com/pcvantol/technical-debt-engine/pull/82) at `55673da` |
-| R1-4H | Release Publication Completion — PyPI Publication Repair | Draft PR pending finalization · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4h-pypi-publication-repair) |
+| [R1-4H](docs/history/prompts/R1-4H-pypi-publication-repair.md) | Release Publication Completion — PyPI Publication Repair | [Reviewable — #84](https://github.com/pcvantol/technical-debt-engine/pull/84) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4h-pypi-publication-repair) · [implementation commit](https://github.com/pcvantol/technical-debt-engine/commit/7185edb50c8b703ae6782420d29a76067e2221c3) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
