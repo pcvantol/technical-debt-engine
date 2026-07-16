@@ -7,10 +7,10 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | No published release. Current-main candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` is `RELEASE_CERTIFIED` and bundle-preserved in Actions artifact `8369651393`; publication remains blocked pending Environment-contract completion and human authorization. |
+| Releases | No published release. Current-main candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` is `RELEASE_CERTIFIED` and bundle-preserved in Actions artifact `8369651393`; its protected Environment is consistent with the canonical single-maintainer policy, while explicit human authorization remains required. |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #74 is `MERGED_RECONCILED` at `04b39c5`; its immutable R1-GOV-4 archive exists. R1-4A reconciles the rolling records and creates the current-main candidate. |
+| Post-merge lifecycle | PR #75 is `MERGED_RECONCILED` at `43c1d14`; its immutable R1-4A archive exists. R1-GOV-5 reconciles the rolling records and defines the single-maintainer authorization policy. |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |

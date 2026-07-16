@@ -1,10 +1,29 @@
 # Internal Release Authorization
 
-The immutable authorization record for the first Internal Release is
+## Canonical authorization policy
+
+TDE currently has one objectively verified repository maintainer: owner and
+only direct collaborator `pcvantol`. For this operating model, a **Single
+Maintainer Release Authorization** is valid only when all of the following are
+true: an explicit authorization record binds the exact candidate and preserved
+bundle; the manual publication workflow re-verifies that record and bundle; and
+the `internal-release` protected Environment requires that maintainer. GitHub
+self-approval is permitted only because no independent maintainer exists; it
+does not eliminate the explicit authorization-record, bundle-verification, or
+publication-evidence requirements.
+
+If the repository gains multiple maintainers, independent approval becomes
+mandatory before any publication. The `internal-release` Environment must then
+require an independent reviewer and prevent self-review. This policy changes
+automatically with the objectively verified maintainer model; an existing
+single-maintainer authorization never waives the future team requirement.
+
+The immutable authorization record for the prior Internal Release attempt is
 [`release/authorizations/internal-release-0.1.0.json`](release/authorizations/internal-release-0.1.0.json).
 It binds approver `pcvantol`, the exact candidate, version, certified bundle,
 checksum, publication workflow, and the separately approved tag, GitHub
-Release, PyPI, and Docker Hub targets.
+Release, PyPI, and Docker Hub targets. A new record is required for every new
+candidate/bundle; this historical record does not authorize the current one.
 
 Authorization validation is deterministic and fail-closed:
 
@@ -17,11 +36,11 @@ PYTHONPATH=src python tools/verify_release_authorization.py \
   --bundle-checksum sha256:a4cbaab6cf23b294d9777c1086798a2e68bb1f1d916276eaeb32627f52b68377
 ```
 
-The record does not authorize publication while the `internal-release` GitHub
-Environment is absent. GitHub's Environment endpoint returned `404` on
-2026-07-15T22:30:08Z. No Environment was created or changed in R1-3C, and no
-tag, GitHub Release, PyPI upload, Docker upload, or `latest` tag was executed.
+The current `internal-release` Environment exists and is consistent with the
+single-maintainer policy: its required reviewer is `pcvantol` and GitHub permits
+self-review. It remains a protected human-authorization boundary. No tag,
+GitHub Release, PyPI upload, Docker upload, or `latest` tag has been executed.
 
-After an authorized administrator creates and protects that Environment with
-the documented reviewers and credentials, R1-3D may re-verify the record and
-perform the separately protected publication dispatch.
+R1-4B must create and validate a fresh record binding the current candidate,
+bundle, checksum, approved targets, and publication workflow before any
+separately protected publication dispatch.

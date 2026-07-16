@@ -1,6 +1,6 @@
 # Mainline Internal Release Candidate Status
 
-## Current R1-4A candidate — partially certified for publication
+## Current R1-4A candidate — certified, pending human authorization
 
 | Field | Value |
 | --- | --- |
@@ -10,12 +10,12 @@
 | Workflow run | [29483960813](https://github.com/pcvantol/technical-debt-engine/actions/runs/29483960813) |
 | Artifact ID | `8369651393` (`docker-release-candidate-04b39c51e2e36a5ac70059f2c030e7cadd37dbe0`) |
 | Retention | 90 days; expires 2026-10-14T08:34:55Z |
-| Decision | `CURRENT_MAINLINE_RELEASE_CANDIDATE_PARTIALLY_CERTIFIED` |
+| Decision | `RELEASE_CERTIFIED`; publication pending R1-4B authorization |
 | Release Qualification | `RELEASE_QUALIFIED` / `READY` |
 | Release Certification | `RELEASE_CERTIFIED` (`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`) |
 | Bundle ID | `bundle.sha256.fe7a81f7daa9fafbf40a031c7988ad3e7b1b00dda94e4e91facc4e30352b4ec1` |
 | Bundle checksum | `sha256:2c0a36cca64c632c58b7b9e7a4fc57b1af9804595da0bed4c6c822e1a91b4a11` |
-| Generation 1 Recovery | Pending external publication protection |
+| Generation 1 Recovery | Authorization policy established; human authorization pending |
 | Generation 1 Release Candidate | `CERTIFIED` |
 | Generation 1 Internal Release | `PENDING HUMAN AUTHORIZATION` |
 
@@ -28,9 +28,9 @@ Assurance and Trusted Delivery are `PASS`. The OCI archive contains qualified
 `linux/amd64` and `linux/arm64` images and remains unpublished.
 
 No Git tag, GitHub Release, PyPI publication, Docker publication, or `latest`
-tag exists. The `internal-release` Environment exists but its single reviewer
-and self-review setting do not meet the documented contract, so this candidate
-cannot be authorized or published until R1-4B.
+tag exists. R1-GOV-5 establishes that the Environment's sole reviewer and
+self-review setting are valid for the current single-maintainer model. A fresh,
+candidate-bound human authorization record remains required before publication.
 
 ## R1-3A attempt — blocked
 

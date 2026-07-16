@@ -8,7 +8,7 @@
 | Software Assurance / Trusted Delivery | `PASS` / `PASS` |
 | Release Qualification / Certification | `RELEASE_QUALIFIED` / `RELEASE_CERTIFIED` |
 | Certified bundle | Artifact `8369651393`, retrieved and checksum-verified without rebuild |
-| Internal distribution destination | Environment exists but does not meet the required reviewer/self-review contract |
+| Internal distribution destination | `internal-release` Environment is policy-consistent for one verified maintainer |
 
 The internal release remains blocked from distribution pending R1-4B human
-authorization and Environment-contract completion. No artifact has been published.
+authorization. No artifact has been published.
