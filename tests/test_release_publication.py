@@ -1,10 +1,11 @@
+from hashlib import sha256
 import json
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from tde_runtime.release_publication import validate_authorization, verify_publication_bundle
+from tde_runtime.release_publication import canonical, validate_authorization, validate_authorization_record, verify_publication_bundle
 
 
 class ReleasePublicationTests(unittest.TestCase):
@@ -44,6 +45,18 @@ class ReleasePublicationTests(unittest.TestCase):
                                         "releaseVersion": "0.1.0", "bundleId": "bundle", "bundleChecksum": "sha256:test",
                                         "targets": ["pypi"]}, self.candidate, "0.1.0", "bundle", "sha256:test")
         self.assertTrue(errors)
+
+    def test_authorization_record_requires_each_explicit_target_approval(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = self.bundle(Path(temporary)); record = self.authorization(bundle)
+            record.update({"schemaId": "tde.internal-release-authorization",
+                           "approvedGitTag": "0.1.0", "approvedGitHubRelease": "0.1.0", "approvedPyPI": "0.1.0",
+                           "approvedDockerHub": "docker.io/pcvantol/technical-debt-engine:0.1.0", "protectedEnvironment": "internal-release",
+                           "publicationWorkflow": ".github/workflows/internal-release-publish.yml", "targetApprovals": {"github_release": True, "pypi": True, "docker_hub": True}})
+            record["authorizationId"] = "authorization.sha256." + sha256(canonical(record)).hexdigest()
+            self.assertFalse(validate_authorization_record(record, self.candidate, "0.1.0", record["bundleId"], record["bundleChecksum"]))
+            record["targetApprovals"]["pypi"] = False
+            self.assertTrue(validate_authorization_record(record, self.candidate, "0.1.0", record["bundleId"], record["bundleChecksum"]))
 
     def test_workflow_is_manual_dry_run_and_never_rebuilds(self):
         workflow = Path(".github/workflows/internal-release-publish.yml").read_text(encoding="utf-8")

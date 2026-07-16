@@ -40,6 +40,31 @@ def validate_authorization(value: object, candidate_sha: str, release_version: s
     return errors
 
 
+def validate_authorization_record(value: object, candidate_sha: str, release_version: str,
+                                  bundle_id: str, bundle_checksum: str) -> list[str]:
+    """Validate an immutable, target-specific human authorization record."""
+    if not isinstance(value, dict): return ["authorization record must be a JSON object"]
+    errors = validate_authorization(value, candidate_sha, release_version, bundle_id, bundle_checksum)
+    if value.get("schemaId") != "tde.internal-release-authorization": errors.append("authorization record has an invalid schema")
+    for key in ("authorizationId", "approvedGitTag", "approvedGitHubRelease", "approvedPyPI", "approvedDockerHub", "protectedEnvironment", "publicationWorkflow"):
+        if key not in value: errors.append(f"authorization record is missing {key}")
+    approvals = value.get("targetApprovals")
+    if not isinstance(approvals, dict):
+        errors.append("authorization record must contain targetApprovals")
+    elif set(approvals) != PUBLICATION_TARGETS or any(item is not True for item in approvals.values()):
+        errors.append("every publication target requires an explicit approved state")
+    expected = {"approvedGitTag": release_version, "approvedGitHubRelease": release_version,
+                "approvedPyPI": release_version, "approvedDockerHub": f"docker.io/pcvantol/technical-debt-engine:{release_version}"}
+    for key, expected_value in expected.items():
+        if value.get(key) != expected_value: errors.append(f"authorization record {key} does not match the approved release")
+    if value.get("protectedEnvironment") != "internal-release": errors.append("authorization record does not bind internal-release")
+    if value.get("publicationWorkflow") != ".github/workflows/internal-release-publish.yml": errors.append("authorization record does not bind the publication workflow")
+    unsigned = {key: item for key, item in value.items() if key != "authorizationId"}
+    expected_id = "authorization.sha256." + sha256(canonical(unsigned)).hexdigest()
+    if value.get("authorizationId") != expected_id: errors.append("authorization record identity does not match its immutable content")
+    return errors
+
+
 def _report(value: object) -> Mapping[str, Any]:
     if not isinstance(value, dict): raise ValueError("evidence must be a JSON object")
     return value.get("releaseQualificationEvidence", value) if isinstance(value.get("releaseQualificationEvidence", value), dict) else value
