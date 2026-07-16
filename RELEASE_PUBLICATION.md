@@ -100,3 +100,13 @@ R1-4B has recorded that authorization in
 bundle preflight is ready, but this document does not dispatch the manual
 workflow or publish any artifact. R1-4C owns the separately protected
 publication operation.
+
+## R1-4D publication attempt
+
+Run `29526820939` passed the preflight and immediate pre-publication bundle
+re-verification, then failed in `Create immutable Git tag and GitHub Release
+from the certified bundle`. The runner had no configured Git committer identity
+for the annotated tag. No tag, GitHub Release, Docker publication, PyPI upload,
+or publication evidence was created; Docker and PyPI steps were skipped. A
+workflow identity repair is a candidate-to-main workflow change, so a fresh
+candidate is mandatory before a later publication attempt.
