@@ -73,3 +73,12 @@ protected-environment publication workflow must verify those inputs, create the
 final immutable tag at the candidate SHA, publish only bundle contents, verify
 the published identities, and generate evidence. It must never rebuild and
 must not run on push or pull-request events.
+
+### Maintainer authorization model
+
+When exactly one maintainer objectively owns and administers the repository,
+that maintainer may approve the protected Environment's release gate only after
+creating an explicit immutable authorization record. When more than one
+maintainer exists, independent approval and self-review prevention are
+mandatory. Candidate verification, bundle verification, target binding, and
+publication evidence are required in both models.

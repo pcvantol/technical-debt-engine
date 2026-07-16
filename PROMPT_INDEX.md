@@ -71,7 +71,8 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [R1-3B](docs/history/prompts/R1-3B-publication-infrastructure.md) | Establish Internal Release Publication Infrastructure | [Merged — #72](https://github.com/pcvantol/technical-debt-engine/pull/72) at `969c0e5` |
 | [R1-3C](docs/history/prompts/R1-3C-human-release-authorization.md) | Human Release Authorization | [Merged — #73](https://github.com/pcvantol/technical-debt-engine/pull/73) at `73e198d` |
 | [R1-GOV-4](docs/history/prompts/R1-GOV-4-immutable-action-parser-repair.md) | Immutable GitHub Action Reference Parser Repair | [Merged — #74](https://github.com/pcvantol/technical-debt-engine/pull/74) at `04b39c5` |
-| [R1-4A](docs/history/prompts/R1-4A-current-mainline-release-candidate.md) | Create and Certify Current Mainline Release Candidate | [Reviewable — #75](https://github.com/pcvantol/technical-debt-engine/pull/75) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4a-mainline-release-candidate) · [implementation commit](https://github.com/pcvantol/technical-debt-engine/commit/c217ee3230001c44e8ec6dc23af3daa3bbbfbcd8) |
+| [R1-4A](docs/history/prompts/R1-4A-current-mainline-release-candidate.md) | Create and Certify Current Mainline Release Candidate | [Merged — #75](https://github.com/pcvantol/technical-debt-engine/pull/75) at `43c1d14` |
+| R1-GOV-5 | Single Maintainer Internal Release Authorization Policy | Draft PR pending finalization · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-gov-5-single-maintainer-policy) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 

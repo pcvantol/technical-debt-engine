@@ -76,7 +76,7 @@ Configure this Environment outside R1-3B before any non-dry-run dispatch:
 
 | Control | Required configuration |
 | --- | --- |
-| Approval | Require the release owner and an independent repository maintainer; prevent self-review and restrict the Environment to the default branch. |
+| Approval | In the verified single-maintainer model, require the sole maintainer and permit self-review only with an explicit candidate-bound authorization record. If multiple maintainers exist, require an independent reviewer, prevent self-review, and restrict the Environment to the default branch. |
 | Permissions | Preflight is read-only (`actions: read`, `contents: read`). Only the protected publish job receives `contents: write` and `id-token: write`. |
 | PyPI | Configure PyPI Trusted Publishing for this repository, workflow, and Environment. A future fallback may use only a project-scoped, upload-only `PYPI_API_TOKEN`, never a broad account token. |
 | Docker Hub | Set `DOCKERHUB_USERNAME` as an Environment variable and `DOCKERHUB_TOKEN` as an Environment secret, scoped to `pcvantol/technical-debt-engine` with push-only access. |
@@ -90,6 +90,7 @@ Candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` has a complete,
 retrieved, checksum-verified certified bundle from run `29483960813`. Its
 qualification and certification are passing, and the publication workflow is
 manual-only and bundle-consuming. GitHub confirms that `internal-release`
-exists, but its Environment configuration has only reviewer `pcvantol` and
-allows self-review. That does not meet the contract above. R1-4B must complete
-the protection/authorization boundary before any non-dry-run dispatch.
+exists, has sole maintainer `pcvantol` as required reviewer, and allows
+self-review. R1-GOV-5 establishes that configuration as canonical only while
+there is one maintainer. R1-4B must still create explicit authorization for
+this bundle before any non-dry-run dispatch.
