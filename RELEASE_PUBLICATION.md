@@ -110,3 +110,11 @@ for the annotated tag. No tag, GitHub Release, Docker publication, PyPI upload,
 or publication evidence was created; Docker and PyPI steps were skipped. A
 workflow identity repair is a candidate-to-main workflow change, so a fresh
 candidate is mandatory before a later publication attempt.
+
+## R1-4E deterministic tagger identity
+
+Before an annotated tag can be created, the protected publication job configures
+repository-local Git identity `Technical Debt Engine Release Automation` with
+`technical-debt-engine-release[bot]@users.noreply.github.com`. The job verifies
+both effective local values and retains `tagger-identity.json` with its
+publication evidence. It does not read runner-global or developer Git settings.

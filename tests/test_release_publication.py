@@ -10,6 +10,8 @@ from tde_runtime.release_publication import canonical, validate_authorization, v
 
 class ReleasePublicationTests(unittest.TestCase):
     candidate = "a" * 40
+    tagger_name = "Technical Debt Engine Release Automation"
+    tagger_email = "technical-debt-engine-release[bot]@users.noreply.github.com"
 
     def bundle(self, root):
         inputs = root / "inputs"; inputs.mkdir()
@@ -66,5 +68,46 @@ class ReleasePublicationTests(unittest.TestCase):
         self.assertIn("gh release create", workflow); self.assertIn("pypa/gh-action-pypi-publish@", workflow)
         self.assertIn("secrets.PYPI_API_TOKEN", workflow)
         self.assertIn("docker.io/pcvantol/technical-debt-engine:$VERSION", workflow)
+        self.assertIn("Configure and verify deterministic Git tagger identity", workflow)
+        self.assertIn("git config --local user.name", workflow)
+        self.assertIn("git config --local user.email", workflow)
+        self.assertIn("Technical Debt Engine Release Automation", workflow)
+        self.assertIn("technical-debt-engine-release[bot]@users.noreply.github.com", workflow)
+        self.assertIn("tagger-identity.json", workflow)
         self.assertNotIn("docker.io/pcvantol/technical-debt-engine:latest", workflow)
         self.assertNotIn("package_build.py", workflow); self.assertNotIn("build_docker_candidate.py", workflow)
+
+    def test_missing_tagger_identity_fails_closed_before_tag_creation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            environment = {"PATH": __import__("os").environ["PATH"], "HOME": str(root / "empty-home"), "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
+            (root / "empty-home").mkdir()
+            subprocess.run(["git", "init", "--quiet", str(root / "repository")], check=True, env=environment)
+            repository = root / "repository"
+            (repository / "evidence.txt").write_text("candidate", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repository), "add", "evidence.txt"], check=True, env=environment)
+            subprocess.run(["git", "-C", str(repository), "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "fixture"], check=True, env=environment)
+            subprocess.run(["git", "-C", str(repository), "config", "--unset-all", "user.name"], check=False, env=environment)
+            subprocess.run(["git", "-C", str(repository), "config", "--unset-all", "user.email"], check=False, env=environment)
+            result = subprocess.run(["sh", "-c", 'test "$(git -C "$1" config --local --get user.name || true)" = "$2" && test "$(git -C "$1" config --local --get user.email || true)" = "$3"', "identity-guard", str(repository), self.tagger_name, self.tagger_email], env=environment, capture_output=True, text=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertFalse((repository / ".git" / "refs" / "tags" / "0.1.0").exists())
+
+    def test_repository_local_identity_creates_annotated_tag_at_selected_candidate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            environment = {"PATH": __import__("os").environ["PATH"], "HOME": str(root / "empty-home"), "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
+            (root / "empty-home").mkdir()
+            subprocess.run(["git", "init", "--quiet", str(root / "repository")], check=True, env=environment)
+            repository = root / "repository"
+            (repository / "evidence.txt").write_text("candidate", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repository), "add", "evidence.txt"], check=True, env=environment)
+            subprocess.run(["git", "-C", str(repository), "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "fixture"], check=True, env=environment)
+            candidate = subprocess.run(["git", "-C", str(repository), "rev-parse", "HEAD"], check=True, env=environment, capture_output=True, text=True).stdout.strip()
+            subprocess.run(["git", "-C", str(repository), "config", "--local", "user.name", self.tagger_name], check=True, env=environment)
+            subprocess.run(["git", "-C", str(repository), "config", "--local", "user.email", self.tagger_email], check=True, env=environment)
+            subprocess.run(["git", "-C", str(repository), "tag", "--annotate", "0.1.0", candidate, "--message", "release"], check=True, env=environment)
+            tagged = subprocess.run(["git", "-C", str(repository), "rev-parse", "0.1.0^{}"], check=True, env=environment, capture_output=True, text=True).stdout.strip()
+            identity = subprocess.run(["git", "-C", str(repository), "for-each-ref", "--format=%(taggername) %(taggeremail)", "refs/tags/0.1.0"], check=True, env=environment, capture_output=True, text=True).stdout.strip()
+            self.assertEqual(candidate, tagged)
+            self.assertEqual(f"{self.tagger_name} <{self.tagger_email}>", identity)

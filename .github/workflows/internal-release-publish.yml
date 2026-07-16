@@ -99,6 +99,26 @@ jobs:
           test -n "$bundle_directory"
           PYTHONPATH=src python tools/verify_publication_bundle.py --bundle-directory "$bundle_directory" --candidate-sha "${{ inputs.candidate_sha }}" --release-version "${{ inputs.release_version }}" --authorization-json "$AUTHORIZATION_JSON" --evidence-output "$RUNNER_TEMP/publication-preflight.json"
           echo "BUNDLE_DIRECTORY=$bundle_directory" >> "$GITHUB_ENV"
+      - name: Configure and verify deterministic Git tagger identity
+        env:
+          TAGGER_NAME: Technical Debt Engine Release Automation
+          TAGGER_EMAIL: technical-debt-engine-release[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config --local user.name "$TAGGER_NAME"
+          git config --local user.email "$TAGGER_EMAIL"
+          test "$(git config --local --get user.name)" = "$TAGGER_NAME"
+          test "$(git config --local --get user.email)" = "$TAGGER_EMAIL"
+          python - <<'PY' > "$RUNNER_TEMP/tagger-identity.json"
+          import json, os
+          print(json.dumps({
+              "schemaId": "tde.release-tagger-identity",
+              "schemaVersion": "1.0.0",
+              "name": os.environ["TAGGER_NAME"],
+              "email": os.environ["TAGGER_EMAIL"],
+              "scope": "repository-local",
+          }, sort_keys=True))
+          PY
       - name: Create immutable Git tag and GitHub Release from the certified bundle
         env:
           GH_TOKEN: ${{ github.token }}
@@ -158,6 +178,7 @@ jobs:
           name: internal-release-publication-evidence-${{ inputs.candidate_sha }}
           path: |
             ${{ runner.temp }}/publication-preflight.json
+            ${{ runner.temp }}/tagger-identity.json
             ${{ runner.temp }}/publication-evidence.json
             ${{ runner.temp }}/docker-publication.json
           retention-days: 90
