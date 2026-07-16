@@ -64,3 +64,13 @@ Run `29451595432` qualified mainline candidate
 Runtime Qualification is `QUALIFIED`, Policy is `PASS_WITH_WARNINGS`, and
 Software Assurance and Trusted Delivery are `PASS`. Its immutable manifest
 digest is `sha256:38074717a76e056faff176fa37fa0981b3b12a8c11de63bc5fa8428a052d1670`.
+
+## Current mainline candidate (R1-4A)
+
+Run `29483960813` qualified current-main candidate
+`04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` as `RELEASE_QUALIFIED` / `READY`.
+Runtime Qualification is `QUALIFIED`, Policy is `PASS_WITH_WARNINGS`, and
+Software Assurance and Trusted Delivery are `PASS`. All candidate-bound
+qualification checks, including reproducible package artifacts and the
+non-published Docker archive, passed. Its Release Evidence identity is
+`release-evidence.sha256.61276073a2154c28e2a46692d9ba0a43d47cd354c3b248d92abd3e1772e1d1d7`.

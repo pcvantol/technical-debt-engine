@@ -1,21 +1,21 @@
 # Mainline Internal Release Candidate Status
 
-## Current R1-3A candidate — certified
+## Current R1-4A candidate — partially certified for publication
 
 | Field | Value |
 | --- | --- |
-| Candidate SHA | `3fda62e72850f1c67f1554f7612580eccf16ae34` |
+| Candidate SHA | `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` |
 | Candidate version | `0.1.0` |
-| Source | synchronized `main`; PR #70 merge commit |
-| Workflow run | [29451595432](https://github.com/pcvantol/technical-debt-engine/actions/runs/29451595432) |
-| Artifact ID | `8357722985` (`docker-release-candidate-3fda62e72850f1c67f1554f7612580eccf16ae34`) |
-| Retention | 90 days; expires 2026-10-13T21:20:53Z |
-| Decision | `MAINLINE_INTERNAL_RELEASE_CANDIDATE_CERTIFIED` |
+| Source | synchronized `main`; PR #74 merge commit |
+| Workflow run | [29483960813](https://github.com/pcvantol/technical-debt-engine/actions/runs/29483960813) |
+| Artifact ID | `8369651393` (`docker-release-candidate-04b39c51e2e36a5ac70059f2c030e7cadd37dbe0`) |
+| Retention | 90 days; expires 2026-10-14T08:34:55Z |
+| Decision | `CURRENT_MAINLINE_RELEASE_CANDIDATE_PARTIALLY_CERTIFIED` |
 | Release Qualification | `RELEASE_QUALIFIED` / `READY` |
-| Release Certification | `RELEASE_CERTIFIED` (`release-certification.sha256.0d7b4ba25494ced37ad39d114e0854f9b88d20f4050ddd9b2e19b8c3f5696b59`) |
-| Bundle ID | `bundle.sha256.e0c12c31b0ecf4b0bc6a9a4054717ed4d449c70ff90af9fc917f0ac87c6deeef` |
-| Bundle checksum | `sha256:a4cbaab6cf23b294d9777c1086798a2e68bb1f1d916276eaeb32627f52b68377` |
-| Generation 1 Recovery | `COMPLETED` |
+| Release Certification | `RELEASE_CERTIFIED` (`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`) |
+| Bundle ID | `bundle.sha256.fe7a81f7daa9fafbf40a031c7988ad3e7b1b00dda94e4e91facc4e30352b4ec1` |
+| Bundle checksum | `sha256:2c0a36cca64c632c58b7b9e7a4fc57b1af9804595da0bed4c6c822e1a91b4a11` |
+| Generation 1 Recovery | Pending external publication protection |
 | Generation 1 Release Candidate | `CERTIFIED` |
 | Generation 1 Internal Release | `PENDING HUMAN AUTHORIZATION` |
 
@@ -24,11 +24,13 @@ complete and integrity-valid, contains the wheel, source distribution, OCI
 archive, provenance, release manifest, qualification, certification, and
 release evidence, and binds every item to this candidate SHA. Runtime
 Qualification is `QUALIFIED`; Policy is `PASS_WITH_WARNINGS`; Software
-Assurance and Trusted Delivery are `PASS`.
+Assurance and Trusted Delivery are `PASS`. The OCI archive contains qualified
+`linux/amd64` and `linux/arm64` images and remains unpublished.
 
 No Git tag, GitHub Release, PyPI publication, Docker publication, or `latest`
-tag exists. This candidate is publication-ready but requires explicit human
-authorization before the preserved bundle may be published.
+tag exists. The `internal-release` Environment exists but its single reviewer
+and self-review setting do not meet the documented contract, so this candidate
+cannot be authorized or published until R1-4B.
 
 ## R1-3A attempt — blocked
 

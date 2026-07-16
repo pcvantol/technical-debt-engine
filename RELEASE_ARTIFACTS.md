@@ -10,11 +10,11 @@ files and never regenerates them.
 
 ## Current certified mainline candidate
 
-Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` produced the certified
-internal version `0.1.0` bundle in Actions run `29451595432`, artifact
-`8357722985`, retained through 2026-10-13. Bundle ID:
-`bundle.sha256.e0c12c31b0ecf4b0bc6a9a4054717ed4d449c70ff90af9fc917f0ac87c6deeef`;
-checksum: `sha256:a4cbaab6cf23b294d9777c1086798a2e68bb1f1d916276eaeb32627f52b68377`.
+Candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` produced the certified
+internal version `0.1.0` bundle in Actions [run 29483960813](https://github.com/pcvantol/technical-debt-engine/actions/runs/29483960813), artifact
+`8369651393`, retained through 2026-10-14. Bundle ID:
+`bundle.sha256.fe7a81f7daa9fafbf40a031c7988ad3e7b1b00dda94e4e91facc4e30352b4ec1`;
+checksum: `sha256:2c0a36cca64c632c58b7b9e7a4fc57b1af9804595da0bed4c6c822e1a91b4a11`.
 It contains checksum-bound wheel, source distribution, multi-platform OCI
 archive/provenance, and release-chain evidence. It was retrieved and verified
 without rebuilding; it is not published.
