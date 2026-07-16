@@ -94,3 +94,9 @@ exists, has sole maintainer `pcvantol` as required reviewer, and allows
 self-review. R1-GOV-5 establishes that configuration as canonical only while
 there is one maintainer. R1-4B must still create explicit authorization for
 this bundle before any non-dry-run dispatch.
+
+R1-4B has recorded that authorization in
+`release/authorizations/internal-release-0.1.0-04b39c51.json`. The retrieved
+bundle preflight is ready, but this document does not dispatch the manual
+workflow or publish any artifact. R1-4C owns the separately protected
+publication operation.
