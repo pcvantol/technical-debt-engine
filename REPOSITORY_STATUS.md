@@ -7,10 +7,10 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | No published release. R1-4E repaired deterministic repository-local publication tagger identity and certified fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` in retained artifact `8387371267`. It awaits new human authorization; no external target changed. |
+| Releases | No published release. Fresh certified candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` is explicitly authorized by `authorization.sha256.09973d239287053808740f38bb83b102146cc5a3ae943c5b1148f571ef2e4631`; no external target changed. |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #78 is `MERGED_RECONCILED` at `b3a552b`; its immutable R1-4D archive exists. PR #79 repaired the release tagger identity at `223ccfe`; R1-4E certifies that resulting mainline snapshot. |
+| Post-merge lifecycle | PR #80 is `MERGED_RECONCILED` at `2c3d6f9`; its immutable R1-4E archive exists. R1-4F records current-candidate human authorization. |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
@@ -41,7 +41,7 @@
 | Release Qualification | Fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` is `RELEASE_QUALIFIED` / `READY` in run `29527704042`. |
 | Release Certification | Fresh current-main candidate is `RELEASE_CERTIFIED`; its preserved bundle must be retrieved without rebuild after new authorization. |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
-| Internal Release 0.1.0 | `RELEASE_CERTIFIED` and `PENDING HUMAN AUTHORIZATION`: repaired workflow dry-run passed; fresh certified bundle is preserved and unpublished. |
+| Internal Release 0.1.0 | `CURRENT_MAINLINE_RELEASE_AUTHORIZATION_RECORDED`: fresh certified bundle and explicit target approvals are ready for separately protected manual publication; no tag or publication exists. |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
 | DJConnect Reference Consumer | Blocked: no released TDE CLI and no selected DJConnect repository |
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |

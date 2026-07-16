@@ -41,9 +41,19 @@ single-maintainer policy: its required reviewer is `pcvantol` and GitHub permits
 self-review. It remains a protected human-authorization boundary. No tag,
 GitHub Release, PyPI upload, Docker upload, or `latest` tag has been executed.
 
-R1-4B must create and validate a fresh record binding the current candidate,
+R1-4F records and validates a fresh record binding the current candidate,
 bundle, checksum, approved targets, and publication workflow before any
 separately protected publication dispatch.
+
+## Current R1-4F authorization
+
+[`release/authorizations/internal-release-0.1.0-223ccfe4.json`](release/authorizations/internal-release-0.1.0-223ccfe4.json)
+is the immutable authorization record for candidate
+`223ccfe4b3646f1907ee7e2d7a8c07e8989badd7`. It binds bundle
+`bundle.sha256.f80926d7d5fb978c9da4f997230e76f9833f2d607a258553d92a807db22a2836`,
+all independently approved publication targets, `internal-release`, and the
+manual publication workflow. It is not publication: no tag, release, package,
+or image is created by this record.
 
 ## Current R1-4B authorization
 
