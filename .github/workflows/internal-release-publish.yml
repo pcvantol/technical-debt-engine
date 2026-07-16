@@ -28,6 +28,11 @@ on:
         required: true
         default: true
         type: boolean
+      resume_pypi_only:
+        description: Verify completed immutable targets and publish only the missing PyPI distributions
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   actions: read
@@ -119,7 +124,23 @@ jobs:
               "scope": "repository-local",
           }, sort_keys=True))
           PY
+      - name: Verify completed immutable targets for PyPI resume
+        if: ${{ inputs.resume_pypi_only == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.release_version }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          tag_sha="$(git ls-remote origin "refs/tags/$VERSION^{}" | awk '{print $1}')"
+          test "$tag_sha" = "$CANDIDATE_SHA"
+          test "$(gh release view "$VERSION" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          sudo apt-get update
+          sudo apt-get install --yes skopeo
+          skopeo inspect "docker://docker.io/pcvantol/technical-debt-engine:$VERSION" > "$RUNNER_TEMP/docker-publication.json"
+          test -s "$RUNNER_TEMP/docker-publication.json"
       - name: Create immutable Git tag and GitHub Release from the certified bundle
+        if: ${{ inputs.resume_pypi_only == false }}
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.release_version }}
@@ -134,11 +155,13 @@ jobs:
           git push origin "refs/tags/$VERSION"
           gh release create "$VERSION" "$BUNDLE_DIRECTORY/SHA256SUMS" "$BUNDLE_DIRECTORY/bundle-manifest.json" --target "$CANDIDATE_SHA" --title "Technical Debt Engine $VERSION" --generate-notes
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        if: ${{ inputs.resume_pypi_only == false }}
         with:
           registry: docker.io
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish the certified OCI archive using only its immutable version tag
+        if: ${{ inputs.resume_pypi_only == false }}
         env:
           VERSION: ${{ inputs.release_version }}
         run: |
