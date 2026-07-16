@@ -128,3 +128,14 @@ PyPI did not receive the certified distributions because the pinned
 `pypa/gh-action-pypi-publish` GHCR container returned `manifest unknown`.
 The workflow therefore skipped publication evidence. No `latest` tag exists;
 the preserved artifacts must not be rebuilt for any completion operation.
+
+## R1-4H PyPI repair result
+
+PR #83 updates only the unavailable PyPI Action pin to current immutable
+PyPA `release/v1` commit `cef221092ed1bacb1cc03d23a2d87d1d172e277b`; its
+GHCR container manifest was verified. Completion run `29531471511` passed
+bundle and authorization verification but stopped before PyPI: the existing
+remote immutable tag was not present in its checkout, so local tag creation
+followed by remote push was rejected. A future completion workflow must verify
+the existing tag/release/Docker identities and skip all completed targets before
+it invokes the PyPI action with the preserved distributions.
