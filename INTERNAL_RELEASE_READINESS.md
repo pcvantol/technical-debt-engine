@@ -10,6 +10,7 @@
 | Certified bundle | Artifact `8369651393`, retrieved and checksum-verified without rebuild |
 | Internal distribution destination | `internal-release` Environment is policy-consistent for one verified maintainer |
 | Human authorization | Recorded for the current bundle; all Git tag, GitHub Release, PyPI, and Docker Hub targets explicitly approved |
+| Protected publication attempt | Blocked before tag creation: runner lacks Git committer identity; no external target changed |
 
-The internal release remains unpublished pending R1-4C protected manual
-publication. No artifact has been published.
+The internal release remains unpublished. Publication workflow identity repair
+and a fresh candidate are required before any retry; no artifact was published.

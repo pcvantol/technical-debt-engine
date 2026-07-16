@@ -1,6 +1,6 @@
 # Mainline Internal Release Candidate Status
 
-## Current R1-4A candidate — certified and human-authorized, pending publication
+## Current R1-4A candidate — certified and authorized, publication blocked
 
 | Field | Value |
 | --- | --- |
@@ -10,12 +10,12 @@
 | Workflow run | [29483960813](https://github.com/pcvantol/technical-debt-engine/actions/runs/29483960813) |
 | Artifact ID | `8369651393` (`docker-release-candidate-04b39c51e2e36a5ac70059f2c030e7cadd37dbe0`) |
 | Retention | 90 days; expires 2026-10-14T08:34:55Z |
-| Decision | `HUMAN_RELEASE_AUTHORIZATION_RECORDED`; publication pending R1-4C |
+| Decision | `INTERNAL_RELEASE_BLOCKED`; publication workflow identity repair and fresh candidate required |
 | Release Qualification | `RELEASE_QUALIFIED` / `READY` |
 | Release Certification | `RELEASE_CERTIFIED` (`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`) |
 | Bundle ID | `bundle.sha256.fe7a81f7daa9fafbf40a031c7988ad3e7b1b00dda94e4e91facc4e30352b4ec1` |
 | Bundle checksum | `sha256:2c0a36cca64c632c58b7b9e7a4fc57b1af9804595da0bed4c6c822e1a91b4a11` |
-| Generation 1 Recovery | Authorization policy and current-bundle authorization established; publication pending |
+| Generation 1 Recovery | Current publication attempt blocked before external side effects |
 | Generation 1 Release Candidate | `CERTIFIED` |
 | Generation 1 Internal Release | `PENDING HUMAN AUTHORIZATION` |
 
@@ -30,8 +30,9 @@ Assurance and Trusted Delivery are `PASS`. The OCI archive contains qualified
 No Git tag, GitHub Release, PyPI publication, Docker publication, or `latest`
 tag exists. R1-GOV-5 establishes that the Environment's sole reviewer and
 self-review setting are valid for the current single-maintainer model. R1-4B
-records the fresh candidate-bound authorization; publication remains a separate
-protected operation.
+records the fresh candidate-bound authorization. Run `29526820939` re-verified
+the bundle then failed before tag creation because Git had no committer identity;
+Docker and PyPI steps were skipped. A workflow fix requires a fresh candidate.
 
 ## R1-3A attempt — blocked
 
