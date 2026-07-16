@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-4E Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #80 contains the complete recovery and candidate record. |
-| Current branch | `codex/r1-4e-publication-identity-repair` |
-| Current pull request | Reviewable [#80](https://github.com/pcvantol/technical-debt-engine/pull/80). |
-| Current decision | `PUBLICATION_WORKFLOW_IDENTITY_REPAIRED_AND_CANDIDATE_CERTIFIED` |
-| Current repository truth | PR #78 reconciled at `b3a552b`; PR #79 merged the deterministic repository-local tagger identity repair at `223ccfe`. Dry-run `29527658608` passed without a publish job. Fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` is certified in run `29527704042` and retained as artifact `8387371267`; it is unpublished and awaits new human authorization. |
-| Next recommended prompt | R1-4F — Human Release Authorization. |
+| Current prompt | R1-4F Human Release Authorization |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #81 contains the complete authorization and finalization record. |
+| Current branch | `codex/r1-4f-human-release-authorization` |
+| Current pull request | Reviewable [#81](https://github.com/pcvantol/technical-debt-engine/pull/81). |
+| Current decision | `CURRENT_MAINLINE_RELEASE_AUTHORIZATION_RECORDED` |
+| Current repository truth | PR #80 merged at `2c3d6f9`. Authorization `authorization.sha256.09973d239287053808740f38bb83b102146cc5a3ae943c5b1148f571ef2e4631` explicitly binds certified candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7`, its retained bundle, all targets, `internal-release`, and the repaired manual publication workflow. Validation and bundle preflight pass; no publication has been dispatched. |
+| Next recommended prompt | R1-4G — Internal Release Publication. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Record a new immutable, candidate-bound approval for the fresh certified bundle. | The R1-4B authorization binds only superseded candidate `04b39c51`; authorization is never transferred. | R1-4F — Human Release Authorization | `P0` |
+| Execute the protected manual publication workflow using only the newly authorized preserved bundle. | Authorization is recorded; publication is excluded from this increment. | R1-4G — Internal Release Publication | `P0` |

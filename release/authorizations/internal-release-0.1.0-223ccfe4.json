@@ -1,0 +1,37 @@
+{
+  "approvedDockerHub": "docker.io/pcvantol/technical-debt-engine:0.1.0",
+  "approvedGitHubRelease": "0.1.0",
+  "approvedGitTag": "0.1.0",
+  "approvedPyPI": "0.1.0",
+  "authorizationId": "authorization.sha256.09973d239287053808740f38bb83b102146cc5a3ae943c5b1148f571ef2e4631",
+  "authorizedAt": "2026-07-16T19:34:12Z",
+  "authorizedBy": "pcvantol",
+  "bundleArtifact": {
+    "id": "8387371267",
+    "name": "docker-release-candidate-223ccfe4b3646f1907ee7e2d7a8c07e8989badd7",
+    "retentionExpiresAt": "2026-10-14T19:21:58Z",
+    "runId": "29527704042"
+  },
+  "bundleChecksum": "sha256:605fea97fde0e92ec15d5b1d3b836c16dc41bd6a70809996f04ccd323889d752",
+  "bundleId": "bundle.sha256.f80926d7d5fb978c9da4f997230e76f9833f2d607a258553d92a807db22a2836",
+  "candidateSha": "223ccfe4b3646f1907ee7e2d7a8c07e8989badd7",
+  "decision": "CURRENT_MAINLINE_RELEASE_AUTHORIZATION_RECORDED",
+  "protectedEnvironment": "internal-release",
+  "protectedEnvironmentVerification": {
+    "exists": true,
+    "requiredReviewer": "pcvantol",
+    "selfReviewPermitted": true,
+    "singleMaintainerPolicy": "R1-GOV-5"
+  },
+  "publicationExecuted": false,
+  "publicationWorkflow": ".github/workflows/internal-release-publish.yml",
+  "releaseVersion": "0.1.0",
+  "schemaId": "tde.internal-release-authorization",
+  "schemaVersion": "1.0.0",
+  "targetApprovals": {
+    "docker_hub": true,
+    "github_release": true,
+    "pypi": true
+  },
+  "targets": ["github_release", "pypi", "docker_hub"]
+}
