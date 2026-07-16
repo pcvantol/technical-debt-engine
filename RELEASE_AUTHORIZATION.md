@@ -44,3 +44,15 @@ GitHub Release, PyPI upload, Docker upload, or `latest` tag has been executed.
 R1-4B must create and validate a fresh record binding the current candidate,
 bundle, checksum, approved targets, and publication workflow before any
 separately protected publication dispatch.
+
+## Current R1-4B authorization
+
+[`release/authorizations/internal-release-0.1.0-04b39c51.json`](release/authorizations/internal-release-0.1.0-04b39c51.json)
+is the immutable authorization record for current candidate
+`04b39c51e2e36a5ac70059f2c030e7cadd37dbe0`. It records authorization ID
+`authorization.sha256.73d47d6991e39983669fe77468feb919107658978d881aa3c941d5780aa334bc`,
+sole-maintainer approver `pcvantol`, timestamp, bundle identity/checksum,
+Actions run/artifact retention, `internal-release`, the manual publication
+workflow, and explicit approvals for the Git tag, GitHub Release, PyPI, and
+Docker Hub targets. Structural record validation and a retrieved-bundle
+preflight both passed. The record does not dispatch publication.
