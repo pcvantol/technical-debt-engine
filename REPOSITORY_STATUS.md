@@ -7,10 +7,10 @@
 | Canonical CLI | `tde` |
 | Runtime | Public Code Size CLI path executes through Runtime with truthful execution evidence; broader recovery remains pending |
 | Analyzers | Not implemented |
-| Releases | No published release. Current-main candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` remains certified and authorized, but publication run `29526820939` failed before tag creation because the runner lacks Git committer identity. No external target was changed; a workflow repair requires a fresh candidate before retry. |
+| Releases | No published release. R1-4E repaired deterministic repository-local publication tagger identity and certified fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` in retained artifact `8387371267`. It awaits new human authorization; no external target changed. |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #77 is `MERGED_RECONCILED` at `9db4a83`; its immutable R1-4B archive exists. R1-4D records the objective failed publication attempt and no-side-effect verification. |
+| Post-merge lifecycle | PR #78 is `MERGED_RECONCILED` at `b3a552b`; its immutable R1-4D archive exists. PR #79 repaired the release tagger identity at `223ccfe`; R1-4E certifies that resulting mainline snapshot. |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
@@ -38,10 +38,10 @@
 | Build Reproducibility | Local deterministic wheel and source-distribution build foundation with hash-locked tooling, SHA-256 evidence, provenance and isolated installed-artifact qualification; hosted workflow run `29367776918` is blocked by a tracked egg-info mutation between independent builds |
 | Software Assurance | Operational; step-level actions, job-level reusable workflows, and reusable workflow paths are accepted only with normalized complete commit-SHA references. Branches, tags, missing/short SHAs, expressions, variables, and matrix-derived references fail closed. |
 | Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; the parser validation consumes repaired Software Assurance evidence without duplicating parser logic. |
-| Release Qualification | Current-main candidate `04b39c51e2e36a5ac70059f2c030e7cadd37dbe0` is `RELEASE_QUALIFIED` / `READY` with all candidate-bound checks passing. |
-| Release Certification | Current-main candidate is `RELEASE_CERTIFIED` (`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`). Publication must retrieve this preserved bundle; it must never rebuild artifacts. |
+| Release Qualification | Fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` is `RELEASE_QUALIFIED` / `READY` in run `29527704042`. |
+| Release Certification | Fresh current-main candidate is `RELEASE_CERTIFIED`; its preserved bundle must be retrieved without rebuild after new authorization. |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
-| Internal Release 0.1.0 | `INTERNAL_RELEASE_BLOCKED`: protected publication preflight passed, but annotated tag creation failed for missing Git committer identity; no tag or publication exists. |
+| Internal Release 0.1.0 | `RELEASE_CERTIFIED` and `PENDING HUMAN AUTHORIZATION`: repaired workflow dry-run passed; fresh certified bundle is preserved and unpublished. |
 | Operational Burn-In | Local deterministic runs completed; operational readiness remains blocked |
 | DJConnect Reference Consumer | Blocked: no released TDE CLI and no selected DJConnect repository |
 | Generation 2 Strategy | Established with Core Runtime, Platform Evolution and Innovation Lab programs |

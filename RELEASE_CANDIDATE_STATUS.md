@@ -1,6 +1,28 @@
 # Mainline Internal Release Candidate Status
 
-## Current R1-4A candidate — certified and authorized, publication blocked
+## Current R1-4E candidate — certified, pending human authorization
+
+| Field | Value |
+| --- | --- |
+| Candidate SHA | `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` |
+| Candidate version | `0.1.0` |
+| Source | updated synchronized `main`; PR #79 squash merge |
+| Workflow run | [29527704042](https://github.com/pcvantol/technical-debt-engine/actions/runs/29527704042) |
+| Artifact ID | `8387371267` (`docker-release-candidate-223ccfe4b3646f1907ee7e2d7a8c07e8989badd7`) |
+| Retention | 90 days; expires 2026-10-14T19:21:58Z |
+| Decision | `PUBLICATION_WORKFLOW_IDENTITY_REPAIRED_AND_CANDIDATE_CERTIFIED` |
+| Release Qualification | `RELEASE_QUALIFIED` / `READY` |
+| Release Certification | `RELEASE_CERTIFIED` |
+| Bundle ID | `bundle.sha256.f80926d7d5fb978c9da4f997230e76f9833f2d607a258553d92a807db22a2836` |
+| Bundle checksum | `sha256:605fea97fde0e92ec15d5b1d3b836c16dc41bd6a70809996f04ccd323889d752` |
+
+The fresh bundle was downloaded from Actions and its full `SHA256SUMS` verified
+without rebuilding. Runtime Qualification is `QUALIFIED`; Policy is
+`PASS_WITH_WARNINGS`; Software Assurance and Trusted Delivery are `PASS`.
+Its OCI artifact contains qualified `linux/amd64` and `linux/arm64` images.
+No authorization transfers from the prior candidate and no publication exists.
+
+## R1-4A candidate — superseded by publication workflow repair
 
 | Field | Value |
 | --- | --- |
@@ -10,7 +32,7 @@
 | Workflow run | [29483960813](https://github.com/pcvantol/technical-debt-engine/actions/runs/29483960813) |
 | Artifact ID | `8369651393` (`docker-release-candidate-04b39c51e2e36a5ac70059f2c030e7cadd37dbe0`) |
 | Retention | 90 days; expires 2026-10-14T08:34:55Z |
-| Decision | `INTERNAL_RELEASE_BLOCKED`; publication workflow identity repair and fresh candidate required |
+| Decision | `SUPERSEDED_BY_PUBLICATION_WORKFLOW_REPAIR`; immutable historical evidence only |
 | Release Qualification | `RELEASE_QUALIFIED` / `READY` |
 | Release Certification | `RELEASE_CERTIFIED` (`release-certification.sha256.0a165bf4491ed5609801f02cc142f6303c0f4205041a099d08586f17a4f18514`) |
 | Bundle ID | `bundle.sha256.fe7a81f7daa9fafbf40a031c7988ad3e7b1b00dda94e4e91facc4e30352b4ec1` |

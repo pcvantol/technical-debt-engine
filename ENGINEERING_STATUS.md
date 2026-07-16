@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-4D Internal Release Publication |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #78 contains the complete failure record and finalization. |
-| Current branch | `codex/r1-4d-internal-release-publication` |
-| Current pull request | Reviewable [#78](https://github.com/pcvantol/technical-debt-engine/pull/78). |
-| Current decision | `INTERNAL_RELEASE_BLOCKED` |
-| Current repository truth | PR #77 merged at `9db4a83`; its immutable R1-4B authorization archive exists. Publication run `29526820939` passed both preserved-bundle verifications and authorization preflight, then failed before tag creation because the runner had no Git committer identity for an annotated tag. No tag, GitHub Release, PyPI version, Docker tag, or publication evidence was created. |
-| Next recommended prompt | Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh. |
+| Current prompt | R1-4E Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #80 contains the complete recovery and candidate record. |
+| Current branch | `codex/r1-4e-publication-identity-repair` |
+| Current pull request | Reviewable [#80](https://github.com/pcvantol/technical-debt-engine/pull/80). |
+| Current decision | `PUBLICATION_WORKFLOW_IDENTITY_REPAIRED_AND_CANDIDATE_CERTIFIED` |
+| Current repository truth | PR #78 reconciled at `b3a552b`; PR #79 merged the deterministic repository-local tagger identity repair at `223ccfe`. Dry-run `29527658608` passed without a publish job. Fresh current-main candidate `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` is certified in run `29527704042` and retained as artifact `8387371267`; it is unpublished and awaits new human authorization. |
+| Next recommended prompt | R1-4F — Human Release Authorization. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Configure a deterministic Git committer identity for the annotated publication tag, then create and certify a fresh current-main candidate before retrying publication. | Workflow logic must change; that is a forbidden candidate-to-main change and invalidates the current candidate's publication eligibility. | Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh | `P0` |
+| Record a new immutable, candidate-bound approval for the fresh certified bundle. | The R1-4B authorization binds only superseded candidate `04b39c51`; authorization is never transferred. | R1-4F — Human Release Authorization | `P0` |
