@@ -66,6 +66,7 @@ class ReleasePublicationTests(unittest.TestCase):
         self.assertIn("environment: internal-release", workflow); self.assertIn("inputs.dry_run == false", workflow)
         self.assertIn("actions/download-artifact@", workflow)
         self.assertIn("gh release create", workflow); self.assertIn("pypa/gh-action-pypi-publish@", workflow)
+        self.assertIn("pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b", workflow)
         self.assertIn("secrets.PYPI_API_TOKEN", workflow)
         self.assertIn("docker.io/pcvantol/technical-debt-engine:$VERSION", workflow)
         self.assertIn("Configure and verify deterministic Git tagger identity", workflow)
