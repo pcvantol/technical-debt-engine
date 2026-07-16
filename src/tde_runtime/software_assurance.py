@@ -12,7 +12,13 @@ from typing import Any, Iterable
 from .configuration import RuntimeConfiguration
 
 ASSURANCE_SCHEMA_VERSION = "1.0.0"
-_ACTION_SHA = re.compile(r"^\s*-\s*uses:\s*[^@\s]+@[0-9a-f]{40}(?:\s+#.*)?\s*$")
+_USES_KEY = re.compile(r"^\s*(?:-\s+)?uses:\s*(?P<reference>.*)$")
+_ACTION_REFERENCE = re.compile(
+    r"^(?P<owner>[A-Za-z0-9][A-Za-z0-9-]*)/"
+    r"(?P<repository>[A-Za-z0-9_.-]+)"
+    r"(?P<path>(?:/[A-Za-z0-9_.-]+)*)@(?P<revision>[^\s#]+)$"
+)
+_COMMIT_SHA = re.compile(r"^[0-9a-fA-F]{40}$")
 
 
 def _canonical(value: object) -> bytes:
@@ -30,6 +36,30 @@ def _digest(path: Path) -> str:
 def _git(root: Path, *arguments: str) -> tuple[bool, str]:
     completed = subprocess.run(["git", "-C", str(root), *arguments], text=True, capture_output=True, check=False)
     return completed.returncode == 0, completed.stdout.strip()
+
+
+def parse_action_reference(reference: str) -> dict[str, Any]:
+    """Normalize a GitHub Action reference and classify its immutability.
+
+    GitHub accepts ``owner/repository[/path]@revision`` for both step-level
+    actions and job-level reusable workflows.  Only a complete commit SHA is
+    immutable; malformed, local, expression, and mutable references remain
+    explicitly untrusted.
+    """
+    reference = reference.split("#", 1)[0].strip()
+    match = _ACTION_REFERENCE.fullmatch(reference)
+    if not match:
+        return {"owner": None, "repository": None, "path": None, "commitSha": None, "immutable": False}
+    values = match.groupdict()
+    revision = values["revision"]
+    immutable = bool(_COMMIT_SHA.fullmatch(revision))
+    return {
+        "owner": values["owner"].lower(),
+        "repository": values["repository"].lower(),
+        "path": values["path"] or None,
+        "commitSha": revision.lower() if immutable else None,
+        "immutable": immutable,
+    }
 
 
 class SoftwareAssurance:
@@ -95,13 +125,16 @@ class SoftwareAssurance:
     def _workflows(root: Path, limitations: list[str]) -> dict[str, Any]:
         directory = root / ".github" / "workflows"; files = sorted(directory.glob("*.y*ml")) if directory.is_dir() else []
         contents = [item.read_text(encoding="utf-8") for item in files]
-        action_lines = [line for content in contents for line in content.splitlines() if "uses:" in line]
-        immutable = bool(action_lines) and all(_ACTION_SHA.match(line) for line in action_lines)
+        action_references = [parse_action_reference(match.group("reference"))
+                             for content in contents for line in content.splitlines()
+                             if (match := _USES_KEY.match(line))]
+        immutable = bool(action_references) and all(reference["immutable"] for reference in action_references)
         least_privilege = any(re.search(r"^permissions:\s*\n\s+contents:\s+read\s*$", content, re.MULTILINE) for content in contents)
         package_build = any(item.name == "package-build.yml" and "tools/package_build.py" in content and "--require-hashes" in content for item, content in zip(files, contents))
         integrity = bool(files) and immutable and least_privilege and package_build
         if not integrity: limitations.append("workflow immutability, least privilege, or reproducible-build coverage is incomplete")
-        return {"workflowCount": len(files), "immutableActions": immutable, "leastPrivilege": least_privilege,
+        return {"workflowCount": len(files), "immutableActions": immutable, "actionReferences": action_references,
+                "leastPrivilege": least_privilege,
                 "buildReproducibility": package_build, "integrity": integrity}
 
     @staticmethod

@@ -10,7 +10,7 @@
 | Releases | No published release; candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` is certified and bundle-preserved. R1-3C records explicit target approvals in `release/authorizations/internal-release-0.1.0.json`, but publication is blocked because GitHub reports no `internal-release` protected Environment. |
 | Docker candidate | R1-2B candidate `2d6132061807a433178a1ababc1709340cb937de` is retained historical evidence but `SUPERSEDED_NON_MAINLINE_CANDIDATE`; it must not be published |
 | Mandatory workflow | Synchronize → verify previous PR/merge/history → classify/reconcile post-merge state → canonical read → one prompt/objective/increment/reviewable pull request; `REVIEWABLE_FROZEN` is the Prompt Freeze Point |
-| Post-merge lifecycle | PR #72 is `MERGED_RECONCILED` at `969c0e5`; it establishes publication infrastructure. R1-3C records authorization and the missing-Environment blocker; see `RELEASE_CANDIDATE_STATUS.md`, `RELEASE_PUBLICATION.md`, and `RELEASE_AUTHORIZATION.md`. |
+| Post-merge lifecycle | PR #73 is `MERGED_RECONCILED` at `73e198d`; its immutable R1-3C archive exists. R1-GOV-4 reconciles its stale rolling status while repairing Software Assurance workflow-reference parsing. |
 | Repository hygiene | Canonical `.gitignore` and `REPOSITORY_HYGIENE.md`; no tracked or untracked operating-system artifacts |
 | Primary engineering handoff | `ENGINEERING_STATUS.md` — fully replaced by each prompt |
 | Prompt history | Immutable, prospective archives under `docs/history/prompts/` |
@@ -36,9 +36,9 @@
 | Platform Certification | Not certified; explicit foundation gaps remain and no release exists |
 | Platform Release Engineering | Release Runtime architecture established; no package or release created |
 | Build Reproducibility | Local deterministic wheel and source-distribution build foundation with hash-locked tooling, SHA-256 evidence, provenance and isolated installed-artifact qualification; hosted workflow run `29367776918` is blocked by a tracked egg-info mutation between independent builds |
-| Software Assurance | Operational with explicit dependency, workflow and artifact limitations |
-| Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; real release-candidate inputs remain a separate Release Qualification concern |
-| Release Qualification | R1-1 candidate `5932411201556be628fb5ca93912a26f95b9d424` is `RELEASE_QUALIFIED` / `READY`. R1-GOV-1 defines that later administrative merges do not invalidate it; any non-administrative intervening commit requires a new candidate |
+| Software Assurance | Operational; step-level actions, job-level reusable workflows, and reusable workflow paths are accepted only with normalized complete commit-SHA references. Branches, tags, missing/short SHAs, expressions, variables, and matrix-derived references fail closed. |
+| Trusted Delivery | Operational canonical candidate, manifest, artifact, workflow, and Software Assurance evidence validation; the parser validation consumes repaired Software Assurance evidence without duplicating parser logic. |
+| Release Qualification | Operational. The retained R1-3A candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` is `RELEASE_QUALIFIED` / `READY`; R1-4A owns creation and certification of a current-mainline candidate. |
 | Release Certification | R1-1 certification is `RELEASE_CERTIFIED` (`release-certification.sha256.1faddeb93d49956055e59449bd70d2f897493650ad7b9d2362cb81c4e7996a2d`). Publication must tag and publish the certified candidate—not current main—after administrative-only classification and human authorization |
 | Operational Release Dry Run | Local wheel/checksum created; dry run blocked by workflow and reproducibility gaps |
 | Internal Release 0.1.0 | INTERNAL_RELEASE_0_1_0_NOT_EXECUTED: local wheel only; no tag, publication or approved release evidence |

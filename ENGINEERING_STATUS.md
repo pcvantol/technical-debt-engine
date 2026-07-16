@@ -2,20 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-3C Human Release Authorization |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #73 contains the complete R1-3C authorization record. |
-| Current branch | `codex/r1-3c-human-release-authorization` |
-| Current pull request | Reviewable [#73](https://github.com/pcvantol/technical-debt-engine/pull/73). |
-| Current decision | `HUMAN_RELEASE_AUTHORIZATION_BLOCKED` |
-| Current repository truth | PR #72 merged at `969c0e5`. Candidate `3fda62e72850f1c67f1554f7612580eccf16ae34` and its retained certified bundle remain valid. The immutable authorization record has explicit approvals for every target but GitHub reports no `internal-release` Environment, so protected publication is blocked. |
-| Next recommended prompt | R1-3D — Internal Publication. |
+| Current prompt | R1-GOV-4 Immutable GitHub Action Reference Parser Repair |
+| Lifecycle state | `REVIEWABLE_FROZEN`; PR #74 contains the complete parser repair and finalization record. |
+| Current branch | `codex/immutable-action-parser` |
+| Current pull request | Reviewable [#74](https://github.com/pcvantol/technical-debt-engine/pull/74). |
+| Current decision | `IMMUTABLE_ACTION_PARSER_OPERATIONAL` |
+| Current repository truth | PR #73 merged at `73e198d` on 2026-07-16 and its immutable archive exists. Software Assurance now recognizes all 40 SHA-pinned workflow references, including `.github/workflows/internal-release-publish.yml` job `publish`, step `Publish the certified Python distributions using Trusted Publishing`, `pypa/gh-action-pypi-publish@6733eb7d741f0b11ec6a39b58540dab7590f9b7d`. The parser and its fail-closed mutable-reference behavior are covered by 98 tests. |
+| Next recommended prompt | R1-4A — Create and Certify Current Mainline Release Candidate. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
-| --- | --- | --- |
-| Create and protect the `internal-release` GitHub Environment. | API verification returned `404`; required reviewers, Docker Hub credentials, and PyPI Trusted Publishing cannot be verified. | R1-3D — Internal Publication | `P0` |
-| Review hash-pinned build-toolchain upgrades separately. | `build` and `setuptools` updates alter release-producing inputs and require explicit reproducibility/release review. | Build Toolchain Refresh | `P1` |
-| Create and certify a fresh mainline candidate. | R1-3A did not reach certification or bundle preservation. | R1-3A retry after R1-GOV-3 merges | `P1` |
-| Human release approval and publication. | It requires a certified preserved bundle after a successful future candidate. | Human Release Authorization & Internal Publication | `P1` |
-| Reduce remaining Complexity policy warnings (maximum 23; warning threshold 15). | Certification permits warnings; no blocking threshold is reached. | Complexity Quality Improvement | `P2` |
+| --- | --- | --- | --- |
+| Create and certify the current mainline release candidate. | This parser-repair increment neither creates a Release Candidate nor publishes. | R1-4A — Create and Certify Current Mainline Release Candidate | `P0` |
