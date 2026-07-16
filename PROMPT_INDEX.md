@@ -74,7 +74,8 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [R1-4A](docs/history/prompts/R1-4A-current-mainline-release-candidate.md) | Create and Certify Current Mainline Release Candidate | [Merged — #75](https://github.com/pcvantol/technical-debt-engine/pull/75) at `43c1d14` |
 | [R1-GOV-5](docs/history/prompts/R1-GOV-5-single-maintainer-release-policy.md) | Single Maintainer Internal Release Authorization Policy | [Merged — #76](https://github.com/pcvantol/technical-debt-engine/pull/76) at `0e7d816` |
 | [R1-4B](docs/history/prompts/R1-4B-human-release-authorization.md) | Human Release Authorization | [Merged — #77](https://github.com/pcvantol/technical-debt-engine/pull/77) at `9db4a83` |
-| [R1-4D](docs/history/prompts/R1-4D-internal-release-publication.md) | Internal Release Publication | [Reviewable — #78](https://github.com/pcvantol/technical-debt-engine/pull/78) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4d-internal-release-publication) · [implementation commit](https://github.com/pcvantol/technical-debt-engine/commit/d70231cf09b59b71cbe40934efe88a52b7daaf81) |
+| [R1-4D](docs/history/prompts/R1-4D-internal-release-publication.md) | Internal Release Publication | [Merged — #78](https://github.com/pcvantol/technical-debt-engine/pull/78) at `b3a552b` |
+| R1-4E | Release Publication Workflow Identity Repair and Current Mainline Candidate Refresh | Draft PR pending finalization · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4e-publication-identity-repair) |
 
 Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
