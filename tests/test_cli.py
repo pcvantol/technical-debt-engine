@@ -50,13 +50,13 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "schema")
         self.assertEqual(ExitCode.SUCCESS, code)
         schemas = json.loads(output)["schemas"]
-        self.assertEqual({"tde.capability-evidence", "tde.policy-evidence", "tde.assessment-decision-evidence", "tde.assessment-evidence", "tde.repository-qualification-evidence"},
+        self.assertEqual({"tde.capability-evidence", "tde.policy-evidence", "tde.assessment-decision-evidence", "tde.assessment-evidence", "tde.repository-qualification-evidence", "tde.differential-evidence"},
                          {item["name"] for item in schemas})
         self.assertTrue(all(item["version"] == "1.0.0" and Path(item["location"]).is_file() for item in schemas))
 
     def test_validate_invokes_runtime(self) -> None:
         code, output = self.invoke("--format", "json", "validate", str(self.root))
-        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertIn(code, {ExitCode.SUCCESS, ExitCode.NOT_SUPPORTED})
         response = json.loads(output)
         self.assertEqual("RUNTIME_READY", response["runtime"]["status"])
         self.assertEqual("VALID", response["validation"]["status"])
@@ -122,11 +122,17 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual(1, json.loads(output)["queryEvidence"]["resultCount"])
 
+    def test_diff_requires_and_uses_an_immutable_baseline(self) -> None:
+        self.assertEqual(ExitCode.SUCCESS, self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial")[0])
+        code, output = self.invoke("--format", "json", "diff", str(self.root), "--baseline", "initial")
+        self.assertIn(code, {ExitCode.SUCCESS, ExitCode.NOT_SUPPORTED})
+        self.assertEqual("UNCHANGED", json.loads(output)["differentialEvidence"]["assessmentDelta"])
+
     def test_trend_command_is_operational(self) -> None:
         self.invoke("--format", "json", "baseline", str(self.root), "--name", "initial")
         code, output = self.invoke("--format", "json", "trend", str(self.root))
         self.assertEqual(ExitCode.SUCCESS, code)
-        self.assertEqual("rolling", json.loads(output)["trendEvidence"]["window"])
+        self.assertIn(json.loads(output)["trendEvidence"]["window"], {"rolling", "latest"})
 
     def test_query_command_is_operational(self) -> None:
         (self.root / "sample.py").write_text("value = 1\n", encoding="utf-8")

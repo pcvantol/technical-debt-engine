@@ -17,7 +17,9 @@ class TrendEngine:
         repository = BaselineRepository(location)
         history = []
         for path in sorted(Path(location).glob("*.json")) if Path(location).is_dir() else []:
-            history.append(repository.load(path))
+            record = repository.load(path)
+            if "evidence" in record:
+                history.append(record)
         history.sort(key=lambda item: item["createdAt"])
         if history_depth is not None:
             history = history[-history_depth:]

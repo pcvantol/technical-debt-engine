@@ -24,6 +24,7 @@ class SchemaRegistry:
         "assessment-decision-evidence": "assessment-decision-evidence.json",
         "assessment-evidence": "assessment-evidence.json",
         "repository-qualification-evidence": "repository-qualification-evidence.json",
+        "differential-evidence": "differential-evidence.json",
     }
 
     @classmethod
