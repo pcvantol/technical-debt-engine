@@ -50,7 +50,7 @@ class CodeSizeTests(unittest.TestCase):
     def test_missing_analyzer_blocks_without_fabricated_metrics(self) -> None:
         with patch("tde_runtime.code_size.shutil.which", return_value=None):
             result = analyze(self.root)
-        self.assertEqual("BLOCKED", result["status"])
+        self.assertEqual("ANALYZER_NOT_FOUND", result["status"])
         self.assertIn("analyzer.cloc.unavailable", result["limitations"][0]["id"])
 
     def test_unsupported_analyzer_version_blocks(self) -> None:
@@ -58,18 +58,18 @@ class CodeSizeTests(unittest.TestCase):
              patch("tde_runtime.code_size.subprocess.run") as run:
             run.return_value.stdout = "2.09"
             result = analyze(self.root)
-        self.assertEqual("BLOCKED", result["status"])
+        self.assertEqual("ANALYZER_NOT_FOUND", result["status"])
         self.assertEqual("analyzer.cloc.unsupported_version", result["limitations"][0]["id"])
 
     def test_analyzer_timeout_is_a_structured_blocker(self) -> None:
         with patch("tde_runtime.code_size.shutil.which", return_value="/tools/cloc"), \
              patch("tde_runtime.code_size.subprocess.run", side_effect=subprocess.TimeoutExpired(["cloc"], 1)):
             result = analyze(self.root, timeout=1)
-        self.assertEqual("BLOCKED", result["status"])
+        self.assertEqual("FAILED_CLOSED", result["status"])
         self.assertEqual("analyzer.cloc.failed", result["limitations"][0]["id"])
 
     def test_cli_assess_emits_canonical_evidence_fields(self) -> None:
-        stream = StringIO(); code = main(["--format", "json", "assess", "--capability", "code-size", str(self.root)], stream)
+        stream = StringIO(); code = main(["--format", "json", "assess", "--capability", "code_size", str(self.root)], stream)
         self.assertEqual(ExitCode.SUCCESS, code)
         response = json.loads(stream.getvalue())
         self.assertEqual("RUNTIME_READY", response["runtime"]["status"])
@@ -124,3 +124,17 @@ class CodeSizeTests(unittest.TestCase):
 
     def test_assess_without_code_size_is_not_supported(self) -> None:
         self.assertEqual(ExitCode.NOT_SUPPORTED, main(["assess", str(self.root)], StringIO()))
+
+    def test_unknown_capability_is_resolved_by_runtime(self) -> None:
+        stream = StringIO()
+        code = main(["--format", "json", "assess", "--capability", "not_a_capability", str(self.root)], stream)
+        response = json.loads(stream.getvalue())
+        self.assertEqual(ExitCode.NOT_SUPPORTED, code)
+        self.assertEqual("NOT_SUPPORTED", response["evidence"]["capabilityResults"][0]["status"])
+        self.assertEqual(["not_a_capability"], response["evidence"]["executionEvidence"]["unsupportedCapabilities"])
+
+    def test_policy_finding_does_not_change_successful_execution_exit_code(self) -> None:
+        stream = StringIO()
+        code = main(["--format", "json", "--policy-override", 'code_size.repository_lines={"warning":0,"blocking":0}', "assess", "--capability", "code_size", str(self.root)], stream)
+        self.assertEqual(ExitCode.SUCCESS, code)
+        self.assertEqual("FAIL", json.loads(stream.getvalue())["evidence"]["policyEvidence"]["decision"])

@@ -29,9 +29,13 @@ GENERATION = "1"
 class ExitCode:
     SUCCESS = 0
     WARNING = 1
-    FAILED = 2
-    BLOCKED = 3
+    FAILED_CLOSED = 2
+    EXECUTION_ERROR = 3
     NOT_SUPPORTED = 4
+    ANALYZER_NOT_FOUND = 5
+    # Compatibility aliases for existing non-runtime commands.
+    FAILED = FAILED_CLOSED
+    BLOCKED = EXECUTION_ERROR
 
 
 def _policy_exit_code(decision: str) -> int:
@@ -148,12 +152,24 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
                "evidence": result.evidence, "evidenceId": result.evidence["integrity"]["contentDigest"]}
     if store is not None:
         payload["evidenceStore"] = store.persist(result.evidence)
-    decision = result.evidence["policyEvidence"]["decision"]
-    if decision == "BLOCKED":
-        return ExitCode.BLOCKED, payload
-    if command in {"assess", "run"} and result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
-        return ExitCode.BLOCKED, payload
-    return (_policy_exit_code(decision) if command in {"assess", "run"} else ExitCode.SUCCESS), payload
+    capability_statuses = {item.get("status") for item in result.evidence.get("capabilityResults", [])}
+    if "NOT_SUPPORTED" in capability_statuses:
+        return ExitCode.NOT_SUPPORTED, payload
+    if "ANALYZER_NOT_FOUND" in capability_statuses:
+        return ExitCode.ANALYZER_NOT_FOUND, payload
+    if "FAILED_CLOSED" in capability_statuses:
+        return ExitCode.FAILED_CLOSED, payload
+    if command in {"assess", "run"}:
+        # Assessment exit codes describe the public execution contract. Policy
+        # outcomes are preserved in canonical evidence for consumers to apply;
+        # a policy threshold must not masquerade as an analyzer failure.
+        if result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
+            return ExitCode.EXECUTION_ERROR, payload
+        capability_ids = {item.get("capabilityId") for item in result.evidence.get("capabilityResults", [])}
+        if capability_ids == {"code_size"}:
+            return ExitCode.SUCCESS, payload
+        return _policy_exit_code(result.evidence["policyEvidence"]["decision"]), payload
+    return ExitCode.SUCCESS, payload
 
 
 def _render_capability_report(evidence: dict[str, Any], capability: str, output_format: str, stream: TextIO) -> None:
@@ -244,11 +260,10 @@ def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentPar
         values["executionOptions"].pop("trend", None)
         configuration = RuntimeConfiguration.load(values)
     if arguments.command in {"assess", "baseline", "compare", "run", "store", "inspect", "validate", "qualify", "report"} and arguments.capability:
-        supported = {"code-size": "code_size", "complexity": "complexity"}
-        if len(arguments.capability) != 1 or arguments.capability[0] not in supported:
-            _render({"command": arguments.command, "status": "NOT_SUPPORTED", "reason": "This vertical slice supports code-size and complexity."}, arguments.format, stream)
-            return ExitCode.NOT_SUPPORTED
-        configuration = configuration.with_capability(supported[arguments.capability[0]])
+        # The CLI transports requested capability IDs.  Registration and support
+        # decisions remain Runtime responsibilities.
+        for capability in arguments.capability:
+            configuration = configuration.with_capability(capability.replace("-", "_"))
     if arguments.command == "release-qualify":
         supported = {"code-size": "code_size", "complexity": "complexity"}
         if not arguments.release_capability or any(item not in supported for item in arguments.release_capability):
@@ -301,7 +316,7 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
     if arguments.command in {"validate", "inspect", "assess", "run"}:
         if arguments.command in {"assess", "run"}:
             if not arguments.capability:
-                _render({"command": "assess", "status": "NOT_IMPLEMENTED", "reason": "Only code-size and complexity are delivered."}, arguments.format, stream)
+                _render({"command": "assess", "status": "NOT_SUPPORTED", "reason": "assess requires an explicit capability."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
         try:
             store = EvidenceStore(_store_location(arguments, arguments.target)) if arguments.command in {"assess", "run"} else None

@@ -56,8 +56,10 @@ class RuntimeQualificationEngine:
     @staticmethod
     def _level(state: Mapping[str, Any], selected: list[Mapping[str, Any]], capability: str | None) -> str:
         if capability and not selected:
-            return "BLOCKED"
-        blocked = any(item.get("status") in {"BLOCKED", "FAILED"} for item in selected)
+            return "NOT_SUPPORTED"
+        if any(item.get("status") == "NOT_SUPPORTED" for item in selected):
+            return "NOT_SUPPORTED"
+        blocked = any(item.get("status") in {"BLOCKED", "FAILED", "FAILED_CLOSED", "ANALYZER_NOT_FOUND"} for item in selected)
         if state["limitations"] or state["missingCapabilities"] or blocked:
             return "BLOCKED"
         return "PARTIALLY_QUALIFIED" if any(item.get("completeness", 1) < 1 or item.get("status") == "PARTIAL" for item in selected) else "QUALIFIED"

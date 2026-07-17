@@ -61,7 +61,7 @@ class CliFoundationTests(unittest.TestCase):
     def test_unimplemented_command_returns_canonical_not_supported(self) -> None:
         code, output = self.invoke("--format", "json", "assess", str(self.root))
         self.assertEqual(ExitCode.NOT_SUPPORTED, code)
-        self.assertEqual("NOT_IMPLEMENTED", json.loads(output)["status"])
+        self.assertEqual("NOT_SUPPORTED", json.loads(output)["status"])
 
     def test_invalid_configuration_blocks_execution(self) -> None:
         config = self.root / "invalid.tde.yml"
