@@ -43,6 +43,25 @@ DJConnect's `FAIL` is a truthful result of the existing public policy threshold;
 is not an analyzer, execution, evidence, schema, or exit-code failure.  The complete
 DJConnect scan was read-only and produced canonical evidence.
 
+## Qualification matrix evidence
+
+The dedicated public-runtime matrix completed successfully in
+[run 29599380637](https://github.com/pcvantol/technical-debt-engine/actions/runs/29599380637)
+against release `0.2.0`. Every cell cloned DJConnect read-only and required
+canonical Runtime Qualification `QUALIFIED` plus at least one actual capability
+execution.
+
+| Public delivery path | Platforms | Profiles | Result |
+| --- | --- | --- | --- |
+| Downloaded wheel | Ubuntu, macOS, Windows | `minimal`, `standard` | passed |
+| PyPI installation | Ubuntu, macOS, Windows | `minimal`, `standard` | passed |
+| Published Docker image | Ubuntu | `minimal`, `standard` | passed |
+
+The Docker cells also ran both reference repositories using the public image.
+Hosted macOS and Windows runners do not expose a Linux Docker daemon, so Docker
+execution is qualified on its supported Linux container platforms rather than
+misrepresented as host-native macOS or Windows execution.
+
 ## Capability and schema coverage
 
 - Analyzers: cloc 2.10 and Radon 6.0.1.
