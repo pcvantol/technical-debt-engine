@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technical-debt-engine.dev/schemas/common/1.0.0",
+  "type": "object",
+  "required": ["name", "version", "compatibilityVersion", "runtimeVersion", "assessmentVersion"],
+  "properties": {"name": {"type": "string"}, "version": {"type": "string"}, "compatibilityVersion": {"type": "string"}, "runtimeVersion": {"type": "string"}, "assessmentVersion": {"type": "string"}}
+}

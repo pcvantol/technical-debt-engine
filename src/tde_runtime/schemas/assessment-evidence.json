@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technical-debt-engine.dev/schemas/assessment-evidence/1.0.0",
+  "title": "TDE Assessment Evidence",
+  "type": "object",
+  "required": ["schema", "assessmentId", "profile", "executionStatus", "capabilityExecutions", "assessmentDecision"],
+  "properties": {"schema": {"$ref": "common.schema.json"}, "assessmentId": {"type": "string"}, "profile": {"type": "string"}, "executionStatus": {"type": "string"}, "capabilityExecutions": {"type": "array"}, "assessmentDecision": {"type": "string"}}
+}

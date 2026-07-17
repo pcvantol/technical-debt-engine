@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technical-debt-engine.dev/schemas/assessment-decision-evidence/1.0.0",
+  "title": "TDE Assessment Decision Evidence",
+  "type": "object",
+  "required": ["schema", "assessmentId", "decision", "policyResults", "timestamp"],
+  "properties": {"schema": {"$ref": "common.schema.json"}, "assessmentId": {"type": "string"}, "decision": {"type": "string"}, "policyResults": {"type": "array"}, "timestamp": {"type": "string"}}
+}

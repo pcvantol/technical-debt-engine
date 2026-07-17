@@ -21,6 +21,7 @@ from tde_runtime.trusted_delivery import TrustedDelivery
 from tde_runtime.release_qualification import ReleaseQualification
 from tde_runtime.release_certification import ReleaseCertification
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
+from tde_runtime.schemas import SchemaRegistry
 
 
 CLI_VERSION = "0.1.0"
@@ -51,6 +52,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "validate": {"purpose": "Validate runtime configuration and context."},
     "inspect": {"purpose": "Inspect a target and planned Code Size execution."},
     "assess": {"purpose": "Assess a target through selected capabilities."},
+    "schema": {"purpose": "List the public, versioned assessment schemas."},
     "baseline": {"purpose": "Create an immutable baseline from persisted canonical evidence."},
     "compare": {"purpose": "Persist and qualify a canonical comparison against a baseline."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
@@ -191,6 +193,9 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
     stream = stdout or sys.stdout
     parser = build_parser()
     arguments = parser.parse_args(argv)
+    if arguments.command == "schema":
+        _render({"command": "schema", "schemas": list(SchemaRegistry.catalogue())}, arguments.format, stream)
+        return ExitCode.SUCCESS
     prepared = _prepare_command(arguments, parser, stream)
     if isinstance(prepared, int): return prepared
     configuration = prepared

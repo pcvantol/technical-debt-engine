@@ -41,6 +41,10 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True, env=child_environment)
             commands = environment / ("Scripts" if os.name == "nt" else "bin")
             subprocess.run([str(commands / "pip"), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
+            schemas = subprocess.run([str(commands / "tde"), "--format", "json", "schema"], capture_output=True,
+                                     text=True, check=False, env=child_environment)
+            self.assertEqual(0, schemas.returncode, schemas.stderr)
+            self.assertEqual(4, len(json.loads(schemas.stdout)["schemas"]))
             target, evidence = self._sample_repository(root), root / "evidence"
             completed = subprocess.run([str(commands / "tde"), "--format", "json", "--store-location", str(evidence), "assess", "--capability", "code_size", str(target)], capture_output=True, text=True, check=False, env=child_environment)
             self.assertEqual(0, completed.returncode, completed.stderr)
@@ -48,6 +52,8 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             self.assertEqual("QUALIFIED", response["runtimeQualification"]["level"])
             self.assertEqual("code_size", response["evidence"]["capabilityResults"][0]["capabilityId"])
             self.assertEqual("cloc", response["evidence"]["adapterResults"][0]["analyzer"]["id"])
+            self.assertEqual("tde.assessment-evidence", response["evidence"]["assessment"]["schema"]["name"])
+            self.assertEqual("1", response["evidence"]["policyEvidence"]["schema"]["compatibilityVersion"])
             self.assertTrue(next((evidence / "evidence").glob("*.json")))
 
     @unittest.skipUnless(os.environ.get("TDE_RUN_DOCKER_INTEGRATION") == "1" and shutil.which("docker"), "set TDE_RUN_DOCKER_INTEGRATION=1 to build and run the Docker artifact")
@@ -75,4 +81,6 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             self.assertEqual(0, completed.returncode, completed.stderr)
             response = json.loads(completed.stdout)
             self.assertEqual("QUALIFIED", response["runtimeQualification"]["level"])
+            self.assertEqual("tde.assessment-evidence", response["evidence"]["assessment"]["schema"]["name"])
+            self.assertEqual("1", response["evidence"]["assessmentDecision"]["schema"]["compatibilityVersion"])
             self.assertTrue(next(evidence.glob("evidence/*.json")))
