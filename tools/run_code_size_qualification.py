@@ -20,6 +20,7 @@ from code_size_projection import analytical_projection
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "fixtures" / "code-size-cross-platform"
 OUTPUT = ROOT / "qualification"
+QUALIFICATION_POLICY_OVERRIDE = 'code_size.repository_lines={"warning":1000000000,"blocking":1000000001}'
 
 
 def run(command: list[str], *, expected: set[int] = {0}, env: dict[str, str] | None = None) -> dict[str, Any]:
@@ -97,14 +98,16 @@ print('blocked')
         commands = {
             "version": run([tde, "--format", "json", "--version"], env=installed_environment),
             "inspect": run([tde, "--format", "json", "inspect", str(fixture)], expected={0, 3}, env=installed_environment),
-            "assess": run([tde, "--format", "json", "assess", "--capability", "code-size", str(fixture)], env=installed_environment),
+            "assess": run([tde, "--format", "json", "--policy-override", QUALIFICATION_POLICY_OVERRIDE,
+                            "assess", "--capability", "code-size", str(fixture)], env=installed_environment),
             "validate": run([tde, "--format", "json", "validate", str(fixture)], expected={0, 3}, env=installed_environment),
             "query": run([tde, "--format", "json", "query", str(fixture), "--resource", "metrics"], env=installed_environment),
             "report": run([tde, "--format", "markdown", "report", "--capability", "code-size", str(fixture)], env=installed_environment),
         }
         dogfood = temporary_path / "technical-debt-engine"
         shutil.copytree(ROOT, dogfood, ignore=shutil.ignore_patterns(".git", ".venv", "venv", "__pycache__", ".tde", "qualification"))
-        dogfood_assessment = run([tde, "--format", "json", "assess", "--capability", "code-size", str(dogfood)], env=installed_environment)
+        dogfood_assessment = run([tde, "--format", "json", "--policy-override", QUALIFICATION_POLICY_OVERRIDE,
+                                  "assess", "--capability", "code-size", str(dogfood)], env=installed_environment)
         assessment = json.loads(commands["assess"]["_raw"])
         evidence_id = assessment["evidenceId"].removeprefix("sha256:")
         evidence_path = fixture / ".tde" / "evidence" / "evidence" / f"{evidence_id}.json"
