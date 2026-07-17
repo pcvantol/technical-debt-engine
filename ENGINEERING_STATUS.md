@@ -2,16 +2,16 @@
 
 | Field | Current state |
 | --- | --- |
-| Current prompt | R1-4H Release Publication Completion — PyPI Publication Repair |
-| Lifecycle state | `REVIEWABLE_FROZEN`; PR #84 contains the PyPI repair failure evidence and finalization. |
-| Current branch | `codex/r1-4h-pypi-publication-repair` |
-| Current pull request | Reviewable [#84](https://github.com/pcvantol/technical-debt-engine/pull/84). |
-| Current decision | `PYPI_PUBLICATION_BLOCKED` |
-| Current repository truth | PR #83 repaired the unavailable PyPI Action pin to a current verified `release/v1` commit. Protected run `29531471511` re-verified the bundle and authorization, then stopped before PyPI because the existing immutable remote tag `0.1.0` was recreated locally and rejected on push. Tag, GitHub Release, Docker index, and PyPI absence are unchanged. |
-| Next recommended prompt | Resumable PyPI Publication Workflow and Completion Evidence. |
+| Current prompt | R1-4I Resumable PyPI Publication and Release Completion |
+| Lifecycle state | `REVIEWABLE_FROZEN`; release-completion documentation awaits its single review PR. |
+| Current branch | `codex/r1-4i-release-publication-completion` |
+| Current pull request | Pending creation for the R1-4I documentation finalization. |
+| Current decision | `INTERNAL_RELEASE_COMPLETED` |
+| Current repository truth | Protected run [`29581079651`](https://github.com/pcvantol/technical-debt-engine/actions/runs/29581079651) re-verified the preserved candidate, bundle, authorization, existing tag, GitHub Release, and Docker identity; it skipped those immutable targets and published only PyPI `technical-debt-engine-runtime` `0.1.0` through Trusted Publishing. The downloaded wheel and source distribution match the certified bundle checksums; isolated install, `tde --version`, and `tde --help` passed. |
+| Next recommended prompt | Continue the Operational Reality Audit recovery plan; no release-repair work remains. |
 
 ## Deferred Work
 
 | Description | Reason | Recommended prompt | Priority |
 | --- | --- | --- |
-| Add a separately guarded resumable completion path that verifies existing tag/release/Docker identities, skips all completed targets, and publishes only the preserved PyPI artifacts plus evidence. | The current all-target workflow rejects the immutable existing tag before reaching PyPI. | Resumable PyPI Publication Workflow and Completion Evidence | `P0` |
+| None for release 0.1.0 completion. | All approved publication targets were completed from the preserved bundle. | Operational Reality Audit recovery plan | `P0` |
