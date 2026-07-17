@@ -63,6 +63,11 @@ jobs:
           else
             "$PIP" install "technical-debt-engine-runtime==$VERSION"
           fi
+          if [ "$RUNNER_OS" = 'Windows' ]; then
+            echo "$RUNNER_TEMP/runtime/Scripts" >> "$GITHUB_PATH"
+          else
+            echo "$RUNNER_TEMP/runtime/bin" >> "$GITHUB_PATH"
+          fi
       - name: Clone DJConnect read-only
         shell: bash
         run: git clone --depth 1 --branch "${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
@@ -117,6 +122,7 @@ jobs:
           for repository in "$GITHUB_WORKSPACE" "$RUNNER_TEMP/djconnect"; do
             name="$(basename "$repository")"
             mkdir -p "$RUNNER_TEMP/evidence/$name"
+            chmod 0777 "$RUNNER_TEMP/evidence/$name"
             set +e
             docker run --rm --volume "$repository:/workspace/repository:ro" --volume "$RUNNER_TEMP/evidence/$name:/workspace/evidence" "$IMAGE" --format json --profile "$PROFILE" --store-location /workspace/evidence assess /workspace/repository > "$RUNNER_TEMP/docker-$name.json"
             code=$?
