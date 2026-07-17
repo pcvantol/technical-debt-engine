@@ -26,6 +26,7 @@ from tde_runtime.repository_qualification import (QualificationRegistry,
                                                   RepositoryDefinitionRegistry,
                                                   RepositoryQualification,
                                                   RepositoryQualificationError)
+from tde_runtime.differential import AssessmentBaselineRegistry, DifferentialEngine, DifferentialError
 
 
 CLI_VERSION = "0.1.0"
@@ -59,6 +60,7 @@ COMMANDS: dict[str, dict[str, str]] = {
     "schema": {"purpose": "List the public, versioned assessment schemas."},
     "baseline": {"purpose": "Create an immutable baseline from persisted canonical evidence."},
     "compare": {"purpose": "Persist and qualify a canonical comparison against a baseline."},
+    "diff": {"purpose": "Compare a current assessment with an immutable baseline."},
     "trend": {"purpose": "Aggregate canonical evidence history into trends."},
     "query": {"purpose": "Query canonical engineering evidence."},
     "store": {"purpose": "Persist canonical Runtime evidence."},
@@ -102,7 +104,7 @@ def build_parser() -> argparse.ArgumentParser:
         command.add_argument("--capability", action="append", default=[], help="Enable a registered capability.")
         if identifier == "baseline":
             command.add_argument("--name", help="Immutable baseline name.")
-        if identifier == "compare":
+        if identifier in {"compare", "assess", "diff"}:
             command.add_argument("--baseline", help="Baseline name or JSON path.")
         if identifier == "query":
             command.add_argument("--resource", default="repositories", help="Evidence resource.")
@@ -300,6 +302,8 @@ def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentPar
 
 
 def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
+    if arguments.command in {"diff"} or (arguments.command == "assess" and arguments.baseline):
+        return _differential_command(arguments, configuration, stream)
     if arguments.command in {"baseline", "compare"}:
         return _baseline_command(arguments, configuration, stream)
     if arguments.command == "trend":
@@ -346,6 +350,26 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
     _render({"command": arguments.command, "status": "NOT_IMPLEMENTED",
              "reason": "This command framework is present; its capability behavior is not delivered."}, arguments.format, stream)
     return ExitCode.NOT_SUPPORTED
+
+
+def _differential_command(arguments, configuration, stream):
+    location = configuration.execution_options.get("baseline", {}).get("location", ".tde/baselines")
+    registry = AssessmentBaselineRegistry(Path(arguments.target) / location if not Path(location).is_absolute() else location)
+    store = EvidenceStore(_store_location(arguments, arguments.target))
+    try:
+        if not arguments.baseline:
+            raise DifferentialError("diff requires --baseline")
+        current = Runtime().execute(arguments.target, configuration)
+        current_record = store.persist(current.evidence)
+        baseline = registry.load(arguments.baseline)
+        previous = store.retrieve(baseline["assessmentEvidenceId"].removeprefix("sha256:"))["evidence"]
+        differential = DifferentialEngine().compare(current.evidence, baseline, previous)
+        _render({"command": "diff", "baseline": baseline, "assessmentEvidenceStore": current_record,
+                 "assessmentEvidence": current.evidence, "differentialEvidence": differential}, arguments.format, stream)
+        return _policy_exit_code(current.evidence["assessmentDecision"]["decision"])
+    except (DifferentialError, ValueError, OSError, json.JSONDecodeError) as error:
+        _render({"command": "diff", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+        return ExitCode.BLOCKED
 
 
 def _qualification_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
@@ -399,7 +423,7 @@ def _baseline_command(arguments: argparse.Namespace, configuration: RuntimeConfi
 
 
 def _create_baseline(arguments, repository, evidence, persisted, stream):
-    baseline = repository.create(evidence, arguments.name)
+    baseline = AssessmentBaselineRegistry(repository.location).create(evidence, arguments.name)
     _render({"command": "baseline", "status": "VALID", "evidenceStore": persisted, "baseline": baseline}, arguments.format, stream)
     return ExitCode.SUCCESS
 
@@ -407,6 +431,9 @@ def _create_baseline(arguments, repository, evidence, persisted, stream):
 def _compare_baseline(arguments, repository, current, evidence, persisted, stream):
     if not arguments.baseline: raise BaselineError("compare requires --baseline")
     baseline = repository.load(arguments.baseline)
+    if "evidence" not in baseline:
+        baseline = {**baseline, "evidence": EvidenceStore(_store_location(arguments, arguments.target)).retrieve(
+            baseline["assessmentEvidenceId"].removeprefix("sha256:"))["evidence"]}
     comparison = ComparisonEngine().compare(evidence, baseline)
     policy = PolicyEngine().load(current.context.configuration, current.context.repository_root, current.context.runtime_version, current.context.schema_version)
     normalized = {"measurements": evidence["measurements"], "findings": evidence["findings"], "capabilityResults": evidence["capabilityResults"], "comparison": comparison}

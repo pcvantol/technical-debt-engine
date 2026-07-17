@@ -47,9 +47,12 @@ class BaselineRepository:
             value = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as error:
             raise BaselineError(f"cannot load baseline {reference}: {error}") from error
-        if not isinstance(value, dict) or "evidence" not in value:
-            raise BaselineError("baseline does not contain canonical evidence")
-        self._validate_evidence(value["evidence"])
+        if not isinstance(value, dict):
+            raise BaselineError("baseline is malformed")
+        if "evidence" in value:
+            self._validate_evidence(value["evidence"])
+        elif not {"assessmentEvidenceId", "repositoryId", "baselineId"} <= set(value):
+            raise BaselineError("baseline does not reference canonical evidence")
         return value
 
     @staticmethod
