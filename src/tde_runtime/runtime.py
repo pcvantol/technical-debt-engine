@@ -57,7 +57,7 @@ class Runtime:
             validation = values["validation"]
             evidence = values["evidence"]
             report = values["reporting"]
-            qualification = RuntimeQualification.READY if values["qualification"]["status"] != "BLOCKED" else RuntimeQualification.FAILED
+            qualification = RuntimeQualification.READY if evidence["runtimeQualification"]["level"] == "QUALIFIED" else RuntimeQualification.FAILED
             return RuntimeResult(context, tuple(stages), evidence, validation, qualification, report)
 
     def query(self, evidence: dict[str, Any], query: dict[str, Any]) -> dict[str, Any]:
@@ -128,8 +128,17 @@ class Runtime:
             "reporting": lambda: self._report(context, values),
         }
         outputs = handlers[identifier]()
+        status = self._stage_status(identifier, outputs)
         return StageResult(identifier, {"executionId": context.execution_id}, outputs,
-                           StageStatus.SUCCESS, "completed", started, utc_now())
+                           status, "completed" if status == StageStatus.SUCCESS else "blocked", started, utc_now())
+
+    @staticmethod
+    def _stage_status(identifier: str, outputs: dict[str, Any]) -> StageStatus:
+        if identifier == "pipeline-execution":
+            return StageStatus.SUCCESS if outputs.get("executionEvidence", {}).get("state") == "COMPLETED" else StageStatus.BLOCKED
+        if identifier == "validation":
+            return StageStatus.SUCCESS if outputs.get("status") == "VALID" and outputs.get("completeness") == "COMPLETE" else StageStatus.BLOCKED
+        return StageStatus.SUCCESS
 
     def _policy(self, context: RuntimeContext, normalized: dict[str, Any]) -> dict[str, Any]:
         try:
@@ -153,11 +162,14 @@ class Runtime:
     def _validation(context: RuntimeContext, execution: dict[str, Any]) -> dict[str, Any]:
         execution_evidence = execution.get("executionEvidence", {})
         executed = execution_evidence.get("executedCapabilities", [])
+        selected = bool(execution_evidence.get("plannedCapabilities") or execution_evidence.get("unsupportedCapabilities"))
         complete = bool(executed) and not execution_evidence.get("blockedCapabilities")
-        return {"status": "VALID", "schema": "VALID", "candidateIdentity": "VALID",
+        valid = complete or not selected
+        return {"status": "VALID" if valid else "BLOCKED", "schema": "VALID", "candidateIdentity": "VALID",
                 "repositoryIdentity": "VALID", "adapter": "VALID" if complete else "NOT_APPLICABLE", "analyzer": "VALID" if complete else "NOT_APPLICABLE",
                 "completeness": "COMPLETE" if executed else "INCOMPLETE", "integrity": "VALID",
-                "warnings": [] if executed else ["no capability was executed"], "errors": []}
+                "warnings": [] if valid else ["selected capability execution is incomplete"],
+                "errors": [] if valid else ["required selected capability evidence is missing"]}
 
     @staticmethod
     def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any]) -> dict[str, Any]:

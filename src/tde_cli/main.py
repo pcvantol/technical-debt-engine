@@ -150,8 +150,6 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
                "execution": result.report["executionSummary"], "environment": result.report["environment"], "qualification": result.report["qualification"],
                "runtimeQualification": result.evidence["runtimeQualification"], "validation": result.validation,
                "evidence": result.evidence, "evidenceId": result.evidence["integrity"]["contentDigest"]}
-    if store is not None:
-        payload["evidenceStore"] = store.persist(result.evidence)
     capability_statuses = {item.get("status") for item in result.evidence.get("capabilityResults", [])}
     if "NOT_SUPPORTED" in capability_statuses:
         return ExitCode.NOT_SUPPORTED, payload
@@ -159,6 +157,8 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
         return ExitCode.ANALYZER_NOT_FOUND, payload
     if "FAILED_CLOSED" in capability_statuses:
         return ExitCode.FAILED_CLOSED, payload
+    if store is not None:
+        payload["evidenceStore"] = store.persist(result.evidence)
     if command in {"assess", "run"}:
         # Assessment exit codes describe the public execution contract. Policy
         # outcomes are preserved in canonical evidence for consumers to apply;
