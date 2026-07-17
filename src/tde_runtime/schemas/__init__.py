@@ -23,6 +23,7 @@ class SchemaRegistry:
         "policy-evidence": "policy-evidence.json",
         "assessment-decision-evidence": "assessment-decision-evidence.json",
         "assessment-evidence": "assessment-evidence.json",
+        "repository-qualification-evidence": "repository-qualification-evidence.json",
     }
 
     @classmethod
@@ -60,7 +61,7 @@ class SchemaRegistry:
         missing = [key for key in required if key not in value]
         if missing:
             raise SchemaValidationError(f"{name} evidence is missing required fields: {missing}")
-        type_checks = {"string": str, "object": Mapping, "array": list}
+        type_checks = {"string": str, "object": Mapping, "array": list, "number": (int, float)}
         for field, definition in definition.get("properties", {}).items():
             expected_type = definition.get("type")
             if expected_type and field in value and not isinstance(value[field], type_checks[expected_type]):
@@ -73,6 +74,10 @@ class SchemaRegistry:
         cls.validate("assessment-decision-evidence", evidence.get("assessmentDecision", {}))
         for item in evidence.get("assessment", {}).get("capabilityExecutions", []):
             cls.validate("capability-evidence", item)
+
+    @classmethod
+    def validate_qualification(cls, evidence: Mapping[str, Any]) -> None:
+        cls.validate("repository-qualification-evidence", evidence)
 
     @classmethod
     def document(cls, name: str) -> dict[str, Any]:

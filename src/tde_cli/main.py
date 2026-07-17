@@ -22,6 +22,10 @@ from tde_runtime.release_qualification import ReleaseQualification
 from tde_runtime.release_certification import ReleaseCertification
 from tde_runtime.runtime import EVIDENCE_SCHEMA_VERSION, RUNTIME_VERSION
 from tde_runtime.schemas import SchemaRegistry
+from tde_runtime.repository_qualification import (QualificationRegistry,
+                                                  RepositoryDefinitionRegistry,
+                                                  RepositoryQualification,
+                                                  RepositoryQualificationError)
 
 
 CLI_VERSION = "0.1.0"
@@ -83,6 +87,8 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
     parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
     parser.add_argument("--store-location", help="Directory used for canonical evidence storage.")
+    parser.add_argument("--repository-definition", metavar="FILE", help="Declarative repository definition for tde qualify.")
+    parser.add_argument("--qualification-location", help="Directory used for immutable repository qualification records.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -144,6 +150,11 @@ def _render(value: dict[str, Any], output_format: str, stream: TextIO) -> None:
 
 def _store_location(arguments: argparse.Namespace, target: str) -> Path:
     location = Path(arguments.store_location or ".tde/evidence")
+    return location if location.is_absolute() else Path(target) / location
+
+
+def _qualification_location(arguments: argparse.Namespace, target: str) -> Path:
+    location = Path(arguments.qualification_location or ".tde/qualifications")
     return location if location.is_absolute() else Path(target) / location
 
 
@@ -296,14 +307,7 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
     if arguments.command == "query":
         return _query_command(arguments, configuration, stream)
     if arguments.command == "qualify":
-        try:
-            result=Runtime().execute(arguments.target,configuration)
-            capability=arguments.capability[0].replace("-","_") if arguments.capability else None
-            qualification=RuntimeQualificationEngine().qualify(result.evidence,capability)
-            _render({"command":"qualify","runtimeQualification":qualification},arguments.format,stream)
-            return ExitCode.SUCCESS if qualification["level"]!="BLOCKED" else ExitCode.BLOCKED
-        except ValueError as error:
-            _render({"command":"qualify","status":"BLOCKED","reason":str(error)},arguments.format,stream); return ExitCode.BLOCKED
+        return _qualification_command(arguments, configuration, stream)
     if arguments.command == "report":
         return _report_command(arguments, stream)
     if arguments.command == "assure":
@@ -342,6 +346,41 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
     _render({"command": arguments.command, "status": "NOT_IMPLEMENTED",
              "reason": "This command framework is present; its capability behavior is not delivered."}, arguments.format, stream)
     return ExitCode.NOT_SUPPORTED
+
+
+def _qualification_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
+    """Run a profile-driven assessment and register its separate qualification result."""
+    try:
+        definition = RepositoryDefinitionRegistry().resolve(arguments.target, arguments.repository_definition)
+        profile = arguments.profile or definition["defaultAssessmentProfile"]
+        configuration = AssessmentOrchestrator().configure(
+            configuration, profile=profile,
+            capabilities=tuple(item.replace("-", "_") for item in arguments.capability),
+        )
+        target = str(definition["repositoryRoot"])
+        result = Runtime().execute(target, configuration)
+        qualification = RepositoryQualification.create(definition, result.evidence)
+        assessment_record = EvidenceStore(_store_location(arguments, target)).persist(result.evidence)
+        registry_record = QualificationRegistry(_qualification_location(arguments, target)).persist(qualification)
+        payload = {"command": "qualify", "repositoryQualification": qualification,
+                   "qualificationRegistry": registry_record, "assessmentEvidence": result.evidence,
+                   "assessmentEvidenceStore": assessment_record}
+        statuses = {item.get("status") for item in result.evidence.get("capabilityResults", [])}
+        if "NOT_SUPPORTED" in statuses:
+            code = ExitCode.NOT_SUPPORTED
+        elif "ANALYZER_NOT_FOUND" in statuses:
+            code = ExitCode.ANALYZER_NOT_FOUND
+        elif "FAILED_CLOSED" in statuses:
+            code = ExitCode.FAILED_CLOSED
+        elif qualification["qualificationStatus"] == "BLOCKED":
+            code = ExitCode.EXECUTION_ERROR
+        else:
+            code = _policy_exit_code(qualification["assessmentDecision"])
+        _render(payload, arguments.format, stream)
+        return code
+    except (RepositoryQualificationError, PolicyError, ValueError, OSError, json.JSONDecodeError) as error:
+        _render({"command": "qualify", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+        return ExitCode.BLOCKED
 
 
 def _baseline_command(arguments: argparse.Namespace, configuration: RuntimeConfiguration, stream: TextIO) -> int:
