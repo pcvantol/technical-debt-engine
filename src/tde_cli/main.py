@@ -228,76 +228,46 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO | None = None) -> int
 
 
 def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentParser, stream: TextIO) -> RuntimeConfiguration | int:
-    if arguments.version:
-        _render({"cliVersion": CLI_VERSION, "runtimeVersion": RUNTIME_VERSION,
-                 "schemaVersion": EVIDENCE_SCHEMA_VERSION, "generation": GENERATION}, arguments.format, stream)
-        return ExitCode.SUCCESS
-    if not arguments.command:
-        parser.print_help(stream)
-        return ExitCode.SUCCESS
-    if arguments.command == "help":
-        parser.print_help(stream)
+    if arguments.version or not arguments.command or arguments.command == "help":
+        if arguments.version:
+            _render({"cliVersion": CLI_VERSION, "runtimeVersion": RUNTIME_VERSION, "schemaVersion": EVIDENCE_SCHEMA_VERSION, "generation": GENERATION}, arguments.format, stream)
+        else:
+            parser.print_help(stream)
         return ExitCode.SUCCESS
     _configure_logging(arguments)
     try:
-        configuration = _load_configuration(arguments.config, arguments.target)
-    except ValueError as error:
-        _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+        configuration = _apply_options(_load_configuration(arguments.config, arguments.target), arguments)
+        return _apply_command_configuration(configuration, arguments)
+    except (ValueError, AssessmentError) as error:
+        _render({"command": arguments.command, "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
         return ExitCode.BLOCKED
+
+
+def _apply_options(configuration: RuntimeConfiguration, arguments: argparse.Namespace) -> RuntimeConfiguration:
     if arguments.policy or arguments.policy_override:
-        values = configuration.as_dict()
-        policy = dict(values["executionOptions"].get("policy", {}))
-        if arguments.policy:
-            policy["file"] = arguments.policy
+        values = configuration.as_dict(); policy = dict(values["executionOptions"].get("policy", {})); policy.update({"file": arguments.policy} if arguments.policy else {})
         overrides = dict(policy.get("overrides", {}))
-        try:
-            for item in arguments.policy_override:
-                rule, raw_value = item.split("=", 1)
-                overrides[rule] = json.loads(raw_value)
-                if not isinstance(overrides[rule], dict):
-                    raise ValueError("override must be a JSON object")
-        except (ValueError, json.JSONDecodeError) as error:
-            _render({"status": "BLOCKED", "reason": f"invalid policy override: {error}"}, arguments.format, stream)
-            return ExitCode.BLOCKED
-        policy["overrides"] = overrides
-        values["policy"] = policy
-        values["executionOptions"].pop("policy", None)
-        configuration = RuntimeConfiguration.load(values)
+        for item in arguments.policy_override:
+            rule, raw_value = item.split("=", 1); overrides[rule] = json.loads(raw_value)
+            if not isinstance(overrides[rule], dict): raise ValueError("invalid policy override: override must be a JSON object")
+        policy["overrides"] = overrides; values["policy"] = policy; values["executionOptions"].pop("policy", None); configuration = RuntimeConfiguration.load(values)
     if arguments.baseline_location:
-        values = configuration.as_dict()
-        values["baseline"] = {"location": arguments.baseline_location}
-        values["executionOptions"].pop("baseline", None)
-        configuration = RuntimeConfiguration.load(values)
+        values = configuration.as_dict(); values["baseline"] = {"location": arguments.baseline_location}; values["executionOptions"].pop("baseline", None); configuration = RuntimeConfiguration.load(values)
     if arguments.history_depth is not None:
-        if arguments.history_depth < 0:
-            _render({"status": "BLOCKED", "reason": "history depth must not be negative"}, arguments.format, stream)
-            return ExitCode.BLOCKED
-        values = configuration.as_dict()
-        values["trend"] = {"historyDepth": arguments.history_depth}
-        values["executionOptions"].pop("trend", None)
-        configuration = RuntimeConfiguration.load(values)
-    if arguments.command in {"assess", "baseline", "compare", "run", "store", "inspect", "validate", "qualify", "report"} and arguments.capability:
-        # The CLI transports requested capability IDs.  Registration and support
-        # decisions remain Runtime responsibilities.
-        for capability in arguments.capability:
-            configuration = configuration.with_capability(capability.replace("-", "_"))
+        if arguments.history_depth < 0: raise ValueError("history depth must not be negative")
+        values = configuration.as_dict(); values["trend"] = {"historyDepth": arguments.history_depth}; values["executionOptions"].pop("trend", None); configuration = RuntimeConfiguration.load(values)
+    return configuration
+
+
+def _apply_command_configuration(configuration: RuntimeConfiguration, arguments: argparse.Namespace) -> RuntimeConfiguration:
+    if arguments.command in {"assess", "baseline", "compare", "run", "store", "inspect", "validate", "qualify", "report"}:
+        for capability in arguments.capability: configuration = configuration.with_capability(capability.replace("-", "_"))
     if arguments.command == "assess":
-        try:
-            configuration = AssessmentOrchestrator().configure(
-                configuration, profile=arguments.profile,
-                capabilities=tuple(item.replace("-", "_") for item in arguments.capability),
-            )
-        except AssessmentError as error:
-            _render({"command": "assess", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
-            return ExitCode.BLOCKED
+        return AssessmentOrchestrator().configure(configuration, profile=arguments.profile, capabilities=tuple(item.replace("-", "_") for item in arguments.capability))
     if arguments.command == "release-qualify":
         supported = {"code-size": "code_size", "complexity": "complexity"}
-        if not arguments.release_capability or any(item not in supported for item in arguments.release_capability):
-            _render({"command": "release-qualify", "status": "BLOCKED",
-                     "reason": "release-qualify requires one or more supported --release-capability values"}, arguments.format, stream)
-            return ExitCode.BLOCKED
-        for capability in sorted(set(arguments.release_capability)):
-            configuration = configuration.with_capability(supported[capability])
+        if not arguments.release_capability or any(item not in supported for item in arguments.release_capability): raise ValueError("release-qualify requires one or more supported --release-capability values")
+        for capability in sorted(set(arguments.release_capability)): configuration = configuration.with_capability(supported[capability])
     return configuration
 
 
