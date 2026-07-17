@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
+from .schemas import SchemaRegistry
+
 class EvidenceStore:
     def __init__(self, location: str | Path) -> None: self.location = Path(location)
 
@@ -38,6 +40,7 @@ class EvidenceStore:
     def _validate(cls, evidence: Mapping[str, Any], identity: str | None = None) -> str:
         if evidence.get("schemaId") != "tde.evidence" or evidence.get("validation", {}).get("status") != "VALID":
             raise ValueError("store requires validated canonical evidence")
+        SchemaRegistry.validate_assessment(evidence)
         actual = cls._identity(evidence)
         if identity and identity != actual:
             raise ValueError("persisted evidence identity does not match its record")

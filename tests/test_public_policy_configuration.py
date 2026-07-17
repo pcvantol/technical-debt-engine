@@ -76,6 +76,33 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                          first_evidence["assessmentDecision"]["policyConfiguration"])
         self.assertTrue(any(item["metricKey"] == "code_size.code_lines" for item in first_evidence["measurements"]))
 
+    def test_installed_wheel_publishes_and_enforces_the_schema_contract(self) -> None:
+        listed = subprocess.run([str(self.tde), "--format", "json", "schema"], capture_output=True,
+                                text=True, check=False, env=self.environment)
+        self.assertEqual(0, listed.returncode, listed.stderr)
+        schemas = json.loads(listed.stdout)["schemas"]
+        self.assertEqual(4, len(schemas))
+        self.assertTrue(all(item["compatibilityVersion"] == "1" and Path(item["location"]).is_file() for item in schemas))
+        location = self.root / "evidence"
+        completed = subprocess.run([str(self.tde), "--format", "json", "--store-location", str(location),
+                                    "--profile", "minimal", "assess", str(self.repository)], capture_output=True,
+                                   text=True, check=False, env=self.environment)
+        self.assertEqual(0, completed.returncode, completed.stderr)
+        evidence = json.loads(completed.stdout)["evidence"]
+        for item in [evidence["assessment"], evidence["policyEvidence"], evidence["assessmentDecision"],
+                     *evidence["assessment"]["capabilityExecutions"]]:
+            self.assertEqual("1.0.0", item["schema"]["version"])
+            self.assertEqual("1", item["schema"]["compatibilityVersion"])
+            self.assertEqual("0.1.0", item["schema"]["runtimeVersion"])
+        record = next((location / "evidence").glob("*.json"))
+        persisted = json.loads(record.read_text(encoding="utf-8"))
+        persisted["evidence"]["policyEvidence"]["schema"]["version"] = "999.0.0"
+        record.write_text(json.dumps(persisted), encoding="utf-8")
+        rejected = subprocess.run([str(self.tde), "--format", "json", "--store-location", str(location), "history", str(self.repository)],
+                                  capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(3, rejected.returncode)
+        self.assertIn("incompatible schema version", json.loads(rejected.stdout)["reason"])
+
     def test_public_cli_fails_closed_for_invalid_or_missing_policy_file(self) -> None:
         invalid = self.root / "invalid-policy.json"
         value = self.configuration(100)

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technical-debt-engine.dev/schemas/policy-evidence/1.0.0",
+  "title": "TDE Policy Evidence",
+  "type": "object",
+  "required": ["schema", "policy", "decision", "policyConfiguration", "triggeredRules"],
+  "properties": {"schema": {"$ref": "common.schema.json"}, "policy": {"type": "object"}, "decision": {"type": "string"}, "policyConfiguration": {"type": "object"}, "triggeredRules": {"type": "array"}}
+}

@@ -46,6 +46,14 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual("1.0.0", version["schemaVersion"])
         self.assertEqual("1", version["generation"])
 
+    def test_schema_lists_the_public_contract_without_executing_runtime(self) -> None:
+        code, output = self.invoke("--format", "json", "schema")
+        self.assertEqual(ExitCode.SUCCESS, code)
+        schemas = json.loads(output)["schemas"]
+        self.assertEqual({"tde.capability-evidence", "tde.policy-evidence", "tde.assessment-decision-evidence", "tde.assessment-evidence"},
+                         {item["name"] for item in schemas})
+        self.assertTrue(all(item["version"] == "1.0.0" and Path(item["location"]).is_file() for item in schemas))
+
     def test_validate_invokes_runtime(self) -> None:
         code, output = self.invoke("--format", "json", "validate", str(self.root))
         self.assertEqual(ExitCode.SUCCESS, code)

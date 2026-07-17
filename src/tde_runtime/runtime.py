@@ -17,6 +17,7 @@ from .policy import PolicyEngine
 from .query import QueryEngine
 from .execution import CapabilityExecutionEngine
 from .runtime_qualification import RuntimeQualificationEngine
+from .schemas import SchemaRegistry
 
 RUNTIME_VERSION = "0.1.0"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
@@ -29,7 +30,7 @@ class Runtime:
         "repository-discovery", "repository-inspection", "language-detection",
         "capability-planning", "adapter-planning", "execution-planning",
         "execution-context", "pipeline-execution", "normalization", "validation",
-        "policy-evaluation", "qualification", "evidence", "reporting",
+        "policy-evaluation", "qualification", "evidence", "schema-validation", "reporting",
     )
 
     def __init__(self, capability_registry: CapabilityRegistry | None = None,
@@ -62,6 +63,7 @@ class Runtime:
                 values[identifier] = result.outputs
             validation = values["validation"]
             evidence = values["evidence"]
+            validation["schema"] = values["schema-validation"]["status"]
             report = values["reporting"]
             qualification = RuntimeQualification.READY if evidence["runtimeQualification"]["level"] == "QUALIFIED" else RuntimeQualification.FAILED
             return RuntimeResult(context, tuple(stages), evidence, validation, qualification, report)
@@ -131,12 +133,19 @@ class Runtime:
             "policy-evaluation": lambda: self._policy(context, values.get("normalization", {}), values["resolved-policy"]),
             "qualification": lambda: self._qualification(values.get("policy-evaluation", {})),
             "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context, values.get("pipeline-execution", {}))), values.get("normalization", {}), values.get("policy-evaluation", {}), values["assessment-started-at"]),
+            "schema-validation": lambda: self._schema_validation(values["evidence"]),
             "reporting": lambda: self._report(context, values),
         }
         outputs = handlers[identifier]()
         status = self._stage_status(identifier, outputs)
         return StageResult(identifier, {"executionId": context.execution_id}, outputs,
                            status, "completed" if status == StageStatus.SUCCESS else "blocked", started, utc_now())
+
+    @staticmethod
+    def _schema_validation(evidence: dict[str, Any]) -> dict[str, Any]:
+        """Validate emitted public evidence before it reaches any consumer."""
+        SchemaRegistry.validate_assessment(evidence)
+        return {"status": "VALID", "schemas": [item["name"] for item in SchemaRegistry.catalogue()]}
 
     @staticmethod
     def _stage_status(identifier: str, outputs: dict[str, Any]) -> StageStatus:
@@ -172,10 +181,15 @@ class Runtime:
     @staticmethod
     def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any], assessment_started_at: str) -> dict[str, Any]:
         generated_at = utc_now()
+        profile = context.execution_options.get("assessment", {})
+        assessment_version = str(profile.get("profileIdentity", {}).get("version") or "1.0.0")
+        policy_evidence = dict(policy_evidence)
+        policy_evidence["schema"] = SchemaRegistry.identity("policy-evidence", context.runtime_version, assessment_version)
         stable_results = [{key: value for key, value in result.items() if key != "executionTiming"}
                           for result in normalized.get("capabilityResults", [])]
         decision = policy_evidence.get("decision", "BLOCKED")
-        decision_evidence = {"assessmentId": f"assessment.{context.execution_id.removeprefix('execution.')}",
+        decision_evidence = {"schema": SchemaRegistry.identity("assessment-decision-evidence", context.runtime_version, assessment_version),
+                             "assessmentId": f"assessment.{context.execution_id.removeprefix('execution.')}",
                              "runtimeVersion": context.runtime_version, "policies": [policy_evidence.get("policy")],
                              "policyConfiguration": policy_evidence.get("policyConfiguration"),
                              "policyResults": policy_evidence.get("triggeredRules", []), "decision": decision,
@@ -190,18 +204,19 @@ class Runtime:
             reference_seed = json.dumps({"candidate": context.candidate["id"], "capability": capability_id,
                                          "result": {key: value for key, value in result.items() if key != "executionTiming"}},
                                         sort_keys=True, separators=(",", ":"), default=str)
-            capability_executions.append({"capability": capability_id,
+            capability_executions.append({"schema": SchemaRegistry.identity("capability-evidence", context.runtime_version, assessment_version),
+                                          "capability": capability_id,
                                           "capabilityEvidenceId": f"sha256:{sha256(reference_seed.encode()).hexdigest()}",
                                           "analyzer": adapter.get("analyzer", {}).get("id"),
                                           "analyzerVersion": adapter.get("analyzer", {}).get("version"),
                                           "executionStatus": result.get("status"),
                                           "qualification": "QUALIFIED" if result.get("status") == "VALID" else "BLOCKED",
                                           "durationMs": result.get("executionTiming", {}).get("durationMs", 0)})
-        profile = context.execution_options.get("assessment", {})
-        assessment = {"assessmentId": decision_evidence["assessmentId"], "runtimeVersion": context.runtime_version,
+        assessment = {"schema": SchemaRegistry.identity("assessment-evidence", context.runtime_version, assessment_version),
+                      "assessmentId": decision_evidence["assessmentId"], "runtimeVersion": context.runtime_version,
                       "repository": context.repository_id,
                       "profile": profile.get("profile", "explicit"),
-                      "profileVersion": profile.get("profileIdentity", {}).get("version"),
+                      "profileVersion": profile.get("profileIdentity", {}).get("version") or assessment_version,
                       "profileHash": profile.get("profileIdentity", {}).get("hash"),
                       "startedAt": assessment_started_at, "completedAt": generated_at,
                       "executionStatus": execution.get("state", "BLOCKED"),
@@ -221,6 +236,8 @@ class Runtime:
                            "policy": policy_evidence, "assessment": stable_assessment},
                           sort_keys=True, separators=(",", ":"), default=str)
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,
+                "schema": SchemaRegistry.identity("assessment-evidence", context.runtime_version, assessment_version),
+                "assessmentVersion": assessment_version,
                 "runtime": {"id": "tde", "version": context.runtime_version},
                 "executionId": context.execution_id,
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
