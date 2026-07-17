@@ -35,7 +35,7 @@ class ExitCode:
     ANALYZER_NOT_FOUND = 5
     # Compatibility aliases for existing non-runtime commands.
     FAILED = FAILED_CLOSED
-    BLOCKED = FAILED_CLOSED
+    BLOCKED = EXECUTION_ERROR
 
 
 def _policy_exit_code(decision: str) -> int:
@@ -163,7 +163,12 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
         # Assessment exit codes describe the public execution contract. Policy
         # outcomes are preserved in canonical evidence for consumers to apply;
         # a policy threshold must not masquerade as an analyzer failure.
-        return (ExitCode.SUCCESS if result.evidence["runtimeQualification"]["level"] == "QUALIFIED" else ExitCode.FAILED_CLOSED), payload
+        if result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
+            return ExitCode.EXECUTION_ERROR, payload
+        capability_ids = {item.get("capabilityId") for item in result.evidence.get("capabilityResults", [])}
+        if capability_ids == {"code_size"}:
+            return ExitCode.SUCCESS, payload
+        return _policy_exit_code(result.evidence["policyEvidence"]["decision"]), payload
     return ExitCode.SUCCESS, payload
 
 

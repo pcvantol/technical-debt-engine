@@ -130,7 +130,7 @@ class CapabilityExecutionEngine:
 
     @staticmethod
     def _blocked(identifier: str, version: str, adapter_ids: list[str], limitations: list[dict[str, Any]], duration: int,
-                 status: str = "FAILED_CLOSED") -> dict[str, Any]:
+                 status: str = "BLOCKED") -> dict[str, Any]:
         return {"measurements": [], "findings": [], "capabilityResults": [{"capabilityId": identifier, "capabilityVersion": version,
                 "status": status, "adapterIds": adapter_ids, "completeness": 0, "qualificationApplicable": False,
                 "limitations": limitations, "executionTiming": {"durationMs": duration}}]}
