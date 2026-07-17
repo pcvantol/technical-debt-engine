@@ -126,7 +126,7 @@ class CodeSizeTests(unittest.TestCase):
         stream = StringIO()
         self.assertEqual(ExitCode.SUCCESS, main(["--format", "json", "assess", str(self.root)], stream))
         evidence = json.loads(stream.getvalue())["evidence"]
-        self.assertEqual(["code_size", "complexity"], evidence["assessment"]["executionPlan"]["plannedCapabilities"])
+        self.assertEqual(["code_size", "complexity", "coverage", "dependency_health"], evidence["assessment"]["executionPlan"]["plannedCapabilities"])
         self.assertEqual("standard", evidence["assessment"]["profile"])
 
     def test_unknown_capability_is_resolved_by_runtime(self) -> None:

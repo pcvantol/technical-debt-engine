@@ -1,11 +1,12 @@
 {
   "identifier": "standard",
-  "version": "1.1.0",
-  "description": "Standard public assessment for code size, complexity, and available test coverage.",
+  "version": "1.2.0",
+  "description": "Standard public assessment for code size, complexity, coverage, and available npm dependency health.",
   "capabilities": [
     {"identifier": "code_size", "required": true, "optional": false},
     {"identifier": "complexity", "required": true, "optional": false},
-    {"identifier": "coverage", "required": false, "optional": true}
+    {"identifier": "coverage", "required": false, "optional": true},
+    {"identifier": "dependency_health", "required": false, "optional": true}
   ],
   "policy": {"file": "../policies/generation-1.json"},
   "metadata": {"default": true}

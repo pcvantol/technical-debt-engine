@@ -1,6 +1,6 @@
 # Metric registry
 
-Metric keys are lower-case, dot-namespaced identifiers: `capability.metric_name[.submetric]`. Initial provisional keys include `code_size.physical_loc`, `code_size.logical_loc`, `complexity.cyclomatic`, `complexity.cognitive`, `maintainability.index`, `duplication.percentage`, `dependency.vulnerable_count`, and `test.coverage.line_percentage`.
+Metric keys are lower-case, dot-namespaced identifiers: `capability.metric_name[.submetric]`. Initial provisional keys include `code_size.physical_loc`, `code_size.logical_loc`, `complexity.cyclomatic`, `complexity.cognitive`, `maintainability.index`, `duplication.percentage`, `dependency_health.dependency_count`, and `test.coverage.line_percentage`.
 
 TDE schema governance owns registration. Every key records owner, unit, valid scopes, aggregation semantics, definition, schema version, and compatibility. New keys are additive; deprecated keys retain mapping guidance; changed semantics require a new key or major compatibility change.
 
@@ -10,4 +10,4 @@ Complexity `0.1.0` registers `complexity.cyclomatic.average`, `.median`, and `.m
 
 Maintainability `0.1.0` registers `maintainability.index` (0–100 index, repository scope, mean). See [MAINTAINABILITY_MODEL.md](MAINTAINABILITY_MODEL.md).
 
-Dependency Health `0.1.0` registers `dependency.count` (dependencies, repository scope, sum). Policy rules may qualify canonical metric values without changing their measurement definition.
+Dependency Health `1.0.0` registers repository counts for `dependency_health.dependency_count`, `direct_dependencies`, `transitive_dependencies`, `unknown_dependencies`, and `outdated_dependencies`. Unavailable data is explicit; policy rules may qualify canonical metric values without changing their measurement definition.

@@ -71,9 +71,9 @@ class CliFoundationTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         evidence = json.loads(output)["evidence"]
         self.assertEqual("standard", evidence["assessment"]["profile"])
-        self.assertEqual("1.1.0", evidence["assessment"]["profileVersion"])
+        self.assertEqual("1.2.0", evidence["assessment"]["profileVersion"])
         self.assertTrue(evidence["assessment"]["profileHash"].startswith("sha256:"))
-        self.assertEqual({"code_size", "complexity", "coverage"}, {item["capability"] for item in evidence["assessment"]["capabilityExecutions"]})
+        self.assertEqual({"code_size", "complexity", "coverage", "dependency_health"}, {item["capability"] for item in evidence["assessment"]["capabilityExecutions"]})
         self.assertEqual(evidence["assessmentDecision"]["decision"], evidence["assessment"]["assessmentDecision"])
 
     def test_assess_uses_the_selected_registered_profile(self) -> None:

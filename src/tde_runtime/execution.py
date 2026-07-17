@@ -9,7 +9,7 @@ from hashlib import sha256
 from .code_size import ADAPTER_ID, CAPABILITY_ID, CAPABILITY_VERSION, analyze
 from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
 from .coverage import ADAPTER_ID as COVERAGE_ADAPTER_ID, CAPABILITY_ID as COVERAGE_CAPABILITY_ID, CAPABILITY_VERSION as COVERAGE_CAPABILITY_VERSION, analyze as analyze_coverage
-from .dependency_health import CAPABILITY_ID as DEPENDENCY_CAPABILITY_ID, CAPABILITY_VERSION as DEPENDENCY_CAPABILITY_VERSION, discover as discover_dependencies
+from .dependency_health import ADAPTER_ID as DEPENDENCY_ADAPTER_ID, CAPABILITY_ID as DEPENDENCY_CAPABILITY_ID, CAPABILITY_VERSION as DEPENDENCY_CAPABILITY_VERSION, analyze as analyze_dependencies
 from .maintainability import CAPABILITY_ID as MAINTAINABILITY_CAPABILITY_ID, CAPABILITY_VERSION as MAINTAINABILITY_CAPABILITY_VERSION, derive as derive_maintainability
 from .registries import AdapterRegistry, CapabilityRegistry
 
@@ -120,13 +120,12 @@ class CapabilityExecutionEngine:
             if result["status"] != "VALID":
                 return self._blocked(COVERAGE_CAPABILITY_ID, COVERAGE_CAPABILITY_VERSION, [COVERAGE_ADAPTER_ID], result["limitations"], duration, result["status"])
             return self._coverage_result(context, result, duration)
-        if identifier == DEPENDENCY_CAPABILITY_ID:
-            result = discover_dependencies(context.repository_root)
+        if identifier == DEPENDENCY_CAPABILITY_ID and selected_adapter == DEPENDENCY_ADAPTER_ID:
+            result = analyze_dependencies(context.repository_root, timeout)
             duration = int((perf_counter() - started) * 1000)
-            capability = {"capabilityId": DEPENDENCY_CAPABILITY_ID, "capabilityVersion": DEPENDENCY_CAPABILITY_VERSION,
-                          "status": "VALID", "adapterIds": [], "completeness": 1, "qualificationApplicable": True,
-                          "executionTiming": {"durationMs": duration}}
-            return {"measurements": result["measurements"], "findings": result["findings"], "capabilityResults": [capability]}
+            if result["status"] != "VALID":
+                return self._blocked(DEPENDENCY_CAPABILITY_ID, DEPENDENCY_CAPABILITY_VERSION, [DEPENDENCY_ADAPTER_ID], result["limitations"], duration)
+            return self._dependency_result(context, result, duration)
         if identifier != MAINTAINABILITY_CAPABILITY_ID:
             return self._blocked(identifier, "0.1.0", [], [{"id": "adapter.selection.unavailable", "description": f"no selected adapter can execute {identifier}", "cause": "adapter selection"}], 0)
         code = {"measurements": measurements}
@@ -260,4 +259,24 @@ class CapabilityExecutionEngine:
         capability = {"capabilityId": COVERAGE_CAPABILITY_ID, "capabilityVersion": COVERAGE_CAPABILITY_VERSION, "status": "VALID",
                       "adapterIds": [COVERAGE_ADAPTER_ID], "completeness": 1,
                       "qualificationApplicable": bool(result["available"]), "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
+        return {"measurements": measurements, "findings": [], "adapterResults": [adapter], "capabilityResults": [capability]}
+
+    @staticmethod
+    def _dependency_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:
+        values = (("dependency_count", None if result["outdatedDependencies"] is None and not result.get("available", True) else result["directDependencies"] + result["transitiveDependencies"]),
+                  ("direct_dependencies", result["directDependencies"]), ("transitive_dependencies", result["transitiveDependencies"]),
+                  ("unknown_dependencies", result["unknownDependencies"]), ("outdated_dependencies", result["outdatedDependencies"]))
+        measurements = [{"measurementId": f"dependency_health.repository.{key}", "capabilityId": DEPENDENCY_CAPABILITY_ID,
+                         "metricKey": f"dependency_health.{key}", "value": None if value is None else len(value),
+                         "availability": "UNAVAILABLE" if value is None else "AVAILABLE", "unit": "packages", "scope": "repository",
+                         "targetEntityId": context.repository_id, "aggregation": "count", "sourceAdapterId": DEPENDENCY_ADAPTER_ID,
+                         "sourceToolId": result["analyzer"]["id"]} for key, value in values]
+        evidence = {key: result[key] for key in ("ecosystem", "packageManager", "directDependencies", "transitiveDependencies", "unknownDependencies", "outdatedDependencies")}
+        adapter = {"adapter": {"id": DEPENDENCY_ADAPTER_ID, "version": "1.0.0"}, "analyzer": result["analyzer"], "execution": "SUCCESS",
+                   "rawOutputHash": result["rawOutputHash"], "rawOutput": result["rawOutput"], "measuredScope": ["repository"], "completeness": 1,
+                   "draftMeasurements": measurements, "draftFindings": [], "warnings": [], "errors": [], "limitations": result["limitations"],
+                   "evidence": evidence, "executionTiming": {"durationMs": duration}}
+        capability = {"capabilityId": DEPENDENCY_CAPABILITY_ID, "capabilityVersion": DEPENDENCY_CAPABILITY_VERSION, "status": "VALID",
+                      "adapterIds": [DEPENDENCY_ADAPTER_ID], "completeness": 1, "qualificationApplicable": bool(result.get("available", True)),
+                      "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
         return {"measurements": measurements, "findings": [], "adapterResults": [adapter], "capabilityResults": [capability]}

@@ -4,12 +4,14 @@
   "scope": "repository",
   "owner": "TDE policy governance",
   "description": "Default, language-independent Generation 1 qualification policy.",
-  "supportedCapabilities": ["code_size", "complexity"],
+  "supportedCapabilities": ["code_size", "complexity", "dependency_health"],
   "supportedSchemas": ["1.0.0"],
   "supportedRuntimeVersions": ["0.2.0"],
   "rules": [
     {"id": "code_size.repository_lines", "type": "threshold", "capability": "code_size", "metric": "code_size.code_lines", "operator": "greater_than", "threshold": {"warning": 10000, "blocking": 25000}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "Large repositories require deliberate decomposition."},
     {"id": "complexity.maximum", "type": "threshold", "capability": "complexity", "metric": "complexity.cyclomatic.maximum", "operator": "greater_than", "threshold": {"warning": 15, "blocking": 25}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "High cyclomatic complexity impedes safe change."},
+    {"id": "dependency_health.unknown", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.unknown_dependencies", "operator": "greater_than", "threshold": {"warning": 1, "blocking": 5}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "Unresolved direct dependencies make pipeline dependency evidence unreliable."},
+    {"id": "dependency_health.outdated", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.outdated_dependencies", "operator": "greater_than", "threshold": {"warning": 5, "blocking": 20}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "A bounded number of outdated dependencies keeps review work visible without prescribing updates."},
     {"id": "critical.finding", "type": "finding_severity", "severity": "CRITICAL", "outcome": "FAIL"},
     {"id": "comparison.regression", "type": "comparison_regression", "outcome": "FAIL"}
   ]
