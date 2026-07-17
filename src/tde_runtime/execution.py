@@ -31,14 +31,14 @@ class CapabilityExecutionEngine:
         planned = [identifier for identifier in (CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID, MAINTAINABILITY_CAPABILITY_ID, DEPENDENCY_CAPABILITY_ID)
                    if identifier in requested_plan or (identifier in {CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID} and MAINTAINABILITY_CAPABILITY_ID in requested_plan)]
         unsupported = [identifier for identifier in enabled if identifier not in available]
-        adapters = {item["id"] for item in self._adapter_registry.discover()}
-        planned_adapters = [adapter for identifier, adapter in ((CAPABILITY_ID, ADAPTER_ID), (COMPLEXITY_CAPABILITY_ID, COMPLEXITY_ADAPTER_ID))
-                            if identifier in planned and adapter in adapters]
+        selected = {identifier: self._adapter_registry.select(available[identifier]) for identifier in planned if "supportedAnalyzers" in available[identifier]}
+        planned_adapters = [binding["id"] for binding in selected.values() if binding]
         return {
             "state": "PLANNED",
             "capabilities": planned,
             "unsupportedCapabilities": unsupported,
             "plannedAdapters": planned_adapters,
+            "analyzerBindings": {identifier: binding["id"] if binding else None for identifier, binding in selected.items()},
             "parallelReady": True,
             "retries": "NONE",
         }
@@ -53,7 +53,7 @@ class CapabilityExecutionEngine:
         adapter_results: list[dict[str, Any]] = []
 
         for identifier in plan["capabilities"]:
-            normalized = self._dispatch(identifier, context, measurements)
+            normalized = self._dispatch(identifier, plan.get("analyzerBindings", {}).get(identifier), context, measurements)
             measurements.extend(normalized["measurements"])
             findings.extend(normalized["findings"])
             capability_results.extend(normalized["capabilityResults"])
@@ -93,17 +93,17 @@ class CapabilityExecutionEngine:
             "executionEvidence": evidence,
         }
 
-    def _dispatch(self, identifier: str, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
+    def _dispatch(self, identifier: str, selected_adapter: str | None, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
         started = perf_counter()
         # Repository-wide cloc scans can legitimately exceed one minute on a
         # public consumer checkout.  A bounded five-minute default remains
         # fail-closed while avoiding a size-dependent false failure.
         timeout = int(context.execution_options.get("timeout", 300))
-        if identifier == CAPABILITY_ID:
+        if identifier == CAPABILITY_ID and selected_adapter == ADAPTER_ID:
             result = analyze(context.repository_root, timeout)
             duration = int((perf_counter() - started) * 1000)
             return self._code_size_result(context, result, duration) if result["status"] == "VALID" else self._blocked(CAPABILITY_ID, CAPABILITY_VERSION, [ADAPTER_ID], result["limitations"], duration, result["status"])
-        if identifier == COMPLEXITY_CAPABILITY_ID:
+        if identifier == COMPLEXITY_CAPABILITY_ID and selected_adapter == COMPLEXITY_ADAPTER_ID:
             settings = context.execution_options.get("capabilities", {}).get(COMPLEXITY_CAPABILITY_ID, {})
             result = analyze_complexity(context.repository_root, timeout, settings)
             duration = int((perf_counter() - started) * 1000)
@@ -117,6 +117,8 @@ class CapabilityExecutionEngine:
                           "status": "VALID", "adapterIds": [], "completeness": 1, "qualificationApplicable": True,
                           "executionTiming": {"durationMs": duration}}
             return {"measurements": result["measurements"], "findings": result["findings"], "capabilityResults": [capability]}
+        if identifier != MAINTAINABILITY_CAPABILITY_ID:
+            return self._blocked(identifier, "0.1.0", [], [{"id": "adapter.selection.unavailable", "description": f"no selected adapter can execute {identifier}", "cause": "adapter selection"}], 0)
         code = {"measurements": measurements}
         complexity = {"measurements": [item for item in measurements if item.get("capabilityId") == COMPLEXITY_CAPABILITY_ID]}
         result = derive_maintainability(code, complexity)
