@@ -2,5 +2,6 @@
 
 from .configuration import RuntimeConfiguration
 from .runtime import Runtime
+from .assessment import AssessmentOrchestrator
 
-__all__ = ["Runtime", "RuntimeConfiguration"]
+__all__ = ["AssessmentOrchestrator", "Runtime", "RuntimeConfiguration"]

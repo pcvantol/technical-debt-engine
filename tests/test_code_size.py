@@ -122,8 +122,11 @@ class CodeSizeTests(unittest.TestCase):
             self.assertEqual(ExitCode.SUCCESS, reported.returncode, reported.stderr)
             self.assertIn("# Code Size Report", reported.stdout)
 
-    def test_assess_without_code_size_is_not_supported(self) -> None:
-        self.assertEqual(ExitCode.NOT_SUPPORTED, main(["assess", str(self.root)], StringIO()))
+    def test_assess_without_capability_runs_the_default_profile(self) -> None:
+        stream = StringIO()
+        self.assertEqual(ExitCode.SUCCESS, main(["--format", "json", "assess", str(self.root)], stream))
+        evidence = json.loads(stream.getvalue())["evidence"]
+        self.assertEqual(["code_size", "complexity"], evidence["assessment"]["executionPlan"]["plannedCapabilities"])
 
     def test_unknown_capability_is_resolved_by_runtime(self) -> None:
         stream = StringIO()

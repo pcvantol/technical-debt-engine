@@ -48,12 +48,14 @@ class Runtime:
             raise ValueError("repository root must be an existing directory")
         with TemporaryDirectory(prefix="tde-runtime-") as temporary:
             context = self._context(root, config, Path(temporary))
+            assessment_started_at = utc_now()
             # Policy is configuration, not a post-execution best effort.  Resolve
             # and validate it before planners or analyzers receive any work.
             resolved_policy = self._policy_engine.load(context.configuration, context.repository_root,
                                                        context.runtime_version, context.schema_version)
             stages: list[StageResult] = []
-            values: dict[str, Any] = {"capabilities": (), "adapters": (), "resolved-policy": resolved_policy}
+            values: dict[str, Any] = {"capabilities": (), "adapters": (), "resolved-policy": resolved_policy,
+                                      "assessment-started-at": assessment_started_at}
             for identifier in self._stage_names:
                 result = self._run_stage(identifier, context, values)
                 stages.append(result)
@@ -128,7 +130,7 @@ class Runtime:
             "validation": lambda: self._validation(context, values.get("pipeline-execution", {})),
             "policy-evaluation": lambda: self._policy(context, values.get("normalization", {}), values["resolved-policy"]),
             "qualification": lambda: self._qualification(values.get("policy-evaluation", {})),
-            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context, values.get("pipeline-execution", {}))), values.get("normalization", {}), values.get("policy-evaluation", {})),
+            "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context, values.get("pipeline-execution", {}))), values.get("normalization", {}), values.get("policy-evaluation", {}), values["assessment-started-at"]),
             "reporting": lambda: self._report(context, values),
         }
         outputs = handlers[identifier]()
@@ -168,28 +170,60 @@ class Runtime:
                 "errors": [] if valid else ["required selected capability evidence is missing"]}
 
     @staticmethod
-    def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any]) -> dict[str, Any]:
+    def _evidence(context: RuntimeContext, validation: dict[str, Any], normalized: dict[str, Any], policy_evidence: dict[str, Any], assessment_started_at: str) -> dict[str, Any]:
         generated_at = utc_now()
         stable_results = [{key: value for key, value in result.items() if key != "executionTiming"}
                           for result in normalized.get("capabilityResults", [])]
-        seed = json.dumps({"repository": context.repository_id, "candidate": context.candidate,
-                           "configuration": RuntimeConfiguration.load(context.configuration).digest(),
-                           "capabilityResults": stable_results,
-                           "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []),
-                           "policy": policy_evidence}, sort_keys=True, separators=(",", ":"), default=str)
         decision = policy_evidence.get("decision", "BLOCKED")
         decision_evidence = {"assessmentId": f"assessment.{context.execution_id.removeprefix('execution.')}",
                              "runtimeVersion": context.runtime_version, "policies": [policy_evidence.get("policy")],
                              "policyConfiguration": policy_evidence.get("policyConfiguration"),
                              "policyResults": policy_evidence.get("triggeredRules", []), "decision": decision,
                              "capabilityEvidenceReference": context.execution_id, "timestamp": generated_at}
+        execution = normalized.get("executionEvidence", {})
+        adapter_results = {item.get("adapter", {}).get("id"): item for item in normalized.get("adapterResults", [])}
+        capability_executions = []
+        for result in normalized.get("capabilityResults", []):
+            capability_id = result.get("capabilityId")
+            adapter_id = next(iter(result.get("adapterIds", [])), None)
+            adapter = adapter_results.get(adapter_id, {})
+            reference_seed = json.dumps({"candidate": context.candidate["id"], "capability": capability_id,
+                                         "result": {key: value for key, value in result.items() if key != "executionTiming"}},
+                                        sort_keys=True, separators=(",", ":"), default=str)
+            capability_executions.append({"capability": capability_id,
+                                          "capabilityEvidenceId": f"sha256:{sha256(reference_seed.encode()).hexdigest()}",
+                                          "analyzer": adapter.get("analyzer", {}).get("id"),
+                                          "analyzerVersion": adapter.get("analyzer", {}).get("version"),
+                                          "executionStatus": result.get("status"),
+                                          "qualification": "QUALIFIED" if result.get("status") == "VALID" else "BLOCKED",
+                                          "durationMs": result.get("executionTiming", {}).get("durationMs", 0)})
+        assessment = {"assessmentId": decision_evidence["assessmentId"], "runtimeVersion": context.runtime_version,
+                      "repository": context.repository_id,
+                      "profile": context.execution_options.get("assessment", {}).get("profile", "explicit"),
+                      "startedAt": assessment_started_at, "completedAt": generated_at,
+                      "executionStatus": execution.get("state", "BLOCKED"),
+                      "executionPlan": {key: execution.get(key, []) for key in ("plannedCapabilities", "plannedAdapters", "analyzerBindings")},
+                      "executedCapabilities": execution.get("executedCapabilities", []),
+                      "skippedCapabilities": execution.get("skippedCapabilities", []),
+                      "capabilityExecutions": capability_executions, "durationMs": execution.get("durationMs", 0),
+                      "assessmentDecision": decision, "policyConfiguration": policy_evidence.get("policyConfiguration")}
+        stable_assessment = {key: value for key, value in assessment.items()
+                             if key not in {"assessmentId", "startedAt", "completedAt", "durationMs"}}
+        stable_assessment["capabilityExecutions"] = [{key: value for key, value in item.items() if key != "durationMs"}
+                                                      for item in capability_executions]
+        seed = json.dumps({"repository": context.repository_id, "candidate": context.candidate,
+                           "configuration": RuntimeConfiguration.load(context.configuration).digest(),
+                           "capabilityResults": stable_results,
+                           "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []),
+                           "policy": policy_evidence, "assessment": stable_assessment},
+                          sort_keys=True, separators=(",", ":"), default=str)
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,
                 "runtime": {"id": "tde", "version": context.runtime_version},
                 "executionId": context.execution_id,
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "adapterResults": normalized.get("adapterResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "assessmentDecision": decision_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
+                "capabilityResults": normalized.get("capabilityResults", []), "adapterResults": normalized.get("adapterResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "assessment": assessment, "validation": validation, "policyEvidence": policy_evidence, "assessmentDecision": decision_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 

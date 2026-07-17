@@ -25,11 +25,13 @@ class CapabilityExecutionEngine:
 
     def plan(self, context: Any) -> dict[str, Any]:
         requested = context.execution_options.get("capabilities", {})
-        available = {item["id"]: item for item in self._capability_registry.discover()}
+        registered = tuple(self._capability_registry.discover())
+        available = {item["id"]: item for item in registered}
         enabled = [identifier for identifier, settings in requested.items() if settings.get("enabled")]
-        requested_plan = [identifier for identifier in enabled if identifier in available]
-        planned = [identifier for identifier in (CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID, MAINTAINABILITY_CAPABILITY_ID, DEPENDENCY_CAPABILITY_ID)
-                   if identifier in requested_plan or (identifier in {CAPABILITY_ID, COMPLEXITY_CAPABILITY_ID} and MAINTAINABILITY_CAPABILITY_ID in requested_plan)]
+        requested_plan = set(identifier for identifier in enabled if identifier in available)
+        # Registration order is the reproducible plan order.  The planner does
+        # not encode any capability-specific execution sequence.
+        planned = [item["id"] for item in registered if item["id"] in requested_plan]
         unsupported = [identifier for identifier in enabled if identifier not in available]
         selected = {identifier: self._adapter_registry.select(available[identifier]) for identifier in planned if "supportedAnalyzers" in available[identifier]}
         planned_adapters = [binding["id"] for binding in selected.values() if binding]
@@ -147,6 +149,7 @@ class CapabilityExecutionEngine:
             "blockedCapabilities": [],
             "unsupportedCapabilities": [],
             "plannedAdapters": plan["plannedAdapters"],
+            "analyzerBindings": plan["analyzerBindings"],
             "executedAdapters": [],
             "workItems": [],
             "executionGraph": {"nodes": plan["capabilities"], "edges": []},

@@ -19,13 +19,18 @@ class EvidenceStore:
     def _calculated_identity(evidence: Mapping[str, Any]) -> str:
         stable_results = [{key: value for key, value in result.items() if key != "executionTiming"}
                           for result in evidence.get("capabilityResults", [])]
+        assessment = dict(evidence.get("assessment", {}))
+        stable_assessment = {key: value for key, value in assessment.items()
+                             if key not in {"assessmentId", "startedAt", "completedAt", "durationMs"}}
+        stable_assessment["capabilityExecutions"] = [{key: value for key, value in item.items() if key != "durationMs"}
+                                                      for item in assessment.get("capabilityExecutions", [])]
         seed = json.dumps({"repository": evidence.get("repository", {}).get("id"),
                            "candidate": evidence.get("candidate"),
                            "configuration": evidence.get("configurationDigest"),
                            "capabilityResults": stable_results,
                            "measurements": evidence.get("measurements", []),
                            "findings": evidence.get("findings", []),
-                           "policy": evidence.get("policyEvidence", {})},
+                           "policy": evidence.get("policyEvidence", {}), "assessment": stable_assessment},
                           sort_keys=True, separators=(",", ":"), default=str)
         return sha256(seed.encode()).hexdigest()
 

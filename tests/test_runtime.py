@@ -40,6 +40,15 @@ class RuntimeFoundationTests(unittest.TestCase):
         self.assertEqual(result.evidence["policyEvidence"]["policyConfiguration"],
                          result.evidence["assessmentDecision"]["policyConfiguration"])
 
+    def test_assessment_evidence_references_capability_executions(self) -> None:
+        configuration = RuntimeConfiguration.load({"capabilities": {"code_size": {"enabled": True}, "complexity": {"enabled": True}},
+                                                   "assessment": {"profile": "default", "capabilities": ["code_size", "complexity"]}})
+        assessment = Runtime().execute(self.root, configuration).evidence["assessment"]
+        self.assertEqual("default", assessment["profile"])
+        self.assertEqual(["code_size", "complexity"], assessment["executionPlan"]["plannedCapabilities"])
+        self.assertEqual({"code_size", "complexity"}, {item["capability"] for item in assessment["capabilityExecutions"]})
+        self.assertTrue(all(item["capabilityEvidenceId"].startswith("sha256:") for item in assessment["capabilityExecutions"]))
+
     def test_policy_override_can_block_a_measurement(self) -> None:
         (self.root / "sample.py").write_text("value = 1\n", encoding="utf-8")
         configuration = RuntimeConfiguration.load({

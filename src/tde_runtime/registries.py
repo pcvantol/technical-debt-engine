@@ -31,3 +31,16 @@ class PolicyRegistry:
     def discover(self) -> tuple[object, ...]:
         from .policy import PolicyEngine
         return PolicyEngine().discover()
+
+
+class AssessmentProfileRegistry:
+    """Declarative capability selections for complete assessments."""
+
+    def discover(self) -> tuple[object, ...]:
+        return (
+            {"id": "default", "description": "Standard code and complexity assessment.",
+             "capabilities": ("code_size", "complexity")},
+        )
+
+    def resolve(self, identifier: str) -> dict[str, object] | None:
+        return next((profile for profile in self.discover() if profile["id"] == identifier), None)

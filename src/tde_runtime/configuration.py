@@ -56,7 +56,7 @@ class RuntimeConfiguration:
     @classmethod
     def load(cls, values: Mapping[str, Any] | None = None) -> "RuntimeConfiguration":
         values = {} if values is None else dict(values)
-        allowed = {"schemaVersion", "executionOptions", "capabilities", "policy", "baseline", "trend"}
+        allowed = {"schemaVersion", "executionOptions", "capabilities", "policy", "baseline", "trend", "assessment"}
         unknown = set(values) - allowed
         if unknown:
             raise ValueError(f"unsupported runtime configuration: {sorted(unknown)}")
@@ -67,7 +67,7 @@ class RuntimeConfiguration:
         if not isinstance(options, dict):
             raise ValueError("executionOptions must be an object")
         resolved: dict[str, Any] = dict(options)
-        for key in ("capabilities", "policy", "baseline", "trend"):
+        for key in ("capabilities", "policy", "baseline", "trend", "assessment"):
             value = values.get(key, resolved.get(key, {}))
             if not isinstance(value, dict):
                 raise ValueError(f"{key} must be an object")
@@ -103,6 +103,15 @@ class RuntimeConfiguration:
         values["capabilities"] = capabilities
         values["executionOptions"].pop("capabilities", None)
         return self.load(values)
+
+    def with_assessment_profile(self, identifier: str, capabilities: tuple[str, ...]) -> "RuntimeConfiguration":
+        values = self.as_dict()
+        values["assessment"] = {"profile": identifier, "capabilities": list(capabilities)}
+        values["executionOptions"].pop("assessment", None)
+        configured = self.load(values)
+        for capability in capabilities:
+            configured = configured.with_capability(capability)
+        return configured
 
     def as_dict(self) -> dict[str, Any]:
         return {"schemaVersion": self.schema_version, "executionOptions": self.execution_options or {}}
