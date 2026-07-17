@@ -158,8 +158,6 @@ class PolicyEngine:
             if rule["id"] in identifiers:
                 raise PolicyError(f"policy rule identifiers must be unique: {rule['id']}")
             identifiers.add(rule["id"])
-            if declarative_required and rule["type"] != "threshold":
-                raise PolicyError(f"declarative policy {rule['id']} has unsupported type: {rule['type']}")
             if rule["type"] == "threshold" and (declarative_required or any(key in rule for key in ("capability", "metric", "operator", "threshold", "severity", "rationale"))):
                 PolicyEngine._validate_declarative_threshold(rule, threshold_targets)
 

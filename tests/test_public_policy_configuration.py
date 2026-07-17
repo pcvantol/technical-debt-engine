@@ -94,7 +94,9 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
         self.assertEqual(0, completed.returncode, completed.stderr)
         evidence = json.loads(completed.stdout)["evidence"]
         assessment = evidence["assessment"]
-        self.assertEqual("default", assessment["profile"])
+        self.assertEqual("standard", assessment["profile"])
+        self.assertEqual("1.0.0", assessment["profileVersion"])
+        self.assertTrue(assessment["profileHash"].startswith("sha256:"))
         self.assertEqual(["code_size", "complexity"], assessment["executionPlan"]["plannedCapabilities"])
         self.assertEqual({"code_size", "complexity"}, {item["capability"] for item in assessment["capabilityExecutions"]})
         self.assertTrue(assessment["startedAt"])
@@ -108,6 +110,42 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                     for item in failed_evidence["assessment"]["capabilityExecutions"]}
         self.assertEqual("ANALYZER_NOT_FOUND", statuses["code_size"])
         self.assertEqual("VALID", statuses["complexity"])
+
+    def test_public_cli_selects_and_validates_declarative_profiles(self) -> None:
+        minimal = subprocess.run([str(self.tde), "--format", "json", "--profile", "minimal", "assess", str(self.repository)],
+                                 capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(0, minimal.returncode, minimal.stderr)
+        evidence = json.loads(minimal.stdout)["evidence"]
+        self.assertEqual("minimal", evidence["assessment"]["profile"])
+        self.assertEqual(["code_size"], evidence["assessment"]["executionPlan"]["plannedCapabilities"])
+        invalid = self.root / "invalid-profile.json"
+        invalid.write_text(json.dumps({"identifier": "invalid"}), encoding="utf-8")
+        failed = subprocess.run([str(self.tde), "--format", "json", "--profile", str(invalid), "assess", str(self.repository)],
+                                capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(3, failed.returncode)
+        self.assertIn("missing required fields", json.loads(failed.stdout)["reason"])
+        (self.root / "profile-policy.json").write_text("{}", encoding="utf-8")
+        profile = {
+            "identifier": "invalid", "version": "1.0.0", "description": "invalid",
+            "capabilities": [{"identifier": "unknown", "required": True, "optional": False}],
+            "policy": {"file": "profile-policy.json"}, "metadata": {"default": False},
+        }
+        invalid.write_text(json.dumps(profile), encoding="utf-8")
+        failed = subprocess.run([str(self.tde), "--format", "json", "--profile", str(invalid), "assess", str(self.repository)],
+                                capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(3, failed.returncode)
+        self.assertIn("unknown capability", json.loads(failed.stdout)["reason"])
+        profile["capabilities"] = [{"identifier": "code_size", "required": True, "optional": False},
+                                   {"identifier": "code_size", "required": True, "optional": False}]
+        invalid.write_text(json.dumps(profile), encoding="utf-8")
+        failed = subprocess.run([str(self.tde), "--format", "json", "--profile", str(invalid), "assess", str(self.repository)],
+                                capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(3, failed.returncode)
+        self.assertIn("duplicate capability", json.loads(failed.stdout)["reason"])
+        failed = subprocess.run([str(self.tde), "--format", "json", "--profile", "does-not-exist", "assess", str(self.repository)],
+                                capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(3, failed.returncode)
+        self.assertIn("not registered", json.loads(failed.stdout)["reason"])
 
 
 if __name__ == "__main__":

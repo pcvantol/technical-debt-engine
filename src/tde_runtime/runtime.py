@@ -197,9 +197,12 @@ class Runtime:
                                           "executionStatus": result.get("status"),
                                           "qualification": "QUALIFIED" if result.get("status") == "VALID" else "BLOCKED",
                                           "durationMs": result.get("executionTiming", {}).get("durationMs", 0)})
+        profile = context.execution_options.get("assessment", {})
         assessment = {"assessmentId": decision_evidence["assessmentId"], "runtimeVersion": context.runtime_version,
                       "repository": context.repository_id,
-                      "profile": context.execution_options.get("assessment", {}).get("profile", "explicit"),
+                      "profile": profile.get("profile", "explicit"),
+                      "profileVersion": profile.get("profileIdentity", {}).get("version"),
+                      "profileHash": profile.get("profileIdentity", {}).get("hash"),
                       "startedAt": assessment_started_at, "completedAt": generated_at,
                       "executionStatus": execution.get("state", "BLOCKED"),
                       "executionPlan": {key: execution.get(key, []) for key in ("plannedCapabilities", "plannedAdapters", "analyzerBindings")},
