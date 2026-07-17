@@ -59,7 +59,7 @@ jobs:
           if [ "$DELIVERY" = wheel ]; then
             mkdir "$RUNNER_TEMP/wheel"
             "$PIP" download --no-deps --dest "$RUNNER_TEMP/wheel" "technical-debt-engine-runtime==$VERSION"
-            "$PIP" install --no-deps "$RUNNER_TEMP"/wheel/*.whl
+            "$PIP" install "$RUNNER_TEMP"/wheel/*.whl
           else
             "$PIP" install "technical-debt-engine-runtime==$VERSION"
           fi
