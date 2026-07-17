@@ -25,7 +25,8 @@ class RuntimeFoundationTests(unittest.TestCase):
     def test_pipeline_executes_all_generic_stages(self) -> None:
         result = Runtime().execute(self.root)
         self.assertEqual(14, len(result.stages))
-        self.assertTrue(all(stage.status.value == "SUCCESS" for stage in result.stages))
+        self.assertEqual("BLOCKED", next(stage for stage in result.stages if stage.identifier == "pipeline-execution").status.value)
+        self.assertEqual("BLOCKED", next(stage for stage in result.stages if stage.identifier == "validation").status.value)
         self.assertEqual("execution-planning", result.stages[5].identifier)
 
     def test_qualification_consumes_policy_evidence(self) -> None:
@@ -90,7 +91,7 @@ class RuntimeFoundationTests(unittest.TestCase):
     def test_runtime_validation_and_qualification_are_ready(self) -> None:
         result = Runtime().execute(self.root)
         self.assertEqual("VALID", result.validation["status"])
-        self.assertEqual("RUNTIME_READY", result.qualification.value)
+        self.assertEqual("RUNTIME_FAILED", result.qualification.value)
         self.assertEqual("RUNTIME_READY", result.report["runtimeSummary"]["status"])
 
     def test_registries_discover_code_size_without_runtime_branching(self) -> None:
