@@ -165,10 +165,7 @@ def _runtime_result(command: str, target: str, configuration: RuntimeConfigurati
         # a policy threshold must not masquerade as an analyzer failure.
         if result.evidence["runtimeQualification"]["level"] != "QUALIFIED":
             return ExitCode.EXECUTION_ERROR, payload
-        capability_ids = {item.get("capabilityId") for item in result.evidence.get("capabilityResults", [])}
-        if capability_ids == {"code_size"}:
-            return ExitCode.SUCCESS, payload
-        return _policy_exit_code(result.evidence["policyEvidence"]["decision"]), payload
+        return _policy_exit_code(result.evidence["assessmentDecision"]["decision"]), payload
     return ExitCode.SUCCESS, payload
 
 

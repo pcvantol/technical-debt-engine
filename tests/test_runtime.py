@@ -35,6 +35,8 @@ class RuntimeFoundationTests(unittest.TestCase):
         qualification_stage = next(stage for stage in result.stages if stage.identifier == "qualification")
         self.assertEqual(policy_stage.outputs["decision"], qualification_stage.outputs["policyDecision"])
         self.assertEqual(policy_stage.outputs, result.evidence["policyEvidence"])
+        self.assertEqual(policy_stage.outputs["decision"], result.evidence["assessmentDecision"]["decision"])
+        self.assertTrue(result.evidence["assessmentDecision"]["assessmentId"].startswith("assessment."))
 
     def test_policy_override_can_block_a_measurement(self) -> None:
         (self.root / "requirements.txt").write_text("example==1.0\n", encoding="utf-8")
