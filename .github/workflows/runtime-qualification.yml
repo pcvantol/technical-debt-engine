@@ -19,14 +19,14 @@ permissions:
 
 jobs:
   public-wheel-and-pypi:
-    name: \${{ matrix.os }} / \${{ matrix.delivery }} / \${{ matrix.profile }}
+    name: ${{ matrix.os }} / ${{ matrix.delivery }} / ${{ matrix.profile }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         delivery: [wheel, pypi]
         profile: [minimal, standard]
-    runs-on: \${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
@@ -50,8 +50,8 @@ jobs:
       - name: Install only the published runtime
         shell: bash
         env:
-          DELIVERY: \${{ matrix.delivery }}
-          VERSION: \${{ inputs.runtime_version }}
+          DELIVERY: ${{ matrix.delivery }}
+          VERSION: ${{ inputs.runtime_version }}
         run: |
           python -m venv "$RUNNER_TEMP/runtime"
           PIP="$RUNNER_TEMP/runtime/bin/pip"
@@ -65,11 +65,11 @@ jobs:
           fi
       - name: Clone DJConnect read-only
         shell: bash
-        run: git clone --depth 1 --branch "\${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
+        run: git clone --depth 1 --branch "${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
       - name: Assess both reference repositories through the public CLI
         shell: bash
         env:
-          PROFILE: \${{ matrix.profile }}
+          PROFILE: ${{ matrix.profile }}
         run: |
           TDE="$RUNNER_TEMP/runtime/bin/tde"
           if [ "$RUNNER_OS" = 'Windows' ]; then TDE="$RUNNER_TEMP/runtime/Scripts/tde.exe"; fi
@@ -92,8 +92,8 @@ jobs:
           done
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: runtime-public-\${{ matrix.os }}-\${{ matrix.delivery }}-\${{ matrix.profile }}
-          path: \${{ runner.temp }}/*.json
+          name: runtime-public-${{ matrix.os }}-${{ matrix.delivery }}-${{ matrix.profile }}
+          path: ${{ runner.temp }}/*.json
           retention-days: 90
           if-no-files-found: error
 
@@ -107,11 +107,11 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Clone DJConnect read-only
-        run: git clone --depth 1 --branch "\${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
+        run: git clone --depth 1 --branch "${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
       - name: Assess both reference repositories through the published Docker image
         env:
-          IMAGE: docker.io/pcvantol/technical-debt-engine:\${{ inputs.runtime_version }}
-          PROFILE: \${{ matrix.profile }}
+          IMAGE: docker.io/pcvantol/technical-debt-engine:${{ inputs.runtime_version }}
+          PROFILE: ${{ matrix.profile }}
         run: |
           docker pull "$IMAGE"
           for repository in "$GITHUB_WORKSPACE" "$RUNNER_TEMP/djconnect"; do
@@ -131,7 +131,7 @@ jobs:
           done
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: runtime-public-docker-\${{ matrix.profile }}
-          path: \${{ runner.temp }}/docker-*.json
+          name: runtime-public-docker-${{ matrix.profile }}
+          path: ${{ runner.temp }}/docker-*.json
           retention-days: 90
           if-no-files-found: error
