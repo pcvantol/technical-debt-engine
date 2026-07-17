@@ -86,7 +86,7 @@ def main() -> int:
 from subprocess import TimeoutExpired
 from unittest.mock import patch
 from tde_runtime.code_size import analyze
-with patch('tde_runtime.code_size.shutil.which', return_value='cloc'), patch('tde_runtime.code_size.subprocess.run', side_effect=TimeoutExpired(['cloc'], 1)):
+with patch('tde_runtime.code_size.discover', return_value={'status': 'VALID', 'executable': 'cloc', 'version': '2.10'}), patch('tde_runtime.code_size.subprocess.run', side_effect=TimeoutExpired(['cloc'], 1)):
     result = analyze(Path('.'), timeout=1)
 assert result['status'] == 'FAILED_CLOSED'
 assert result['limitations'][0]['id'] == 'analyzer.cloc.failed'
