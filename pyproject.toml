@@ -7,6 +7,7 @@ name = "technical-debt-engine-runtime"
 version = "0.1.0"
 description = "Technical Debt Engine runtime foundation API"
 requires-python = ">=3.11"
+dependencies = ["radon==6.0.1"]
 
 [project.scripts]
 tde = "tde_cli.main:console_main"

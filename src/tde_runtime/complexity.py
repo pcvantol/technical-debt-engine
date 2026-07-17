@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import fnmatch
 import json
-import re
-import shutil
 import subprocess
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, Mapping
+from .analyzer_discovery import discover
 
 CAPABILITY_ID = "complexity"
 CAPABILITY_VERSION = "0.1.0"
@@ -59,15 +58,11 @@ def _thresholds(configuration: Mapping[str, Any]) -> dict[str, int]:
 def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Execute Radon deterministically and retain native output for evidence."""
     configuration = configuration or {}
-    executable = shutil.which("radon")
-    if not executable:
-        return {"status":"BLOCKED", "limitations":[{"id":"analyzer.radon.unavailable","description":"radon is not on PATH; install Radon 6.0+.","cause":"analyzer unavailable"}]}
+    discovery = discover("radon", MINIMUM_ANALYZER_VERSION, timeout)
+    if discovery["status"] != "VALID":
+        return {"status": discovery["status"], "limitations": [discovery["limitation"]]}
     try:
-        version = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()
-        match = re.search(r"(\d+)\.(\d+)", version)
-        if not match or tuple(map(int, match.groups())) < MINIMUM_ANALYZER_VERSION:
-            return {"status":"BLOCKED", "limitations":[{"id":"analyzer.radon.unsupported_version","description":f"Radon 6.0+ is required; found {version or 'unknown'}.","cause":"unsupported analyzer version"}]}
-        completed = subprocess.run([executable, "cc", "--json", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
+        completed = subprocess.run([discovery["executable"], "cc", "--json", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
         raw, data = _portable_native_output(root, json.loads(completed.stdout))
     except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError, json.JSONDecodeError) as error:
         return {"status":"BLOCKED", "limitations":[{"id":"analyzer.radon.failed","description":str(error),"cause":"analyzer execution failed"}]}
@@ -89,4 +84,4 @@ def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | No
     limitations=[]
     if skipped: limitations.append({"id":"complexity.configuration.ignored","description":f"{skipped} symbol(s) were excluded by Complexity configuration.","cause":"configured exclusion"})
     if not symbols: limitations.append({"id":"complexity.python.no_symbols","description":"Radon found no supported Python symbols after exclusions.","cause":"analyzer capability limitation"})
-    return {"status":"VALID","adapter":{"id":ADAPTER_ID,"version":ADAPTER_VERSION},"analyzer":{"id":"radon","version":version},"rawOutput":raw,"rawOutputHash":"sha256:"+sha256(raw.encode()).hexdigest(),"symbols":symbols,"thresholds":thresholds,"limitations":limitations}
+    return {"status":"VALID","adapter":{"id":ADAPTER_ID,"version":ADAPTER_VERSION},"analyzer":{"id":"radon","version":discovery["version"]},"rawOutput":raw,"rawOutputHash":"sha256:"+sha256(raw.encode()).hexdigest(),"symbols":symbols,"thresholds":thresholds,"limitations":limitations}
