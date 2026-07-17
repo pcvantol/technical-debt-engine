@@ -81,7 +81,7 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                                 text=True, check=False, env=self.environment)
         self.assertEqual(0, listed.returncode, listed.stderr)
         schemas = json.loads(listed.stdout)["schemas"]
-        self.assertEqual(4, len(schemas))
+        self.assertEqual(5, len(schemas))
         self.assertTrue(all(item["compatibilityVersion"] == "1" and Path(item["location"]).is_file() for item in schemas))
         location = self.root / "evidence"
         completed = subprocess.run([str(self.tde), "--format", "json", "--store-location", str(location),
@@ -102,6 +102,41 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                                   capture_output=True, text=True, check=False, env=self.environment)
         self.assertEqual(3, rejected.returncode)
         self.assertIn("incompatible schema version", json.loads(rejected.stdout)["reason"])
+
+    def test_installed_wheel_qualifies_declarative_repositories_with_profiles(self) -> None:
+        definition = self.root / "repository.json"
+        definition.write_text(json.dumps({
+            "identifier": "fixture.python", "name": "Fixture Python", "repositoryRoot": str(self.repository),
+            "repositoryType": "source", "primaryLanguage": "Python", "defaultAssessmentProfile": "minimal",
+            "metadata": {"fixture": True},
+        }), encoding="utf-8")
+        minimal = subprocess.run([str(self.tde), "--format", "json", "--repository-definition", str(definition),
+                                  "qualify"], capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(0, minimal.returncode, minimal.stderr)
+        result = json.loads(minimal.stdout)
+        qualification = result["repositoryQualification"]
+        self.assertEqual("fixture.python", qualification["repository"]["identifier"])
+        self.assertEqual("minimal", qualification["assessmentProfile"]["identifier"])
+        self.assertEqual("QUALIFIED", qualification["qualificationStatus"])
+        self.assertEqual("tde.repository-qualification-evidence", qualification["schema"]["name"])
+        self.assertTrue(Path(result["qualificationRegistry"]["path"]).is_file())
+        standard = subprocess.run([str(self.tde), "--format", "json", "--repository-definition", str(definition),
+                                   "--profile", "standard", "qualify"], capture_output=True, text=True,
+                                  check=False, env=self.environment)
+        self.assertEqual(0, standard.returncode, standard.stderr)
+        self.assertEqual("standard", json.loads(standard.stdout)["repositoryQualification"]["assessmentProfile"]["identifier"])
+        unsupported = self.root / "unsupported"
+        unsupported.mkdir()
+        (unsupported / "README.txt").write_text("no supported source", encoding="utf-8")
+        definition_data = json.loads(definition.read_text(encoding="utf-8"))
+        definition_data.update({"identifier": "fixture.unsupported", "repositoryRoot": str(unsupported)})
+        definition.write_text(json.dumps(definition_data), encoding="utf-8")
+        qualified = subprocess.run([str(self.tde), "--format", "json", "--repository-definition", str(definition),
+                                    "qualify"], capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(0, qualified.returncode, qualified.stderr)
+        unsupported_evidence = json.loads(qualified.stdout)["assessmentEvidence"]
+        self.assertEqual("QUALIFIED", json.loads(qualified.stdout)["repositoryQualification"]["qualificationStatus"])
+        self.assertEqual(["code_size"], unsupported_evidence["assessment"]["executionPlan"]["plannedCapabilities"])
 
     def test_public_cli_fails_closed_for_invalid_or_missing_policy_file(self) -> None:
         invalid = self.root / "invalid-policy.json"

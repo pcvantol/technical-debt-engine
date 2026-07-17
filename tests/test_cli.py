@@ -50,7 +50,7 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "schema")
         self.assertEqual(ExitCode.SUCCESS, code)
         schemas = json.loads(output)["schemas"]
-        self.assertEqual({"tde.capability-evidence", "tde.policy-evidence", "tde.assessment-decision-evidence", "tde.assessment-evidence"},
+        self.assertEqual({"tde.capability-evidence", "tde.policy-evidence", "tde.assessment-decision-evidence", "tde.assessment-evidence", "tde.repository-qualification-evidence"},
                          {item["name"] for item in schemas})
         self.assertTrue(all(item["version"] == "1.0.0" and Path(item["location"]).is_file() for item in schemas))
 
@@ -174,7 +174,10 @@ class CliFoundationTests(unittest.TestCase):
 
     def test_qualify_command_is_operational(self) -> None:
         code, output = self.invoke("--format", "json", "qualify", str(self.root))
-        self.assertEqual(ExitCode.BLOCKED, code); self.assertEqual("BLOCKED", json.loads(output)["runtimeQualification"]["level"])
+        self.assertEqual(ExitCode.SUCCESS, code)
+        qualification = json.loads(output)["repositoryQualification"]
+        self.assertEqual("QUALIFIED", qualification["qualificationStatus"])
+        self.assertEqual("standard", qualification["assessmentProfile"]["identifier"])
 
     def test_assure_command_is_operational(self) -> None:
         code, output = self.invoke("--format", "json", "assure", ".")

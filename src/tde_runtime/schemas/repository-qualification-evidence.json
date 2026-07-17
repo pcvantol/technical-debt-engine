@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technical-debt-engine.dev/schemas/repository-qualification-evidence/1.0.0",
+  "title": "TDE Repository Qualification Evidence",
+  "type": "object",
+  "required": ["schema", "qualificationId", "repository", "assessmentProfile", "runtimeVersion", "schemaVersion", "assessmentDecision", "qualificationStatus", "executionDurationMs", "timestamp"],
+  "properties": {"schema": {"$ref": "common.schema.json"}, "qualificationId": {"type": "string"}, "repository": {"type": "object"}, "assessmentProfile": {"type": "object"}, "runtimeVersion": {"type": "string"}, "schemaVersion": {"type": "string"}, "assessmentDecision": {"type": "string"}, "qualificationStatus": {"type": "string"}, "executionDurationMs": {"type": "number"}, "timestamp": {"type": "string"}}
+}

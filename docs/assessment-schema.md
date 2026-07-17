@@ -2,7 +2,7 @@
 
 Assessment evidence is a public Runtime contract. The Runtime publishes JSON Schema
 documents for `capability-evidence`, `policy-evidence`, `assessment-decision-evidence`,
-and `assessment-evidence` in `tde_runtime/schemas`.
+`assessment-evidence`, and `repository-qualification-evidence` in `tde_runtime/schemas`.
 
 Every evidence envelope includes `schema.name`, `schema.version`,
 `schema.compatibilityVersion`, `schema.runtimeVersion`, and
