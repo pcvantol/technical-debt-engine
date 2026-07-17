@@ -10,6 +10,7 @@ import sys
 from typing import Any, Sequence, TextIO
 
 from tde_runtime import Runtime, RuntimeConfiguration
+from tde_runtime.assessment import AssessmentError, AssessmentOrchestrator
 from tde_runtime.baseline import BaselineError, BaselineRepository, ComparisonEngine, ComparisonRepository
 from tde_runtime.policy import PolicyEngine, PolicyError
 from tde_runtime.trend import TrendEngine
@@ -76,6 +77,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
     parser.add_argument("--policy", metavar="FILE", help="Declarative policy configuration file.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
+    parser.add_argument("--profile", default="default", help="Registered assessment profile for tde assess.")
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
     parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
     parser.add_argument("--store-location", help="Directory used for canonical evidence storage.")
@@ -261,6 +263,15 @@ def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentPar
         # decisions remain Runtime responsibilities.
         for capability in arguments.capability:
             configuration = configuration.with_capability(capability.replace("-", "_"))
+    if arguments.command == "assess":
+        try:
+            configuration = AssessmentOrchestrator().configure(
+                configuration, profile=arguments.profile,
+                capabilities=tuple(item.replace("-", "_") for item in arguments.capability),
+            )
+        except AssessmentError as error:
+            _render({"command": "assess", "status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
+            return ExitCode.BLOCKED
     if arguments.command == "release-qualify":
         supported = {"code-size": "code_size", "complexity": "complexity"}
         if not arguments.release_capability or any(item not in supported for item in arguments.release_capability):
@@ -312,7 +323,7 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
         return ExitCode.SUCCESS if evidence["decision"] == "RELEASE_CERTIFIED" else ExitCode.BLOCKED
     if arguments.command in {"validate", "inspect", "assess", "run"}:
         if arguments.command in {"assess", "run"}:
-            if not arguments.capability:
+            if arguments.command == "run" and not arguments.capability:
                 _render({"command": "assess", "status": "NOT_SUPPORTED", "reason": "assess requires an explicit capability."}, arguments.format, stream)
                 return ExitCode.NOT_SUPPORTED
         try:

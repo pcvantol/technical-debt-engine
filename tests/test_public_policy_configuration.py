@@ -33,6 +33,8 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
         wheel = next(wheels.glob("technical_debt_engine_runtime-*.whl"))
         subprocess.run([str(self.pip), "install", "--no-deps", str(wheel)], check=True,
                        capture_output=True, text=True, env=self.environment)
+        subprocess.run([str(self.pip), "install", "radon==6.0.1"], check=True,
+                       capture_output=True, text=True, env=self.environment)
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -85,6 +87,27 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
         code, response = self.invoke(self.root / "missing-policy.json")
         self.assertEqual(3, code)
         self.assertIn("does not exist", response["reason"])
+
+    def test_public_cli_runs_default_multi_capability_assessment_and_collects_failure(self) -> None:
+        completed = subprocess.run([str(self.tde), "--format", "json", "assess", str(self.repository)],
+                                   capture_output=True, text=True, check=False, env=self.environment)
+        self.assertEqual(0, completed.returncode, completed.stderr)
+        evidence = json.loads(completed.stdout)["evidence"]
+        assessment = evidence["assessment"]
+        self.assertEqual("default", assessment["profile"])
+        self.assertEqual(["code_size", "complexity"], assessment["executionPlan"]["plannedCapabilities"])
+        self.assertEqual({"code_size", "complexity"}, {item["capability"] for item in assessment["capabilityExecutions"]})
+        self.assertTrue(assessment["startedAt"])
+        self.assertTrue(assessment["completedAt"])
+        isolated = {**self.environment, "PATH": str(self.tde.parent)}
+        failed = subprocess.run([str(self.tde), "--format", "json", "assess", str(self.repository)],
+                                capture_output=True, text=True, check=False, env=isolated)
+        self.assertEqual(5, failed.returncode, failed.stderr)
+        failed_evidence = json.loads(failed.stdout)["evidence"]
+        statuses = {item["capability"]: item["executionStatus"]
+                    for item in failed_evidence["assessment"]["capabilityExecutions"]}
+        self.assertEqual("ANALYZER_NOT_FOUND", statuses["code_size"])
+        self.assertEqual("VALID", statuses["complexity"])
 
 
 if __name__ == "__main__":
