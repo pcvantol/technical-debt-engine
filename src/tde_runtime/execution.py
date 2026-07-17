@@ -8,6 +8,7 @@ from hashlib import sha256
 
 from .code_size import ADAPTER_ID, CAPABILITY_ID, CAPABILITY_VERSION, analyze
 from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
+from .coverage import ADAPTER_ID as COVERAGE_ADAPTER_ID, CAPABILITY_ID as COVERAGE_CAPABILITY_ID, CAPABILITY_VERSION as COVERAGE_CAPABILITY_VERSION, analyze as analyze_coverage
 from .dependency_health import CAPABILITY_ID as DEPENDENCY_CAPABILITY_ID, CAPABILITY_VERSION as DEPENDENCY_CAPABILITY_VERSION, discover as discover_dependencies
 from .maintainability import CAPABILITY_ID as MAINTAINABILITY_CAPABILITY_ID, CAPABILITY_VERSION as MAINTAINABILITY_CAPABILITY_VERSION, derive as derive_maintainability
 from .registries import AdapterRegistry, CapabilityRegistry
@@ -112,6 +113,13 @@ class CapabilityExecutionEngine:
             if result["status"] != "VALID":
                 return self._blocked(COMPLEXITY_CAPABILITY_ID, COMPLEXITY_CAPABILITY_VERSION, [COMPLEXITY_ADAPTER_ID], result["limitations"], duration)
             return self._complexity_result(context, result, duration)
+        if identifier == COVERAGE_CAPABILITY_ID and selected_adapter == COVERAGE_ADAPTER_ID:
+            settings = context.execution_options.get("capabilities", {}).get(COVERAGE_CAPABILITY_ID, {})
+            result = analyze_coverage(context.repository_root, settings)
+            duration = int((perf_counter() - started) * 1000)
+            if result["status"] != "VALID":
+                return self._blocked(COVERAGE_CAPABILITY_ID, COVERAGE_CAPABILITY_VERSION, [COVERAGE_ADAPTER_ID], result["limitations"], duration, result["status"])
+            return self._coverage_result(context, result, duration)
         if identifier == DEPENDENCY_CAPABILITY_ID:
             result = discover_dependencies(context.repository_root)
             duration = int((perf_counter() - started) * 1000)
@@ -231,3 +239,25 @@ class CapabilityExecutionEngine:
         adapter = {"adapter":result["adapter"],"analyzer":result["analyzer"],"execution":"SUCCESS","rawOutputHash":result["rawOutputHash"],"rawOutput":result["rawOutput"],"measuredScope":["repository","language","file","symbol"],"completeness":1,"draftMeasurements":measurements,"draftFindings":findings,"warnings":[],"errors":[],"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
         capability = {"capabilityId":COMPLEXITY_CAPABILITY_ID,"capabilityVersion":COMPLEXITY_CAPABILITY_VERSION,"status":"VALID","adapterIds":[COMPLEXITY_ADAPTER_ID],"completeness":1,"qualificationApplicable":True,"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
         return {"measurements":measurements,"findings":findings,"adapterResults":[adapter],"capabilityResults":[capability]}
+
+    @staticmethod
+    def _coverage_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:
+        measurements = []
+        for kind, label, coverage_key in (("line", "lines", "line_coverage"), ("branch", "branches", "branch_coverage")):
+            values = result.get("metrics", {}).get(kind, {"covered": None, "total": None, "percent": None})
+            for field, suffix, unit, aggregation in (("percent", coverage_key, "percent", "ratio"), ("covered", f"covered_{label}", label, "sum"), ("total", f"total_{label}", label, "sum")):
+                measurements.append({"measurementId": f"coverage.repository.{suffix}", "capabilityId": COVERAGE_CAPABILITY_ID,
+                                     "metricKey": f"coverage.{suffix}", "value": values[field], "availability": "AVAILABLE" if values[field] is not None else "UNAVAILABLE",
+                                     "unit": unit, "scope": "repository", "targetEntityId": context.repository_id, "aggregation": aggregation,
+                                     "sourceAdapterId": COVERAGE_ADAPTER_ID, "sourceToolId": result.get("parser", "coverage-artifact")})
+        adapter = {"adapter": {"id": COVERAGE_ADAPTER_ID, "version": "0.1.0"},
+                   "analyzer": {"id": result.get("parser", "coverage-artifact"), "version": result.get("parserVersion", "1.0.0")},
+                   "execution": "SUCCESS", "rawOutputHash": result.get("rawOutputHash"), "rawOutput": result.get("rawOutput"),
+                   "measuredScope": ["repository"], "completeness": 1,
+                   "draftMeasurements": measurements, "draftFindings": [], "warnings": [], "errors": [], "limitations": result["limitations"],
+                   "evidence": {"parser": result.get("parser"), "parserVersion": result.get("parserVersion"), "sourceFormat": result.get("sourceFormat"), "artifact": result.get("artifact"), "metrics": result.get("metrics")},
+                   "executionTiming": {"durationMs": duration}}
+        capability = {"capabilityId": COVERAGE_CAPABILITY_ID, "capabilityVersion": COVERAGE_CAPABILITY_VERSION, "status": "VALID",
+                      "adapterIds": [COVERAGE_ADAPTER_ID], "completeness": 1,
+                      "qualificationApplicable": bool(result["available"]), "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
+        return {"measurements": measurements, "findings": [], "adapterResults": [adapter], "capabilityResults": [capability]}
