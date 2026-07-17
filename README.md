@@ -25,6 +25,7 @@ Operational repository assurance is available through `tde assure`; see [SOFTWAR
 - [Engineering method](ENGINEERING_METHOD.md) and [session bootstrap](BOOTSTRAP.md)
 - [Capability model](CAPABILITY_MODEL.md)
 - [CLI specification](CLI_SPECIFICATION.md)
+- [Code Size Runtime contract](CODE_SIZE_RUNTIME.md)
 - [Evidence schema](EVIDENCE_SCHEMA.md)
 - [Qualification model](QUALIFICATION_MODEL.md)
 - [Roadmap](PRODUCT_ROADMAP.md) and [backlog](PRODUCT_BACKLOG.md)
