@@ -16,7 +16,7 @@ from .registries import AdapterRegistry, CapabilityRegistry
 class CapabilityExecutionEngine:
     """Plans and records capability work; Runtime only consumes its canonical output."""
 
-    states = ("PLANNED", "READY", "RUNNING", "COMPLETED", "FAILED", "BLOCKED", "SKIPPED", "NOT_SUPPORTED")
+    states = ("PLANNED", "READY", "RUNNING", "COMPLETED", "FAILED_CLOSED", "BLOCKED", "SKIPPED", "NOT_SUPPORTED", "ANALYZER_NOT_FOUND")
 
     def __init__(self, capability_registry: CapabilityRegistry | None = None,
                  adapter_registry: AdapterRegistry | None = None) -> None:
@@ -70,9 +70,20 @@ class CapabilityExecutionEngine:
             evidence["workItems"].append({"capabilityId": identifier, "adapterId": adapter_ids[0] if adapter_ids else None,
                                             "state": state, "durationMs": result["executionTiming"]["durationMs"]})
 
+        for identifier in plan["unsupportedCapabilities"]:
+            limitation = {"id": "capability.unsupported", "description": f"capability '{identifier}' is not registered", "cause": "capability unavailable"}
+            capability_results.append({"capabilityId": identifier, "capabilityVersion": None,
+                                       "status": "NOT_SUPPORTED", "adapterIds": [], "completeness": 0,
+                                       "qualificationApplicable": False, "limitations": [limitation],
+                                       "executionTiming": {"durationMs": 0}})
+            evidence["blockedCapabilities"].append(identifier)
+            evidence["limitations"].append(limitation)
+            evidence["workItems"].append({"capabilityId": identifier, "adapterId": None,
+                                            "state": "NOT_SUPPORTED", "durationMs": 0})
+
         evidence["unsupportedCapabilities"].extend(plan["unsupportedCapabilities"])
         evidence["durationMs"] = int((perf_counter() - started) * 1000)
-        evidence["state"] = "COMPLETED" if evidence["executedCapabilities"] else "BLOCKED"
+        evidence["state"] = "COMPLETED" if evidence["executedCapabilities"] else ("NOT_SUPPORTED" if plan["unsupportedCapabilities"] else "BLOCKED")
         return {
             "executedWorkItems": len(evidence["workItems"]),
             "measurements": measurements,
@@ -84,11 +95,14 @@ class CapabilityExecutionEngine:
 
     def _dispatch(self, identifier: str, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
         started = perf_counter()
-        timeout = int(context.execution_options.get("timeout", 60))
+        # Repository-wide cloc scans can legitimately exceed one minute on a
+        # public consumer checkout.  A bounded five-minute default remains
+        # fail-closed while avoiding a size-dependent false failure.
+        timeout = int(context.execution_options.get("timeout", 300))
         if identifier == CAPABILITY_ID:
             result = analyze(context.repository_root, timeout)
             duration = int((perf_counter() - started) * 1000)
-            return self._code_size_result(context, result, duration) if result["status"] == "VALID" else self._blocked(CAPABILITY_ID, CAPABILITY_VERSION, [ADAPTER_ID], result["limitations"], duration)
+            return self._code_size_result(context, result, duration) if result["status"] == "VALID" else self._blocked(CAPABILITY_ID, CAPABILITY_VERSION, [ADAPTER_ID], result["limitations"], duration, result["status"])
         if identifier == COMPLEXITY_CAPABILITY_ID:
             settings = context.execution_options.get("capabilities", {}).get(COMPLEXITY_CAPABILITY_ID, {})
             result = analyze_complexity(context.repository_root, timeout, settings)
@@ -115,9 +129,10 @@ class CapabilityExecutionEngine:
         return {"measurements": result["measurements"], "findings": result["findings"], "capabilityResults": [capability]}
 
     @staticmethod
-    def _blocked(identifier: str, version: str, adapter_ids: list[str], limitations: list[dict[str, Any]], duration: int) -> dict[str, Any]:
+    def _blocked(identifier: str, version: str, adapter_ids: list[str], limitations: list[dict[str, Any]], duration: int,
+                 status: str = "FAILED_CLOSED") -> dict[str, Any]:
         return {"measurements": [], "findings": [], "capabilityResults": [{"capabilityId": identifier, "capabilityVersion": version,
-                "status": "BLOCKED", "adapterIds": adapter_ids, "completeness": 0, "qualificationApplicable": False,
+                "status": status, "adapterIds": adapter_ids, "completeness": 0, "qualificationApplicable": False,
                 "limitations": limitations, "executionTiming": {"durationMs": duration}}]}
 
     @staticmethod

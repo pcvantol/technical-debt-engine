@@ -24,17 +24,17 @@ def classify(path: str) -> str:
 def analyze(root: Path, timeout: int = 60) -> dict[str, Any]:
     executable = shutil.which("cloc")
     if not executable:
-        return {"status":"BLOCKED", "limitations":[{"id":"analyzer.cloc.unavailable","description":"cloc is not on PATH; install cloc 2.10+.","cause":"analyzer unavailable"}]}
+        return {"status":"ANALYZER_NOT_FOUND", "limitations":[{"id":"analyzer.cloc.unavailable","description":"cloc is not on PATH; install cloc 2.10+.","cause":"analyzer unavailable"}]}
     try:
         version = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()
         match = re.search(r"(\d+)\.(\d+)", version)
         if not match or tuple(map(int, match.groups())) < MINIMUM_ANALYZER_VERSION:
-            return {"status":"BLOCKED", "limitations":[{"id":"analyzer.cloc.unsupported_version","description":f"cloc {MINIMUM_ANALYZER_VERSION[0]}.{MINIMUM_ANALYZER_VERSION[1]}+ is required; found {version or 'unknown'}.","cause":"unsupported analyzer version"}]}
+            return {"status":"ANALYZER_NOT_FOUND", "limitations":[{"id":"analyzer.cloc.unsupported_version","description":f"cloc {MINIMUM_ANALYZER_VERSION[0]}.{MINIMUM_ANALYZER_VERSION[1]}+ is required; found {version or 'unknown'}.","cause":"unsupported analyzer version"}]}
         result = subprocess.run([executable, "--json", "--by-file", "--quiet", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
         raw = result.stdout
         data = json.loads(raw)
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError, json.JSONDecodeError) as error:
-        return {"status":"BLOCKED", "limitations":[{"id":"analyzer.cloc.failed","description":str(error),"cause":"analyzer execution failed"}]}
+        return {"status":"FAILED_CLOSED", "limitations":[{"id":"analyzer.cloc.failed","description":str(error),"cause":"analyzer execution failed"}]}
     files, languages = [], defaultdict(lambda: {"files":0,"code":0,"comment":0,"blank":0})
     totals = defaultdict(int)
     entries = ((name, item) for name, item in data.items() if name not in {"header", "SUM"})
