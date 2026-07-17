@@ -1,10 +1,11 @@
 {
   "identifier": "standard",
-  "version": "1.0.0",
-  "description": "Standard public assessment for code size and complexity.",
+  "version": "1.1.0",
+  "description": "Standard public assessment for code size, complexity, and available test coverage.",
   "capabilities": [
     {"identifier": "code_size", "required": true, "optional": false},
-    {"identifier": "complexity", "required": true, "optional": false}
+    {"identifier": "complexity", "required": true, "optional": false},
+    {"identifier": "coverage", "required": false, "optional": true}
   ],
   "policy": {"file": "../policies/generation-1.json"},
   "metadata": {"default": true}

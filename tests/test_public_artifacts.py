@@ -27,6 +27,13 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
         (target / "sample.py").write_text("# a public CLI fixture\nvalue = 1\n", encoding="utf-8")
         return target
 
+    def _coverage_repository(self, directory: Path) -> Path:
+        target = directory / "coverage-repository"
+        target.mkdir()
+        (target / "sample.py").write_text("value = 1\n", encoding="utf-8")
+        (target / "coverage.xml").write_text('<coverage line-rate="0.5"><packages><package><classes><class><lines><line number="1" hits="1"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>', encoding="utf-8")
+        return target
+
     def _wheel(self, directory: Path) -> Path:
         wheel_directory = directory / "wheel"
         subprocess.run([sys.executable, "-m", "pip", "wheel", "--no-deps", "--wheel-dir", str(wheel_directory), str(REPOSITORY)], check=True, capture_output=True, text=True)
@@ -56,6 +63,19 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             self.assertEqual("1", response["evidence"]["policyEvidence"]["schema"]["compatibilityVersion"])
             self.assertTrue(next((evidence / "evidence").glob("*.json")))
 
+    def test_wheel_public_cli_consumes_coverage_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); wheel = self._wheel(root); environment = root / "venv"
+            child_environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
+            subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True, env=child_environment)
+            commands = environment / ("Scripts" if os.name == "nt" else "bin")
+            subprocess.run([str(commands / "pip"), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
+            completed = subprocess.run([str(commands / "tde"), "--format", "json", "assess", "--capability", "coverage", str(self._coverage_repository(root))], capture_output=True, text=True, check=False, env=child_environment)
+            self.assertEqual(0, completed.returncode, completed.stderr)
+            response = json.loads(completed.stdout)
+            self.assertEqual("coverage", response["evidence"]["capabilityResults"][0]["capabilityId"])
+            self.assertEqual("cobertura-xml", response["evidence"]["adapterResults"][0]["evidence"]["parser"])
+
     @unittest.skipUnless(os.environ.get("TDE_RUN_DOCKER_INTEGRATION") == "1" and shutil.which("docker"), "set TDE_RUN_DOCKER_INTEGRATION=1 to build and run the Docker artifact")
     def test_docker_public_cli_writes_qualified_canonical_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -84,3 +104,6 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             self.assertEqual("tde.assessment-evidence", response["evidence"]["assessment"]["schema"]["name"])
             self.assertEqual("1", response["evidence"]["assessmentDecision"]["schema"]["compatibilityVersion"])
             self.assertTrue(next(evidence.glob("evidence/*.json")))
+            coverage = subprocess.run(["docker", "run", "--rm", "--volume", f"{self._coverage_repository(root)}:/workspace/repository:ro", image, "--format", "json", "assess", "--capability", "coverage", "/workspace/repository"], capture_output=True, text=True, check=False)
+            self.assertEqual(0, coverage.returncode, coverage.stderr)
+            self.assertEqual("cobertura-xml", json.loads(coverage.stdout)["evidence"]["adapterResults"][0]["evidence"]["parser"])
