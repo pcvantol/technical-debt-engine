@@ -33,7 +33,7 @@ class PolicyEngine:
         entries: list[dict[str, str]] = []
         for path in self._policy_files((*self._policy_directories, *additional_directories)):
             policy = self._read(path)
-            self.validate(policy, declarative_required=True)
+            self.validate(policy)
             entries.append({"id": policy["identifier"], "version": policy["version"], "path": str(path)})
         return tuple(entries)
 
@@ -47,7 +47,7 @@ class PolicyEngine:
             if not path.is_file():
                 raise PolicyError(f"policy configuration file does not exist: {path}")
             policy = self._with_configuration_identity(self._read(path), path)
-            self.validate(policy)
+            self.validate(policy, declarative_required=True)
             self._validate_compatibility(policy, runtime_version, schema_version)
             return self._resolve_overrides(policy, settings)
         directories = list(self._policy_directories)

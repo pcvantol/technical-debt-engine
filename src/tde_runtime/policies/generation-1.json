@@ -9,6 +9,8 @@
   "supportedRuntimeVersions": ["0.1.0"],
   "rules": [
     {"id": "code_size.repository_lines", "type": "threshold", "capability": "code_size", "metric": "code_size.code_lines", "operator": "greater_than", "threshold": {"warning": 10000, "blocking": 25000}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "Large repositories require deliberate decomposition."},
-    {"id": "complexity.maximum", "type": "threshold", "capability": "complexity", "metric": "complexity.cyclomatic.maximum", "operator": "greater_than", "threshold": {"warning": 15, "blocking": 25}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "High cyclomatic complexity impedes safe change."}
+    {"id": "complexity.maximum", "type": "threshold", "capability": "complexity", "metric": "complexity.cyclomatic.maximum", "operator": "greater_than", "threshold": {"warning": 15, "blocking": 25}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "High cyclomatic complexity impedes safe change."},
+    {"id": "critical.finding", "type": "finding_severity", "severity": "CRITICAL", "outcome": "FAIL"},
+    {"id": "comparison.regression", "type": "comparison_regression", "outcome": "FAIL"}
   ]
 }
