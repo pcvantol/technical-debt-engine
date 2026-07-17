@@ -1,30 +1,38 @@
 # Product backlog
 
-## Current
+## Active — required for 1.0
 
-- P0: make `tde assess --capability code-size` execute a real analyzer and produce truthful canonical evidence.
-- P0: fail Runtime Qualification closed for missing selected/required capability evidence.
-- P1: make persisted Evidence Store records queryable and prove baseline/compare on real capability evidence, following [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md).
-- P1: establish repeatable package dependencies, provenance and an approved release workflow before any release claim, following the canonical [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md).
-- P1: after R1-GOV-2 merges, create and certify a mainline-snapshot Internal Release Candidate; do not promote the superseded R1-2B sibling candidate.
+| Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
+| --- | --- | --- | --- |
+| G2-A Coverage completion | A selected pilot consumes its existing coverage artifact for a reliable policy decision. Consumer selected during G2-D discovery. | Public CLI, schema, policy, differential, and qualification evidence; no test execution by TDE. | Test execution, coverage generation, test-health analysis. |
+| G2-B Minimal dependency health | A selected pilot replaces a manual dependency-risk decision for only its needed ecosystem(s). | Ecosystem inventory; bounded support statement; canonical evidence and policy decision. | General supply-chain suite, unsupported ecosystems, broad SBOM program. |
+| G2-C Basic security | A selected pilot receives one useful normalized security decision beyond existing native checks. | Native-tooling gap analysis; canonical evidence; policy and pilot proof. | Security-platform replacement, broad scanning, duplicate GitHub-native checks. |
+| G2-D CI integration and production pilot | Selected DJConnect pipelines run pinned TDE and retain evidence. | Immutable version/artifact; evidence artifacts; observe/warn/soft-fail history; required-check proof only where stable. | Consumer-side analyzer/policy duplication; unpinned checkout integration. |
+| G2-E 1.0 qualification and release | DJConnect can trust one certified release across chosen distribution paths. | Green artifact and consumer qualification; known limitations; one `1.0.0` publication bundle. | Per-capability public releases; release-engineering expansion without a proven gap. |
 
-## Completed
+## Conditional — only if the pilot proves necessary
 
-- P1: qualify Policy Engine evaluation and CLI decision exits using persisted Code Size and Complexity evidence.
+- Simple CI usability improvement.
+- Limited cache.
+- One additional language adapter.
+- One additional policy operator.
+- Limited waiver capability.
 
-## Planned
+Each requires the same DJConnect value, consumer, acceptance-evidence, and
+non-goal record before activation.
 
-- Add Complexity only after isolated package execution is proven.
-- Extend capability ecosystems only after the minimal Code Size CLI vertical slice is stable.
-- Complete reporting from Query results only after persisted-query integration.
+## Post-1.0 options
 
-## Future
+These are deferred, not removed. Concrete DJConnect practice determines future
+activation and priority:
 
-- Architecture Health and Documentation Health capabilities.
-- Release gates, IDE integration, and a cloud dashboard.
-
-## Research
-
-- Cross-language normalization methods.
-- Evidence retention and provenance models.
-- Reliable trend analysis across schema and adapter versions.
+- Duplicate code; documentation health; generic architecture rules;
+  bounded-context analysis; layering and module-ownership governance.
+- Extended exception and waiver workflows; organization-wide policy inheritance.
+- Dashboards, hosted API, cloud service, and Marketplace positioning.
+- AI remediation adviser; general SARIF aggregation; test-health and flaky-test
+  analysis; repository-health or marketing composite scores.
+- Broad language/ecosystem coverage outside the selected pilot; performance
+  work without a demonstrated bottleneck; parallel execution, caching, and
+  incremental analysis without operational evidence.
+- Any release-per-capability practice.

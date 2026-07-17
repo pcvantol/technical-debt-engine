@@ -1,33 +1,48 @@
 # Platform strategy
 
-## Mission and positioning
+## Generation 2 — TDE 1.0 DJConnect Enablement Program
 
-TDE is an independent capability-based engineering platform for measuring, normalizing, qualifying, and reporting technical debt across projects and languages. It is a reusable product, not a consumer subsystem or plugin.
+Generation 1 is complete and its foundations remain in force. Release `0.2.0`
+is published and qualified. Generation 2 is a compact program that prepares
+TDE for genuine use as a DJConnect pipeline decision-maker; it is not a general
+platform-expansion program.
 
-## Scope and non-goals
+Every proposed increment must answer:
 
-The product owns the `tde` CLI, configuration contracts, adapters, canonical model, evidence, qualification, reporting, and releases. It does not own consumer runtime internals, prescribe a CI vendor, or become a project-specific dashboard or bespoke integration layer.
+1. Which concrete DJConnect risk or manual process does it address?
+2. Which DJConnect repository or pipeline consumes it?
+3. Which public evidence or pipeline decision does it produce?
+4. Why are existing tooling and TDE functionality insufficient?
+5. Is it required for `1.0.0`, or post-1.0 work?
 
-## Generation 2 strategy
+An increment without convincing answers is not active 1.0 work.
 
-Generation 1 is complete and frozen: the Engineering Method, Runtime Architecture, Schema Architecture, Capability Contracts, and Adapter SDK remain canonical foundations. Generation 2 extends them without redesign.
+## Active workstreams
 
-Generation 2 has exactly three engineering programs:
+- **G2-A — Coverage Completion.** Finish and qualify the merged coverage
+  capability through public contracts. It consumes existing artifacts only and
+  never runs tests or generates coverage.
+- **G2-B — Minimal Dependency Health.** Select only ecosystems used by the
+  chosen pilot and produce the canonical evidence and policy decisions it
+  needs. Unsupported ecosystems are explicit.
+- **G2-C — Basic Security Evidence.** Normalize only the small set of evidence
+  needed for a DJConnect decision, reusing specialized and GitHub-native tools
+  where possible.
+- **G2-D — DJConnect Consumer Integration.** Use one thin, pinned,
+  reproducible GitHub Actions integration or reusable workflow; public TDE
+  interfaces remain authoritative. Pilot phases are observe, warn, soft-fail,
+  then required check after stable evidence.
+- **G2-E — TDE 1.0 Qualification and Release.** Qualify the real artifacts and
+  chosen consumers, record limitations, and publish `1.0.0` once.
 
-1. **Core Runtime** — independently delivered capabilities and their evidence/qualification contracts.
-2. **Platform Evolution** — additive platform surfaces such as storage, query, execution, distribution, and IDE integration.
-3. **Innovation Lab** — research-only engineering intelligence hypotheses that require promotion before product delivery.
+## Boundaries
 
-Evolution favors independent capabilities, stable evidence, explicit policy, and additive compatibility. Releases progress according to [RELEASE_STRATEGY.md](RELEASE_STRATEGY.md); no Generation 2 roadmap entry is a release commitment.
+Generation 2 adds no cloud or dashboard product, Marketplace objective,
+organization/multi-tenant governance, broad AI adviser, architecture suite, or
+replacement for security, dependency, or quality platforms. The complete
+deferred option set is retained in [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md).
 
-The canonical product deployment model, including Generation 1 targets and future distribution evaluation, is [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md). It remains independent from Runtime Architecture and release execution.
-
-The canonical persistence model is [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md). It keeps JSON evidence authoritative while allowing additive local indexing and future optional backends.
-
-The canonical presentation model is [Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md); it consumes Query results without coupling presentation to Runtime.
-
-Product Definitions own distribution, retention and presentation direction. Future definitions may cover Release Strategy, Public API Strategy, Cloud Architecture, Organization Model and Authentication Model; they extend this collection rather than duplicate it.
-
-## Governance and long-term vision
-
-The product roadmap is owned by TDE governance and prioritized for reusable value, contract integrity, evidence quality, and long-term maintainability. The long-term direction is a trusted technical-debt platform with portable contracts, release gates, IDE support, and optional cloud delivery without vendor lock-in.
+Engineering increments merge independently when ready, but a merge is not a
+release trigger. The normal next public release is `1.0.0`; any interim public
+release needs an explicit operational-necessity decision. Existing release
+engineering is reused unless it demonstrably fails this program.

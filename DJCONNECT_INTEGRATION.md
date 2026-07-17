@@ -1,19 +1,21 @@
-# DJConnect Reference Consumer Integration
+# DJConnect Consumer Integration
 
-## Decision
+## Generation 2 decision
 
-**REFERENCE_CONSUMER_INTEGRATION_READY**
+DJConnect is the primary product; TDE is the supporting pipeline tool. A
+consumer must use only a released, exact-pinned TDE version or immutable
+artifact and the public `tde` CLI, configuration, schemas, evidence, and exit
+codes. It must not import runtime modules, adapters, or capability logic, and
+must not duplicate analyzer or policy logic.
 
-DJConnect must invoke a released, pinned `tde` CLI and ingest its canonical evidence only. It must not import Runtime modules, adapters, or capability implementations.
+The concrete pilot set is deliberately not selected by this repository. Before
+G2-D, repository research selects a small representative set using active
+development, real pipeline risk, supported analyzer/language, existing coverage
+or dependency artifacts, reasonable execution time, clear ownership, and no
+duplicate required checks.
 
-TDE `0.1.0` is released and consumers may pin either PyPI distribution
-`technical-debt-engine-runtime==0.1.0` or Docker OCI index
-`sha256:aa648019045a442a0dbce029ee11ecb15c7755d845205fa8f07467e0faf18679`.
-Several local DJConnect repositories exist (`djconnect`, `djconnect-api`,
-`djconnect-app`, `djconnect-pi`, and others), but no target repository was
-specified and none was modified.
-
-Once a target repository is explicitly selected, DJConnect should own repository
-discovery, policies, thresholds and exclusions; TDE owns analysis. Evidence
-ingestion must validate schema/runtime versions, repository/candidate identity
-and integrity before platform aggregation.
+Each selected pipeline progresses from read-only observation to warning and
+soft-fail. A required check is allowed only after a documented stable-evidence
+period. CI retains the canonical assessment evidence as an artifact. The
+integration is preferably one thin pinned GitHub Actions integration or
+reusable workflow.

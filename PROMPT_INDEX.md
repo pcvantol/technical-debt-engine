@@ -2,6 +2,8 @@
 
 This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md); immutable archives are in [docs/history/prompts](docs/history/prompts). Prompt archives apply prospectively from `G2-GOV-1`; earlier rows remain preserved historical navigation until separately archived.
 
+| [G2-GOV-7](docs/history/prompts/G2-GOV-7-tde-1-0-djconnect-enablement.md) | TDE 1.0 DJConnect Enablement Program Initialization | Active — governance-only draft PR in preparation |
+
 | Prompt | Scope | Status |
 | --- | --- | --- |
 | 0 | Remote repository initialization and GitHub configuration | Complete |
@@ -81,7 +83,7 @@ This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md]
 | [R1-4H](docs/history/prompts/R1-4H-pypi-publication-repair.md) | Release Publication Completion — PyPI Publication Repair | [Reviewable — #84](https://github.com/pcvantol/technical-debt-engine/pull/84) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4h-pypi-publication-repair) · [implementation commit](https://github.com/pcvantol/technical-debt-engine/commit/7185edb50c8b703ae6782420d29a76067e2221c3) |
 | [R1-4I](docs/history/prompts/R1-4I-resumable-pypi-publication.md) | Resumable PyPI Publication and Release Completion | [Reviewable — #86](https://github.com/pcvantol/technical-debt-engine/pull/86) · [branch](https://github.com/pcvantol/technical-debt-engine/tree/codex/r1-4i-release-publication-completion) · `INTERNAL_RELEASE_COMPLETED` |
 
-Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. Generation 2 consists of exactly Core Runtime, Platform Evolution and Innovation Lab. Future prompts must preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
+Prompt lifecycle is **Draft → Active → Reviewable → Merged → Archived**, with optional **Superseded**. The former Generation 2 three-program model is superseded for active work by the compact TDE 1.0 DJConnect Enablement Program. Future prompts preserve the frozen Generation 1 foundations, follow the mandatory [engineering workflow](ENGINEERING_WORKFLOW.md), and update this index as navigation only.
 
 Prompt 32 is an evidence-only audit, not a Generation 2 implementation increment. It establishes `TDE_PRODUCT_PARTIALLY_OPERATIONAL` as the current product state and records the implementation recovery sequence in [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).
 
