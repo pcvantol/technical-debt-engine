@@ -71,7 +71,7 @@ def main() -> int:
         base_environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
         installed_environment = {**base_environment, "PATH": str(Path(tde).parent) + os.pathsep + str(tool_directory) + os.pathsep + base_environment.get("PATH", "")}
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "--no-deps", str(wheel)])
-        missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "code-size", str(fixture)], expected={3}, env={**base_environment, "PATH": str(Path(tde).parent)})
+        missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "code-size", str(fixture)], expected={5}, env={**base_environment, "PATH": str(Path(tde).parent)})
         fake_tools = temporary_path / "fake-cloc"
         fake_tools.mkdir()
         fake_cloc = fake_tools / ("cloc.cmd" if os.name == "nt" else "cloc")
@@ -80,7 +80,7 @@ def main() -> int:
             fake_cloc.chmod(0o755)
         fake_environment = {**base_environment, "PATH": str(fake_tools) + os.pathsep + str(Path(tde).parent)}
         unsupported_analyzer = run([python, "-c", "import sys; from pathlib import Path; from tde_runtime.code_size import analyze; "
-                                    "result = analyze(Path(sys.argv[1])); assert result['status'] == 'BLOCKED'; "
+                                    "result = analyze(Path(sys.argv[1])); assert result['status'] == 'ANALYZER_NOT_FOUND'; "
                                     "assert result['limitations'][0]['id'] == 'analyzer.cloc.unsupported_version'; print('blocked')", str(fixture)], env=fake_environment)
         timeout_script = """from pathlib import Path
 from subprocess import TimeoutExpired
@@ -88,7 +88,7 @@ from unittest.mock import patch
 from tde_runtime.code_size import analyze
 with patch('tde_runtime.code_size.shutil.which', return_value='cloc'), patch('tde_runtime.code_size.subprocess.run', side_effect=TimeoutExpired(['cloc'], 1)):
     result = analyze(Path('.'), timeout=1)
-assert result['status'] == 'BLOCKED'
+assert result['status'] == 'FAILED_CLOSED'
 assert result['limitations'][0]['id'] == 'analyzer.cloc.failed'
 print('blocked')
 """
