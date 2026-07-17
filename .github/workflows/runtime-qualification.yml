@@ -1,0 +1,137 @@
+name: Runtime public qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      runtime_version:
+        description: Published immutable runtime version to qualify
+        required: true
+        default: '0.2.0'
+        type: string
+      djconnect_ref:
+        description: Read-only DJConnect ref
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  public-wheel-and-pypi:
+    name: \${{ matrix.os }} / \${{ matrix.delivery }} / \${{ matrix.profile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        delivery: [wheel, pypi]
+        profile: [minimal, standard]
+    runs-on: \${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+      - name: Provision cloc on Unix
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl --output "$RUNNER_TEMP/cloc"
+          echo 'bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  '"$RUNNER_TEMP/cloc" | shasum -a 256 -c -
+          chmod +x "$RUNNER_TEMP/cloc"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Provision cloc on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri 'https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.exe' -OutFile "$env:RUNNER_TEMP/cloc.exe"
+          if ((Get-FileHash -Algorithm SHA256 "$env:RUNNER_TEMP/cloc.exe").Hash -ne '97786C4B5BB71D2BE67E42061A2F5D03DB73BBF88228F8710001D770E867BBEF') { throw 'cloc checksum mismatch' }
+          $env:RUNNER_TEMP | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Install only the published runtime
+        shell: bash
+        env:
+          DELIVERY: \${{ matrix.delivery }}
+          VERSION: \${{ inputs.runtime_version }}
+        run: |
+          python -m venv "$RUNNER_TEMP/runtime"
+          PIP="$RUNNER_TEMP/runtime/bin/pip"
+          if [ "$RUNNER_OS" = 'Windows' ]; then PIP="$RUNNER_TEMP/runtime/Scripts/pip.exe"; fi
+          if [ "$DELIVERY" = wheel ]; then
+            mkdir "$RUNNER_TEMP/wheel"
+            "$PIP" download --no-deps --dest "$RUNNER_TEMP/wheel" "technical-debt-engine-runtime==$VERSION"
+            "$PIP" install --no-deps "$RUNNER_TEMP"/wheel/*.whl
+          else
+            "$PIP" install "technical-debt-engine-runtime==$VERSION"
+          fi
+      - name: Clone DJConnect read-only
+        shell: bash
+        run: git clone --depth 1 --branch "\${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
+      - name: Assess both reference repositories through the public CLI
+        shell: bash
+        env:
+          PROFILE: \${{ matrix.profile }}
+        run: |
+          TDE="$RUNNER_TEMP/runtime/bin/tde"
+          if [ "$RUNNER_OS" = 'Windows' ]; then TDE="$RUNNER_TEMP/runtime/Scripts/tde.exe"; fi
+          mkdir -p "$RUNNER_TEMP/evidence"
+          for repository in "$GITHUB_WORKSPACE" "$RUNNER_TEMP/djconnect"; do
+            name="$(basename "$repository")"
+            set +e
+            "$TDE" --format json --profile "$PROFILE" --store-location "$RUNNER_TEMP/evidence/$name" assess "$repository" > "$RUNNER_TEMP/$name.json"
+            code=$?
+            set -e
+            test "$code" -le 2
+            python - "$RUNNER_TEMP/$name.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding="utf-8"))
+          if result["runtimeQualification"]["level"] != "QUALIFIED":
+              raise SystemExit("public runtime did not qualify the repository")
+          if not result["evidence"]["assessment"]["capabilityExecutions"]:
+              raise SystemExit("public runtime produced no capability execution")
+          PY
+          done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: runtime-public-\${{ matrix.os }}-\${{ matrix.delivery }}-\${{ matrix.profile }}
+          path: \${{ runner.temp }}/*.json
+          retention-days: 90
+          if-no-files-found: error
+
+  docker-public-runtime:
+    name: Ubuntu / Docker / public CLI
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [minimal, standard]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Clone DJConnect read-only
+        run: git clone --depth 1 --branch "\${{ inputs.djconnect_ref }}" https://github.com/pcvantol/djconnect.git "$RUNNER_TEMP/djconnect"
+      - name: Assess both reference repositories through the published Docker image
+        env:
+          IMAGE: docker.io/pcvantol/technical-debt-engine:\${{ inputs.runtime_version }}
+          PROFILE: \${{ matrix.profile }}
+        run: |
+          docker pull "$IMAGE"
+          for repository in "$GITHUB_WORKSPACE" "$RUNNER_TEMP/djconnect"; do
+            name="$(basename "$repository")"
+            mkdir -p "$RUNNER_TEMP/evidence/$name"
+            set +e
+            docker run --rm --volume "$repository:/workspace/repository:ro" --volume "$RUNNER_TEMP/evidence/$name:/workspace/evidence" "$IMAGE" --format json --profile "$PROFILE" --store-location /workspace/evidence assess /workspace/repository > "$RUNNER_TEMP/docker-$name.json"
+            code=$?
+            set -e
+            test "$code" -le 2
+            python - "$RUNNER_TEMP/docker-$name.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding="utf-8"))
+          if result["runtimeQualification"]["level"] != "QUALIFIED":
+              raise SystemExit("public Docker runtime did not qualify the repository")
+          PY
+          done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: runtime-public-docker-\${{ matrix.profile }}
+          path: \${{ runner.temp }}/docker-*.json
+          retention-days: 90
+          if-no-files-found: error
