@@ -48,21 +48,21 @@ class CodeSizeTests(unittest.TestCase):
         self.assertEqual(first, second)
 
     def test_missing_analyzer_blocks_without_fabricated_metrics(self) -> None:
-        with patch("tde_runtime.code_size.shutil.which", return_value=None):
+        with patch("tde_runtime.analyzer_discovery.shutil.which", return_value=None):
             result = analyze(self.root)
         self.assertEqual("ANALYZER_NOT_FOUND", result["status"])
         self.assertIn("analyzer.cloc.unavailable", result["limitations"][0]["id"])
 
     def test_unsupported_analyzer_version_blocks(self) -> None:
-        with patch("tde_runtime.code_size.shutil.which", return_value="/tools/cloc"), \
-             patch("tde_runtime.code_size.subprocess.run") as run:
+        with patch("tde_runtime.analyzer_discovery.shutil.which", return_value="/tools/cloc"), \
+             patch("tde_runtime.analyzer_discovery.subprocess.run") as run:
             run.return_value.stdout = "2.09"
             result = analyze(self.root)
         self.assertEqual("ANALYZER_NOT_FOUND", result["status"])
         self.assertEqual("analyzer.cloc.unsupported_version", result["limitations"][0]["id"])
 
     def test_analyzer_timeout_is_a_structured_blocker(self) -> None:
-        with patch("tde_runtime.code_size.shutil.which", return_value="/tools/cloc"), \
+        with patch("tde_runtime.code_size.discover", return_value={"status": "VALID", "executable": "/tools/cloc", "version": "2.10"}), \
              patch("tde_runtime.code_size.subprocess.run", side_effect=subprocess.TimeoutExpired(["cloc"], 1)):
             result = analyze(self.root, timeout=1)
         self.assertEqual("FAILED_CLOSED", result["status"])
