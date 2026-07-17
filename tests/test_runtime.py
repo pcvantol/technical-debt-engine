@@ -37,12 +37,14 @@ class RuntimeFoundationTests(unittest.TestCase):
         self.assertEqual(policy_stage.outputs, result.evidence["policyEvidence"])
         self.assertEqual(policy_stage.outputs["decision"], result.evidence["assessmentDecision"]["decision"])
         self.assertTrue(result.evidence["assessmentDecision"]["assessmentId"].startswith("assessment."))
+        self.assertEqual(result.evidence["policyEvidence"]["policyConfiguration"],
+                         result.evidence["assessmentDecision"]["policyConfiguration"])
 
     def test_policy_override_can_block_a_measurement(self) -> None:
-        (self.root / "requirements.txt").write_text("example==1.0\n", encoding="utf-8")
+        (self.root / "sample.py").write_text("value = 1\n", encoding="utf-8")
         configuration = RuntimeConfiguration.load({
-            "capabilities": {"dependency_health": {"enabled": True}},
-            "policy": {"overrides": {"dependency.count": {"warning": 0, "blocking": 0}}},
+            "capabilities": {"code_size": {"enabled": True}},
+            "policy": {"overrides": {"code_size.repository_lines": {"warning": 0, "blocking": 0}}},
         })
         result = Runtime().execute(self.root, configuration)
         qualification = next(stage for stage in result.stages if stage.identifier == "qualification")

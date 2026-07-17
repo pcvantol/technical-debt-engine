@@ -74,7 +74,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--output", help="Output destination (reserved; console is used now).")
     parser.add_argument("--format", choices=("human", "json", "markdown"), default="human", help="Output format.")
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
-    parser.add_argument("--policy", help="Repository or workspace policy directory.")
+    parser.add_argument("--policy", metavar="FILE", help="Declarative policy configuration file.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
     parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
@@ -228,7 +228,7 @@ def _prepare_command(arguments: argparse.Namespace, parser: argparse.ArgumentPar
         values = configuration.as_dict()
         policy = dict(values["executionOptions"].get("policy", {}))
         if arguments.policy:
-            policy["repository"] = arguments.policy
+            policy["file"] = arguments.policy
         overrides = dict(policy.get("overrides", {}))
         try:
             for item in arguments.policy_override:
@@ -318,7 +318,7 @@ def _execute_command(arguments: argparse.Namespace, configuration: RuntimeConfig
         try:
             store = EvidenceStore(_store_location(arguments, arguments.target)) if arguments.command in {"assess", "run"} else None
             code, payload = _runtime_result(arguments.command, arguments.target, configuration, store)
-        except (ValueError, OSError, json.JSONDecodeError) as error:
+        except (PolicyError, ValueError, OSError, json.JSONDecodeError) as error:
             _render({"status": "BLOCKED", "reason": str(error)}, arguments.format, stream)
             return ExitCode.BLOCKED
         _render(payload, arguments.format, stream)

@@ -4,14 +4,12 @@
   "scope": "repository",
   "owner": "TDE policy governance",
   "description": "Default, language-independent Generation 1 qualification policy.",
-  "supportedCapabilities": ["code_size", "complexity", "maintainability", "dependency_health"],
+  "supportedCapabilities": ["code_size", "complexity"],
   "supportedSchemas": ["1.0.0"],
   "supportedRuntimeVersions": ["0.1.0"],
   "rules": [
-    {"id": "code_size.repository_lines", "type": "threshold", "metricKey": "code_size.code_lines", "direction": "greater_than", "warning": 10000, "blocking": 25000},
-    {"id": "complexity.maximum", "type": "threshold", "metricKey": "complexity.cyclomatic.maximum", "direction": "greater_than", "warning": 15, "blocking": 25},
-    {"id": "maintainability.minimum", "type": "threshold", "metricKey": "maintainability.index", "direction": "less_than", "warning": 50, "blocking": 30},
-    {"id": "dependency.count", "type": "threshold", "metricKey": "dependency.count", "direction": "greater_than", "warning": 100, "blocking": 250},
+    {"id": "code_size.repository_lines", "type": "threshold", "capability": "code_size", "metric": "code_size.code_lines", "operator": "greater_than", "threshold": {"warning": 10000, "blocking": 25000}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "Large repositories require deliberate decomposition."},
+    {"id": "complexity.maximum", "type": "threshold", "capability": "complexity", "metric": "complexity.cyclomatic.maximum", "operator": "greater_than", "threshold": {"warning": 15, "blocking": 25}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "High cyclomatic complexity impedes safe change."},
     {"id": "critical.finding", "type": "finding_severity", "severity": "CRITICAL", "outcome": "FAIL"},
     {"id": "comparison.regression", "type": "comparison_regression", "outcome": "FAIL"}
   ]
