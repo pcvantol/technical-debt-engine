@@ -5,6 +5,8 @@
 | Prompt ID | R1-4I |
 | Title | Resumable PyPI Publication and Release Completion |
 | Branch | `codex/r1-4i-release-publication-completion` |
+| Pull Request | Draft [#86](https://github.com/pcvantol/technical-debt-engine/pull/86) |
+| Documentation commit | `bc1d1da` |
 | Decision | `INTERNAL_RELEASE_COMPLETED` |
 | Candidate SHA | `223ccfe4b3646f1907ee7e2d7a8c07e8989badd7` |
 | Release version | `0.1.0` |
