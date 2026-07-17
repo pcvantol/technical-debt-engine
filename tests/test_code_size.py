@@ -133,8 +133,8 @@ class CodeSizeTests(unittest.TestCase):
         self.assertEqual("NOT_SUPPORTED", response["evidence"]["capabilityResults"][0]["status"])
         self.assertEqual(["not_a_capability"], response["evidence"]["executionEvidence"]["unsupportedCapabilities"])
 
-    def test_policy_finding_does_not_change_successful_execution_exit_code(self) -> None:
+    def test_policy_decision_controls_successful_execution_exit_code(self) -> None:
         stream = StringIO()
         code = main(["--format", "json", "--policy-override", 'code_size.repository_lines={"warning":0,"blocking":0}', "assess", "--capability", "code_size", str(self.root)], stream)
-        self.assertEqual(ExitCode.SUCCESS, code)
-        self.assertEqual("FAIL", json.loads(stream.getvalue())["evidence"]["policyEvidence"]["decision"])
+        self.assertEqual(ExitCode.FAILED, code)
+        self.assertEqual("FAIL", json.loads(stream.getvalue())["evidence"]["assessmentDecision"]["decision"])

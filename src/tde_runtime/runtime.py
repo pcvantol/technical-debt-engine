@@ -181,13 +181,18 @@ class Runtime:
                            "capabilityResults": stable_results,
                            "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []),
                            "policy": policy_evidence}, sort_keys=True, separators=(",", ":"), default=str)
+        decision = policy_evidence.get("decision", "BLOCKED")
+        decision_evidence = {"assessmentId": f"assessment.{context.execution_id.removeprefix('execution.')}",
+                             "runtimeVersion": context.runtime_version, "policies": [policy_evidence.get("policy")],
+                             "policyResults": policy_evidence.get("triggeredRules", []), "decision": decision,
+                             "capabilityEvidenceReference": context.execution_id, "timestamp": generated_at}
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,
                 "runtime": {"id": "tde", "version": context.runtime_version},
                 "executionId": context.execution_id,
                 "repository": {"id": context.repository_id, "displayName": "local-repository"},
                 "candidate": context.candidate,
                 "configurationDigest": RuntimeConfiguration.load(context.configuration).digest(),
-                "capabilityResults": normalized.get("capabilityResults", []), "adapterResults": normalized.get("adapterResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
+                "capabilityResults": normalized.get("capabilityResults", []), "adapterResults": normalized.get("adapterResults", []), "measurements": normalized.get("measurements", []), "findings": normalized.get("findings", []), "executionEvidence": normalized.get("executionEvidence", {}), "validation": validation, "policyEvidence": policy_evidence, "assessmentDecision": decision_evidence, "runtimeQualification": RuntimeQualificationEngine().qualify({"validation":validation,"capabilityResults":normalized.get("capabilityResults",[]),"executionEvidence":normalized.get("executionEvidence",{}),"executionId":context.execution_id,"policyEvidence":policy_evidence,"integrity":{"contentDigest":seed}}),
                 "timestamps": {"executedAt": generated_at, "generatedAt": generated_at},
                 "integrity": {"algorithm": "sha-256", "contentDigest": f"sha256:{sha256(seed.encode()).hexdigest()}"}}
 
