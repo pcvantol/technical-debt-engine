@@ -1,5 +1,10 @@
 # Mainline Internal Release Candidate Status
 
+> Historical release-candidate evidence only. Release `0.2.0` is now published
+> and qualified; current release planning is the consumer-driven `1.0.0`
+> program in [PRODUCT_ROADMAP.md](PRODUCT_ROADMAP.md). This record is retained
+> unchanged below as prior evidence.
+
 ## Current R1-4E candidate — certified, pending human authorization
 
 | Field | Value |

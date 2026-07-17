@@ -1,5 +1,20 @@
 # Management summary
 
+## Current management decision — supersedes earlier active roadmap direction
+
+`0.2.0` is published and qualified. Generation 1 is complete. DJConnect is now
+the primary product and TDE is the supporting engineering tool that supplies
+the minimum reliable assessment function DJConnect pipelines need. Generation
+2 is therefore the compact **TDE 1.0 DJConnect Enablement Program**: coverage
+completion first, then minimal dependency health and basic security evidence,
+a selected-consumer CI pilot, and one integrated `1.0.0` qualification and
+release. No per-capability public release is planned; post-1.0 is
+maintenance-first. [ADR-0064](architecture/adr/ADR-0064-djconnect-enablement-program.md)
+and [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md) are canonical for this decision.
+
+The remainder of this document is preserved historical management context and
+does not override the current decision above.
+
 Technical Debt Engine is being established as an independent engineering product that measures, normalizes, qualifies, and reports maintainability and technical debt across projects and languages.
 
 R1-4H Release Publication Completion — PyPI Publication Repair decision: `PYPI_PUBLICATION_BLOCKED`. PR #83 replaced only the unavailable pinned PyPI Action with current verified PyPA `release/v1` commit `cef221092ed1bacb1cc03d23a2d87d1d172e277b`; its GHCR container manifest exists and publication contract tests pass. Protected run [29531471511](https://github.com/pcvantol/technical-debt-engine/actions/runs/29531471511) re-verified the preserved certified bundle and authorization, but the all-target workflow created a local tag then remote push rejected immutable existing tag `0.1.0`. It stopped before Docker or PyPI, leaving previous published targets unchanged and PyPI absent. Completion requires a narrowly scoped resumable PyPI-only path that re-verifies completed identities and publishes only the preserved Python artifacts plus completion evidence.

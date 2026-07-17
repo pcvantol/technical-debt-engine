@@ -1,8 +1,14 @@
 # Technical Debt Engine
 
-Technical Debt Engine (TDE) is a standalone, capability-based engineering platform for measuring, normalizing, qualifying, and reporting technical debt across software projects.
+DJConnect is the primary product. Technical Debt Engine (TDE) is its compact,
+supporting engineering tool for producing reliable pipeline assessment
+decisions through public evidence and CLI contracts.
 
-TDE is project-independent, platform-independent, CI-independent, language-independent, and vendor-neutral. DJConnect is the first reference consumer; it does not own TDE's architecture, roadmap, or release lifecycle.
+Generation 2 is the consumer-driven **TDE 1.0 DJConnect Enablement Program**.
+It does not expand TDE into a general platform: its active scope is coverage
+completion, minimal dependency and security evidence, selected DJConnect CI
+consumption, and one integrated `1.0.0` qualification and release. See the
+[roadmap](PRODUCT_ROADMAP.md) and [active backlog](PRODUCT_BACKLOG.md).
 
 Release `0.2.0` is available as the PyPI distribution
 [`technical-debt-engine-runtime`](https://pypi.org/project/technical-debt-engine-runtime/0.2.0/),
@@ -14,7 +20,9 @@ for the immutable publication evidence and public-runtime validation.
 
 ## Product contracts
 
-Consumers integrate only through the future `tde` CLI, configuration, evidence schema, exit codes, and stable released contracts—not runtime internals. See [INTEGRATION_MODEL.md](INTEGRATION_MODEL.md).
+Consumers integrate only through the public `tde` CLI, configuration, evidence
+schema, exit codes, and stable released contracts—not runtime internals. See
+[INTEGRATION_MODEL.md](INTEGRATION_MODEL.md).
 
 Operational repository assurance is available through `tde assure`; see [SOFTWARE_ASSURANCE.md](SOFTWARE_ASSURANCE.md) for its canonical evidence and candidate-artifact verification contract.
 

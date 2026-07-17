@@ -1,40 +1,35 @@
 # Product roadmap
 
-The roadmap belongs to TDE. Consumers may inform priorities but do not define the product boundary.
-
 ## Current product truth
 
-The 2026-07-14 Operational Reality Audit classifies current main as `TDE_PRODUCT_PARTIALLY_OPERATIONAL`. Generation 1 completion records are historical; the next executable recovery increment must make the installed public CLI perform and evidence one real Code Size analysis. See [IMPLEMENTATION_RECOVERY_PLAN.md](IMPLEMENTATION_RECOVERY_PLAN.md).
+TDE `0.2.0` is published and qualified. DJConnect is the primary product; TDE
+is the supporting engineering tool for reliable DJConnect pipeline decisions.
+Generation 1 is complete. Generation 2 is a deliberately compact path to
+`1.0.0`, not an open-ended platform roadmap.
 
-## Generation 1 — frozen foundation
+## Generation 2 active roadmap
 
-- CLI Runtime, capability framework and canonical schemas exist.
-- Qualification, reporting and product capability claims require the audit recovery plan before being treated as current operational outcomes.
+| Stream | Outcome | Gate before completion |
+| --- | --- | --- |
+| G2-A Coverage Completion | Existing coverage artifacts become qualified canonical assessment evidence; TDE never produces them. | Public CLI/schema/policy/differential/qualification proof. |
+| G2-B Minimal Dependency Health | Minimal, pilot-selected ecosystem support with useful evidence and policy decisions. | Ecosystem inventory, explicit support boundary, and public evidence proof. |
+| G2-C Basic Security Evidence | Minimal normalized security evidence that adds one DJConnect assessment decision without duplicating native controls. | GitHub-native-tooling gap analysis and pilot decision proof. |
+| G2-D Consumer Integration | A thin pinned public-CLI integration in a small selected DJConnect pilot set. | Observe → warn → soft-fail → required only after stability evidence. |
+| G2-E Qualification and Release | One qualified public `1.0.0` release. | Artifact, consumer, limitation, and release qualification all green. |
 
-## Generation 2 — three programs
+The consumer set is selected before G2-D through repository research: active
+development, real pipeline risk, supported analyzer/language, available
+artifacts, practical duration, clear ownership, and no duplicate required
+check. A Python repository and one non-Python repository are useful starting
+shapes, not a preselected commitment.
 
-### Core Runtime
+## Release and operating model
 
-- Duplication capability — planned priority
-- Documentation Health and Architecture Health — planned
-- SBOM, Dependency Security and License Analysis — backlog
-- Repository Health and Engineering Health — backlog
+Capabilities merge in independently reviewable PRs. There is no usual public
+release per capability and no planned `0.3`, `0.4`, or `0.5` sequence. The
+next planned release is `1.0.0`; an interim release requires an explicit
+operational-necessity decision.
 
-### Platform Evolution
-
-- Evidence Store / Query integration and reporting completion — priority gap closure; see [Persistence Architecture](docs/product/PERSISTENCE_ARCHITECTURE.md)
-- Parallel and distributed execution, remote query API, cloud evidence store — planned; persistence evolution remains local-first and JSON-authoritative
-- Package distribution, public release, IDE integration — planned only after qualification; target lifecycle and ordering are defined by [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md)
-- Dashboard evolution is defined by [Dashboard Architecture](docs/product/DASHBOARD_ARCHITECTURE.md); no dashboard implementation is implied.
-
-### Innovation Lab
-
-- AI recommendations and automatic refactoring suggestions
-- Predictive trend analysis and engineering forecasting
-- Architecture drift prediction and technical debt simulation
-
-These items remain research until explicitly promoted.
-
-Generation 2 evaluates secondary native package managers and IDE integrations; Generation 3 service surfaces remain research. See [Deployment Strategy](docs/product/DEPLOYMENT_STRATEGY.md) for the canonical target model.
-
-Roadmap entries are outcomes, not release commitments. Scope changes follow [ROADMAP_GOVERNANCE.md](ROADMAP_GOVERNANCE.md).
+After `1.0.0`, TDE is maintenance-first: critical bug fixes, compatibility and
+security maintenance, and capabilities justified by an explicit DJConnect
+problem statement. No follow-on capability program begins automatically.

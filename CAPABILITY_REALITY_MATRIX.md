@@ -1,5 +1,10 @@
 # Capability Reality Matrix
 
+> Historical audit matrix. It predates the qualified `0.2.0` release and is not
+> current capability status. Current active scope is
+> [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md); this matrix remains preserved audit
+> evidence.
+
 | Component | Documented | Code exists | Executable | Tests | Evidence | Released | Operational | Truth state | Primary gap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Runtime discovery/inspection | Yes | Yes | Yes | Yes | Empty evidence | No | Limited | VALIDATED | Discovery is path hashing; language detection is always empty |
