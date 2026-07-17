@@ -15,11 +15,15 @@ tde assess --profile standard /path/to/repository
 ```
 
 `minimal` runs `code_size`; `standard` runs `code_size`, `complexity`, and the
-optional read-only `coverage` capability. Coverage looks for configured paths
+optional read-only `coverage` and npm-only `dependency_health` capabilities.
+Coverage looks for configured paths
 (`path`, `artifact`, `file`, or `paths`) before its standard locations. It never
 runs tests; no artifact yields explicit unavailable coverage metrics rather than
 an assessment failure.
 `--capability` remains available for focused development and debugging runs.
+Dependency Health runs only for an npm project with a committed
+`package-lock.json`; otherwise it records explicit unavailable evidence without
+invalidating the repository assessment.
 
 Profiles are JSON documents with an identifier, version, description,
 capability entries, a policy file and metadata. Each capability selects exactly
