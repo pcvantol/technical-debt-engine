@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 
 
 BASE_IMAGE = "python:3.11-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba"
@@ -31,6 +32,14 @@ def digest(path: Path) -> str:
 
 def git(root: Path, *arguments: str) -> str:
     return subprocess.run(["git", "-C", str(root), *arguments], check=True, text=True, capture_output=True).stdout.strip()
+
+
+def package_version(root: Path) -> str:
+    with (root / "pyproject.toml").open("rb") as configuration:
+        version = tomllib.load(configuration).get("project", {}).get("version")
+    if not isinstance(version, str) or not version:
+        raise ValueError("candidate pyproject.toml must define a project version")
+    return version
 
 
 def _index(archive: Path) -> tuple[str, list[dict[str, str]]]:
@@ -71,7 +80,7 @@ def build(root: Path, wheel: Path, sdist: Path, output: Path) -> dict:
         (context / "wheel").mkdir(); shutil.copy2(wheel, context / "wheel" / wheel.name)
         created = subprocess.run(["python", "-c", f"import datetime; print(datetime.datetime.fromtimestamp({epoch}, datetime.timezone.utc).isoformat().replace('+00:00','Z'))"], check=True, text=True, capture_output=True).stdout.strip()
         command = ["docker", "buildx", "build", "--platform", ",".join(PLATFORMS), "--provenance=false", "--sbom=false", "--output", f"type=oci,dest={output / 'tde-oci.tar'}",
-                   "--build-arg", f"CANDIDATE_SHA={candidate}", "--build-arg", "TDE_VERSION=0.1.0", "--build-arg", f"WHEEL_FILE={wheel.name}",
+                   "--build-arg", f"CANDIDATE_SHA={candidate}", "--build-arg", f"TDE_VERSION={package_version(root)}", "--build-arg", f"WHEEL_FILE={wheel.name}",
                    "--build-arg", f"WHEEL_SHA256={digest(wheel).removeprefix('sha256:')}", "--build-arg", f"SOURCE_DATE_EPOCH={epoch}", "--build-arg", f"CREATED={created}", str(context)]
         subprocess.run(command, check=True)
     archive = output / "tde-oci.tar"

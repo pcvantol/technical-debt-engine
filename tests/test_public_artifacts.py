@@ -44,7 +44,7 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             schemas = subprocess.run([str(commands / "tde"), "--format", "json", "schema"], capture_output=True,
                                      text=True, check=False, env=child_environment)
             self.assertEqual(0, schemas.returncode, schemas.stderr)
-            self.assertEqual(4, len(json.loads(schemas.stdout)["schemas"]))
+            self.assertEqual(6, len(json.loads(schemas.stdout)["schemas"]))
             target, evidence = self._sample_repository(root), root / "evidence"
             completed = subprocess.run([str(commands / "tde"), "--format", "json", "--store-location", str(evidence), "assess", "--capability", "code_size", str(target)], capture_output=True, text=True, check=False, env=child_environment)
             self.assertEqual(0, completed.returncode, completed.stderr)

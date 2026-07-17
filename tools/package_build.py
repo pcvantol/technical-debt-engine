@@ -16,6 +16,7 @@ import sys
 import tarfile
 from tempfile import TemporaryDirectory
 from typing import Any
+import tomllib
 import zipfile
 
 
@@ -42,6 +43,15 @@ def git(root: Path, *arguments: str) -> str:
 def source_date_epoch(root: Path) -> int:
     supplied = __import__("os").environ.get("SOURCE_DATE_EPOCH")
     return int(supplied) if supplied else int(git(root, "log", "-1", "--format=%ct"))
+
+
+def package_version(root: Path) -> str:
+    """Read the version from the exact source candidate being packaged."""
+    with (root / "pyproject.toml").open("rb") as configuration:
+        version = tomllib.load(configuration).get("project", {}).get("version")
+    if not isinstance(version, str) or not version:
+        raise ValueError("candidate pyproject.toml must define a project version")
+    return version
 
 
 def zip_timestamp(epoch: int) -> tuple[int, int, int, int, int, int]:
@@ -126,7 +136,7 @@ def build(root: Path, output: Path) -> dict[str, Any]:
                   "candidateIdentity": "candidate.git." + candidate_sha,
                   "candidateSha": candidate_sha, "branch": git(root, "branch", "--show-current"),
                   "buildIdentity": build_id, "sourceDateEpoch": epoch,
-                  "runtime": {"packageVersion": "0.1.0", "pythonVersion": platform.python_version()},
+                  "runtime": {"packageVersion": package_version(root), "pythonVersion": platform.python_version()},
                   "buildPlatform": {"system": platform.system(), "machine": platform.machine()},
                   "tools": versions, "artifacts": artifact_records}
     (output / "build-provenance.json").write_bytes(canonical_json(provenance))

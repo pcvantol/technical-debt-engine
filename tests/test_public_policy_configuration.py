@@ -81,7 +81,7 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                                 text=True, check=False, env=self.environment)
         self.assertEqual(0, listed.returncode, listed.stderr)
         schemas = json.loads(listed.stdout)["schemas"]
-        self.assertEqual(5, len(schemas))
+        self.assertEqual(6, len(schemas))
         self.assertTrue(all(item["compatibilityVersion"] == "1" and Path(item["location"]).is_file() for item in schemas))
         location = self.root / "evidence"
         completed = subprocess.run([str(self.tde), "--format", "json", "--store-location", str(location),

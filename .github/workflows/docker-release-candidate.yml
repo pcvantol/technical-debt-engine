@@ -67,7 +67,7 @@ jobs:
           PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json certify . --qualification-evidence "$RUNNER_TEMP/release-qualification.json" --report-output "$RUNNER_TEMP/release-certification.json" | tee "$RUNNER_TEMP/certify-output.json"
       - name: Assemble checksum-bound certified bundle
         run: |
-          PYTHONPATH=src python tools/assemble_release_bundle.py --candidate-sha "$(git rev-parse HEAD)" --output "$RUNNER_TEMP/bundle" --wheel "$RUNNER_TEMP"/package-one/*.whl --sdist "$RUNNER_TEMP"/package-one/*.tar.gz --oci-archive "$RUNNER_TEMP/oci/tde-oci.tar" --docker-provenance "$RUNNER_TEMP/oci/docker-provenance.json" --release-manifest "$RUNNER_TEMP/release-manifest.json" --release-qualification "$RUNNER_TEMP/release-qualification.json" --release-certification "$RUNNER_TEMP/release-certification.json" --release-evidence "$RUNNER_TEMP/release-manifest.release-evidence.json"
+          PYTHONPATH=src python tools/assemble_release_bundle.py --candidate-sha "$(git rev-parse HEAD)" --release-version "${{ inputs.candidate_version }}" --output "$RUNNER_TEMP/bundle" --wheel "$RUNNER_TEMP"/package-one/*.whl --sdist "$RUNNER_TEMP"/package-one/*.tar.gz --oci-archive "$RUNNER_TEMP/oci/tde-oci.tar" --docker-provenance "$RUNNER_TEMP/oci/docker-provenance.json" --release-manifest "$RUNNER_TEMP/release-manifest.json" --release-qualification "$RUNNER_TEMP/release-qualification.json" --release-certification "$RUNNER_TEMP/release-certification.json" --release-evidence "$RUNNER_TEMP/release-manifest.release-evidence.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docker-release-candidate-${{ steps.candidate.outputs.sha }}
