@@ -39,9 +39,9 @@ class ComplexityTests(unittest.TestCase):
     def test_missing_analyzer_and_unsupported_version_block(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
-            with patch("tde_runtime.complexity.shutil.which",return_value=None):
-                self.assertEqual("BLOCKED",analyze(root)["status"])
-            with patch("tde_runtime.complexity.shutil.which",return_value="radon"), patch("tde_runtime.complexity.subprocess.run") as run:
+            with patch("tde_runtime.analyzer_discovery.shutil.which",return_value=None):
+                self.assertEqual("ANALYZER_NOT_FOUND",analyze(root)["status"])
+            with patch("tde_runtime.analyzer_discovery.shutil.which",return_value="radon"), patch("tde_runtime.analyzer_discovery.subprocess.run") as run:
                 run.return_value.stdout="5.0.0"
                 self.assertEqual("analyzer.radon.unsupported_version",analyze(root)["limitations"][0]["id"])
 
