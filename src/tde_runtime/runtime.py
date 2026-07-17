@@ -13,7 +13,7 @@ from typing import Any, Callable
 from .configuration import RuntimeConfiguration
 from .models import RuntimeContext, RuntimeQualification, RuntimeResult, StageResult, StageStatus, utc_now
 from .registries import AdapterRegistry, CapabilityRegistry, PolicyRegistry
-from .policy import PolicyEngine, PolicyError
+from .policy import PolicyEngine
 from .query import QueryEngine
 from .execution import CapabilityExecutionEngine
 from .runtime_qualification import RuntimeQualificationEngine
@@ -48,8 +48,12 @@ class Runtime:
             raise ValueError("repository root must be an existing directory")
         with TemporaryDirectory(prefix="tde-runtime-") as temporary:
             context = self._context(root, config, Path(temporary))
+            # Policy is configuration, not a post-execution best effort.  Resolve
+            # and validate it before planners or analyzers receive any work.
+            resolved_policy = self._policy_engine.load(context.configuration, context.repository_root,
+                                                       context.runtime_version, context.schema_version)
             stages: list[StageResult] = []
-            values: dict[str, Any] = {"capabilities": (), "adapters": ()}
+            values: dict[str, Any] = {"capabilities": (), "adapters": (), "resolved-policy": resolved_policy}
             for identifier in self._stage_names:
                 result = self._run_stage(identifier, context, values)
                 stages.append(result)
@@ -122,7 +126,7 @@ class Runtime:
             "pipeline-execution": lambda: self._execution_engine.execute(context),
             "normalization": lambda: values.get("pipeline-execution", {"measurements": [], "findings": []}),
             "validation": lambda: self._validation(context, values.get("pipeline-execution", {})),
-            "policy-evaluation": lambda: self._policy(context, values.get("normalization", {})),
+            "policy-evaluation": lambda: self._policy(context, values.get("normalization", {}), values["resolved-policy"]),
             "qualification": lambda: self._qualification(values.get("policy-evaluation", {})),
             "evidence": lambda: self._evidence(context, values.get("validation", self._validation(context, values.get("pipeline-execution", {}))), values.get("normalization", {}), values.get("policy-evaluation", {})),
             "reporting": lambda: self._report(context, values),
@@ -140,16 +144,8 @@ class Runtime:
             return StageStatus.SUCCESS if outputs.get("status") == "VALID" and outputs.get("completeness") == "COMPLETE" else StageStatus.BLOCKED
         return StageStatus.SUCCESS
 
-    def _policy(self, context: RuntimeContext, normalized: dict[str, Any]) -> dict[str, Any]:
-        try:
-            policy = self._policy_engine.load(context.configuration, context.repository_root,
-                                              context.runtime_version, context.schema_version)
-            return self._policy_engine.evaluate(policy, normalized, context.configuration)
-        except PolicyError as error:
-            return {"policy": None, "decision": "BLOCKED", "decisionReason": str(error),
-                    "triggeredRules": [{"ruleId": "policy.validation", "outcome": "BLOCKED", "reason": str(error)}],
-                    "thresholds": {}, "affectedCapabilities": [],
-                    "qualificationReference": {"executionId": context.execution_id}, "qualificationInputs": {}}
+    def _policy(self, context: RuntimeContext, normalized: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
+        return self._policy_engine.evaluate(policy, normalized, context.configuration)
 
     @staticmethod
     def _qualification(policy_evidence: dict[str, Any]) -> dict[str, Any]:
@@ -184,6 +180,7 @@ class Runtime:
         decision = policy_evidence.get("decision", "BLOCKED")
         decision_evidence = {"assessmentId": f"assessment.{context.execution_id.removeprefix('execution.')}",
                              "runtimeVersion": context.runtime_version, "policies": [policy_evidence.get("policy")],
+                             "policyConfiguration": policy_evidence.get("policyConfiguration"),
                              "policyResults": policy_evidence.get("triggeredRules", []), "decision": decision,
                              "capabilityEvidenceReference": context.execution_id, "timestamp": generated_at}
         return {"schemaId": "tde.evidence", "schemaVersion": context.schema_version,

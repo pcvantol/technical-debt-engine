@@ -71,6 +71,27 @@ class PolicyEngineTests(unittest.TestCase):
         with self.assertRaisesRegex(PolicyError, "no policy"):
             PolicyEngine(policy_directories=()).load({}, Path.cwd(), "0.1.0", "1.0.0")
 
+    def test_declarative_configuration_rejects_unknown_duplicate_and_conflicting_rules(self) -> None:
+        base = {"id": "size", "type": "threshold", "capability": "code_size", "metric": "code_size.code_lines",
+                "operator": "greater_than", "threshold": {"warning": 10, "blocking": 20},
+                "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True,
+                "rationale": "Keep changes reviewable."}
+        valid = policy(rules=[base])
+        self.engine.validate(valid)
+        for mutation, message in (
+            ({"capability": "unknown"}, "unknown policy capability"),
+            ({"operator": "equals"}, "invalid policy operator"),
+            ({"threshold": {"warning": 20, "blocking": 10}}, "conflicting thresholds"),
+        ):
+            candidate = json.loads(json.dumps(valid))
+            candidate["rules"][0].update(mutation)
+            with self.assertRaisesRegex(PolicyError, message):
+                self.engine.validate(candidate)
+        duplicate = json.loads(json.dumps(valid))
+        duplicate["rules"].append({**base, "id": "size-second"})
+        with self.assertRaisesRegex(PolicyError, "conflicting enabled policies"):
+            self.engine.validate(duplicate)
+
     def test_cli_exit_codes_match_every_policy_decision(self) -> None:
         self.assertEqual({"PASS": ExitCode.SUCCESS, "PASS_WITH_WARNINGS": ExitCode.WARNING, "FAIL": ExitCode.FAILED,
                           "BLOCKED": ExitCode.BLOCKED, "NOT_APPLICABLE": ExitCode.NOT_SUPPORTED},
