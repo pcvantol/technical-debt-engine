@@ -4,8 +4,13 @@ Technical Debt Engine (TDE) is a standalone, capability-based engineering platfo
 
 TDE is project-independent, platform-independent, CI-independent, language-independent, and vendor-neutral. DJConnect is the first reference consumer; it does not own TDE's architecture, roadmap, or release lifecycle.
 
-The repository contains an operational development package and reproducible
-candidate-build foundation. No package has been published and no release exists.
+Release `0.1.0` is available as the PyPI distribution
+[`technical-debt-engine-runtime`](https://pypi.org/project/technical-debt-engine-runtime/0.1.0/),
+a [GitHub Release](https://github.com/pcvantol/technical-debt-engine/releases/tag/0.1.0),
+and Docker image `docker.io/pcvantol/technical-debt-engine:0.1.0`. The Docker
+OCI index is `sha256:aa648019045a442a0dbce029ee11ecb15c7755d845205fa8f07467e0faf18679`;
+no `latest` tag exists. See [Internal Release Report](INTERNAL_RELEASE_REPORT.md)
+for the immutable publication evidence and release boundary.
 
 ## Product contracts
 
