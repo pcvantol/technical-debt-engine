@@ -104,10 +104,18 @@ class RuntimeConfiguration:
         values["executionOptions"].pop("capabilities", None)
         return self.load(values)
 
-    def with_assessment_profile(self, identifier: str, capabilities: tuple[str, ...]) -> "RuntimeConfiguration":
+    def with_assessment_profile(self, identifier: str, capabilities: tuple[str, ...], *,
+                                identity: Mapping[str, Any] | None = None,
+                                policy_file: str | None = None) -> "RuntimeConfiguration":
         values = self.as_dict()
-        values["assessment"] = {"profile": identifier, "capabilities": list(capabilities)}
+        assessment = {"profile": identifier, "capabilities": list(capabilities)}
+        if identity:
+            assessment["profileIdentity"] = dict(identity)
+        values["assessment"] = assessment
         values["executionOptions"].pop("assessment", None)
+        if policy_file and not values["executionOptions"].get("policy", {}).get("file"):
+            values["policy"] = {**values["executionOptions"].get("policy", {}), "file": policy_file}
+            values["executionOptions"].pop("policy", None)
         configured = self.load(values)
         for capability in capabilities:
             configured = configured.with_capability(capability)

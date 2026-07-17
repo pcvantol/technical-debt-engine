@@ -16,7 +16,7 @@ tde = "tde_cli.main:console_main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-tde_runtime = ["policies/*.json"]
+tde_runtime = ["policies/*.json", "profiles/*.json"]
 
 [tool.unittest]
 start-directory = "tests"

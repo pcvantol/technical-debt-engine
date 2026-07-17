@@ -62,9 +62,21 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "assess", str(self.root))
         self.assertEqual(ExitCode.SUCCESS, code)
         evidence = json.loads(output)["evidence"]
-        self.assertEqual("default", evidence["assessment"]["profile"])
+        self.assertEqual("standard", evidence["assessment"]["profile"])
+        self.assertEqual("1.0.0", evidence["assessment"]["profileVersion"])
+        self.assertTrue(evidence["assessment"]["profileHash"].startswith("sha256:"))
         self.assertEqual({"code_size", "complexity"}, {item["capability"] for item in evidence["assessment"]["capabilityExecutions"]})
         self.assertEqual(evidence["assessmentDecision"]["decision"], evidence["assessment"]["assessmentDecision"])
+
+    def test_assess_uses_the_selected_registered_profile(self) -> None:
+        code, output = self.invoke("--format", "json", "--profile", "minimal", "assess", str(self.root))
+        self.assertEqual(ExitCode.SUCCESS, code)
+        evidence = json.loads(output)["evidence"]
+        self.assertEqual("minimal", evidence["assessment"]["profile"])
+        self.assertEqual(["code_size"], evidence["assessment"]["executionPlan"]["plannedCapabilities"])
+        code, output = self.invoke("--format", "json", "--profile", "unknown", "assess", str(self.root))
+        self.assertEqual(ExitCode.BLOCKED, code)
+        self.assertIn("not registered", json.loads(output)["reason"])
 
     def test_invalid_configuration_blocks_execution(self) -> None:
         config = self.root / "invalid.tde.yml"

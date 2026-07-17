@@ -1,0 +1,10 @@
+{
+  "identifier": "minimal",
+  "version": "1.0.0",
+  "description": "Minimal public assessment for repository code size.",
+  "capabilities": [
+    {"identifier": "code_size", "required": true, "optional": false}
+  ],
+  "policy": {"file": "../policies/generation-1.json"},
+  "metadata": {"default": false}
+}

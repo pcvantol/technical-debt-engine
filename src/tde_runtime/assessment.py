@@ -16,11 +16,18 @@ class AssessmentOrchestrator:
     def __init__(self, profiles: AssessmentProfileRegistry | None = None) -> None:
         self._profiles = profiles or AssessmentProfileRegistry()
 
-    def configure(self, configuration: RuntimeConfiguration, *, profile: str = "default",
+    def configure(self, configuration: RuntimeConfiguration, *, profile: str | None = None,
                   capabilities: tuple[str, ...] = ()) -> RuntimeConfiguration:
         if capabilities:
             return configuration.with_assessment_profile("explicit", capabilities)
-        selected = self._profiles.resolve(profile)
+        try:
+            selected = self._profiles.resolve(profile)
+        except ValueError as error:
+            raise AssessmentError(str(error)) from error
         if selected is None:
-            raise AssessmentError(f"assessment profile is not registered: {profile}")
-        return configuration.with_assessment_profile(str(selected["id"]), tuple(selected["capabilities"]))
+            label = profile if profile is not None else "default"
+            raise AssessmentError(f"assessment profile is not registered: {label}")
+        capabilities = tuple(item["identifier"] for item in selected["capabilities"])
+        return configuration.with_assessment_profile(str(selected["identifier"]), capabilities,
+                                                     identity=dict(selected["identity"]),
+                                                     policy_file=str(selected["policyFile"]))

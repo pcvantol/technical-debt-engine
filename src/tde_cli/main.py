@@ -77,7 +77,7 @@ def _global_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--log-level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "TRACE"), help="Logging level.")
     parser.add_argument("--policy", metavar="FILE", help="Declarative policy configuration file.")
     parser.add_argument("--policy-override", action="append", default=[], metavar="RULE=JSON", help="Override a policy rule with a JSON object.")
-    parser.add_argument("--profile", default="default", help="Registered assessment profile for tde assess.")
+    parser.add_argument("--profile", help="Declarative assessment profile for tde assess.")
     parser.add_argument("--baseline-location", help="Directory used for immutable baselines.")
     parser.add_argument("--history-depth", type=int, help="Maximum baseline history depth for trends.")
     parser.add_argument("--store-location", help="Directory used for canonical evidence storage.")
