@@ -26,6 +26,11 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         script.write_text("#!/bin/sh\nif [ \"$1\" = \"--version\" ]; then echo 10.9.0; exit 0; fi\nprintf '%s\\n' '" + json.dumps(outdated) + "'\nexit 1\n", encoding="utf-8")
         script.chmod(0o755)
 
+    def tool(self, name: str, body: str) -> None:
+        script = self.bin / name
+        script.write_text("#!/bin/sh\n" + body, encoding="utf-8")
+        script.chmod(0o755)
+
     def project(self, *, missing: bool = False) -> None:
         (self.root / "package.json").write_text(json.dumps({"name": "fixture", "dependencies": {"known": "1.0.0", "missing": "1.0.0"}, "devDependencies": {"dev": "1.0.0"}}), encoding="utf-8")
         packages: dict[str, object] = {"": {"name": "fixture"}, "node_modules/known": {"version": "1.0.0"}, "node_modules/dev": {"version": "1.0.0"}, "node_modules/transitive": {"version": "1.0.0"}}
@@ -48,8 +53,8 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         evidence = result["evidence"]
         adapter = evidence["adapterResults"][0]
-        self.assertEqual("npm", adapter["evidence"]["ecosystem"])
-        self.assertEqual("10.9.0", adapter["analyzer"]["version"])
+        self.assertEqual("npm", adapter["evidence"]["ecosystems"][0]["ecosystem"])
+        self.assertEqual("10.9.0", adapter["evidence"]["ecosystems"][0]["analyzer"]["version"])
         values = {item["metricKey"]: item["value"] for item in evidence["measurements"]}
         self.assertEqual(4, values["dependency_health.dependency_count"])
         self.assertEqual(3, values["dependency_health.direct_dependencies"])
@@ -80,3 +85,40 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         code, result = self.assess("--baseline", "dependencies")
         self.assertEqual(ExitCode.SUCCESS, code)
         self.assertEqual("dependency_health", result["differentialEvidence"]["capabilityDeltas"][0]["capabilityId"])
+
+    def test_python_requirements_use_pip_for_pinned_outdated_evidence(self) -> None:
+        (self.root / "requirements.txt").write_text("requests==2.0.0\n", encoding="utf-8")
+        self.tool("pip", 'if [ "$1" = "--version" ]; then echo "pip 25"; else echo "Available versions: 3.0.0, 2.0.0"; fi\n')
+        code, result = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
+        ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
+        self.assertEqual("PyPI", ecosystem["ecosystem"])
+        self.assertEqual(["requests"], ecosystem["outdatedDependencies"])
+
+    def test_nuget_uses_dotnet_outdated_evidence(self) -> None:
+        (self.root / "app.csproj").write_text('<Project><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
+        payload = {"projects": [{"frameworks": [{"topLevelPackages": [{"id": "Example", "latestVersion": "2.0.0"}], "transitivePackages": [{"id": "Transit"}]}]}]}
+        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else printf "%s\\n" \'' + json.dumps(payload) + '\'; fi\n')
+        code, result = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
+        ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
+        self.assertEqual("NuGet", ecosystem["ecosystem"])
+        self.assertEqual(["Example"], ecosystem["outdatedDependencies"])
+
+    def test_platformio_uses_native_outdated_output(self) -> None:
+        (self.root / "platformio.ini").write_text("[env:device]\nlib_deps =\n  vendor/OldLib@^1.0.0\n", encoding="utf-8")
+        self.tool("pio", 'if [ "$1" = "--version" ]; then echo "PlatformIO 6"; else echo "OldLib  1.0.0  1.0.0  2.0.0"; fi\n')
+        code, result = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
+        ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
+        self.assertEqual("PlatformIO", ecosystem["ecosystem"])
+        self.assertEqual(["OldLib"], ecosystem["outdatedDependencies"])
+
+    def test_swiftpm_without_external_packages_is_healthy(self) -> None:
+        (self.root / "Package.swift").write_text('// swift-tools-version: 6.0\nimport PackageDescription\nlet package = Package(name: "Fixture")\n', encoding="utf-8")
+        self.tool("swift", 'echo "Swift 6"\n')
+        code, result = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
+        ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
+        self.assertEqual("SwiftPM", ecosystem["ecosystem"])
+        self.assertEqual([], ecosystem["outdatedDependencies"])

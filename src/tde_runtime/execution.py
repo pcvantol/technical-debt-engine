@@ -263,19 +263,24 @@ class CapabilityExecutionEngine:
 
     @staticmethod
     def _dependency_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:
-        values = (("dependency_count", None if result["outdatedDependencies"] is None and not result.get("available", True) else result["directDependencies"] + result["transitiveDependencies"]),
-                  ("direct_dependencies", result["directDependencies"]), ("transitive_dependencies", result["transitiveDependencies"]),
-                  ("unknown_dependencies", result["unknownDependencies"]), ("outdated_dependencies", result["outdatedDependencies"]))
-        measurements = [{"measurementId": f"dependency_health.repository.{key}", "capabilityId": DEPENDENCY_CAPABILITY_ID,
-                         "metricKey": f"dependency_health.{key}", "value": None if value is None else len(value),
-                         "availability": "UNAVAILABLE" if value is None else "AVAILABLE", "unit": "packages", "scope": "repository",
-                         "targetEntityId": context.repository_id, "aggregation": "count", "sourceAdapterId": DEPENDENCY_ADAPTER_ID,
-                         "sourceToolId": result["analyzer"]["id"]} for key, value in values]
-        evidence = {key: result[key] for key in ("ecosystem", "packageManager", "directDependencies", "transitiveDependencies", "unknownDependencies", "outdatedDependencies")}
-        adapter = {"adapter": {"id": DEPENDENCY_ADAPTER_ID, "version": "1.0.0"}, "analyzer": result["analyzer"], "execution": "SUCCESS",
+        measurements = []
+        records = result["ecosystems"] or [{"ecosystem": "unavailable", "directDependencies": None, "transitiveDependencies": None,
+                                               "unknownDependencies": None, "outdatedDependencies": None,
+                                               "analyzer": {"id": "unavailable", "version": "UNAVAILABLE"}}]
+        for record in records:
+            values = (("dependency_count", None if record["directDependencies"] is None or record["transitiveDependencies"] is None else record["directDependencies"] + record["transitiveDependencies"]),
+                      ("direct_dependencies", record["directDependencies"]), ("transitive_dependencies", record["transitiveDependencies"]),
+                      ("unknown_dependencies", record["unknownDependencies"]), ("outdated_dependencies", record["outdatedDependencies"]))
+            ecosystem = record["ecosystem"].lower().replace(" ", "_")
+            measurements.extend({"measurementId": f"dependency_health.{ecosystem}.{key}", "capabilityId": DEPENDENCY_CAPABILITY_ID,
+                                 "metricKey": f"dependency_health.{key}", "value": None if value is None else len(value),
+                                 "availability": "UNAVAILABLE" if value is None else "AVAILABLE", "unit": "packages", "scope": "ecosystem",
+                                 "targetEntityId": f"ecosystem.{ecosystem}", "aggregation": "count", "sourceAdapterId": DEPENDENCY_ADAPTER_ID,
+                                 "sourceToolId": record["analyzer"]["id"]} for key, value in values)
+        adapter = {"adapter": {"id": DEPENDENCY_ADAPTER_ID, "version": "1.0.0"}, "analyzer": {"id": "platform", "version": "1.0.0"}, "execution": "SUCCESS",
                    "rawOutputHash": result["rawOutputHash"], "rawOutput": result["rawOutput"], "measuredScope": ["repository"], "completeness": 1,
                    "draftMeasurements": measurements, "draftFindings": [], "warnings": [], "errors": [], "limitations": result["limitations"],
-                   "evidence": evidence, "executionTiming": {"durationMs": duration}}
+                   "evidence": {"ecosystems": result["ecosystems"]}, "executionTiming": {"durationMs": duration}}
         capability = {"capabilityId": DEPENDENCY_CAPABILITY_ID, "capabilityVersion": DEPENDENCY_CAPABILITY_VERSION, "status": "VALID",
                       "adapterIds": [DEPENDENCY_ADAPTER_ID], "completeness": 1, "qualificationApplicable": bool(result.get("available", True)),
                       "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
