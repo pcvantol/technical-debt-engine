@@ -15,7 +15,7 @@ class CapabilityRegistry:
             {"id": "complexity", "version": "0.1.0", "description": "Canonical cyclomatic-complexity metrics", "outputContract": "tde.complexity.v1", "analyzerSelection": "highest_priority", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("complexity.radon",)},
             {"id": "coverage", "version": "0.1.0", "description": "Canonical test coverage metrics from existing artifacts", "outputContract": "tde.coverage.v1", "analyzerSelection": "highest_priority", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("coverage.artifact",)},
             {"id":"maintainability","version":"0.1.0","status":"VALIDATED"},
-            {"id":"dependency_health","version":"1.0.0","description":"Canonical npm dependency-health evidence", "outputContract":"tde.dependency_health.v1", "analyzerSelection":"highest_priority", "qualificationRules":"complete_adapter_evidence", "supportedAnalyzers":("dependency_health.npm",)},
+            {"id":"dependency_health","version":"1.0.0","description":"Canonical DJConnect dependency-health evidence", "outputContract":"tde.dependency_health.v1", "analyzerSelection":"highest_priority", "qualificationRules":"complete_adapter_evidence", "supportedAnalyzers":("dependency_health.platform",)},
         )
 
 
@@ -25,7 +25,7 @@ class AdapterRegistry:
             {"id": "code_size.cloc", "version": "0.1.0", "analyzer": "cloc", "capabilities": ("code_size",), "minimumVersion": "2.10", "platforms": ("any",), "priority": 100},
             {"id":"complexity.radon","version":"0.1.0","analyzer":"radon", "capabilities": ("complexity",), "minimumVersion": "6.0", "platforms": ("any",), "priority": 100},
             {"id":"coverage.artifact","version":"0.1.0","analyzer":"coverage-artifact", "capabilities": ("coverage",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
-            {"id":"dependency_health.npm","version":"1.0.0","analyzer":"npm", "capabilities": ("dependency_health",), "minimumVersion": "9.0", "platforms": ("any",), "priority": 100},
+            {"id":"dependency_health.platform","version":"1.0.0","analyzer":"consumer-native", "capabilities": ("dependency_health",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
         )
 
     def select(self, capability: dict[str, object]) -> dict[str, object] | None:

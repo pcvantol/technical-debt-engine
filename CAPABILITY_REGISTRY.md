@@ -14,7 +14,7 @@ Registration requires the complete [capability contract](CAPABILITY_CONTRACT.md)
 | `complexity` | 0.1.0 | VALIDATED | Measurement | `complexity.radon` | Python implemented; others planned | `complexity.cyclomatic.*`; findings | Observational PASS |
 | `maintainability` | 0.1.0 | VALIDATED | Measurement | Derived canonical evidence | Code Size + Complexity | `maintainability.index`; summary | Observational PASS |
 | `duplication` | 0.x | PLANNED | Measurement | TBD | Adapter-defined | `duplication.*`; findings | Supported when implemented |
-| `dependency_health` | 1.0.0 | VALIDATED | Measurement | `dependency_health.npm` | npm projects with committed `package-lock.json` | `dependency_health.dependency_count`, direct/transitive/unknown/outdated counts; canonical adapter evidence | Policy driven |
+| `dependency_health` | 1.0.0 | VALIDATED | Measurement | `dependency_health.platform` | DJConnect pip, npm, NuGet, SwiftPM, and PlatformIO manifests | `dependency_health.dependency_count`, direct/transitive/unknown/outdated counts; canonical adapter evidence | Policy driven |
 | `test_health` | 0.x | PLANNED | Measurement | TBD | Adapter-defined | `test.*`; summary | Supported when implemented |
 | `qualification` | 0.1.0 | VALIDATED | Qualification | Policy Engine output | All compatible evidence | decision; qualification report | Core |
 | `evidence` | 0.x | PLANNED | Infrastructure | Canonical evidence | All | evidence envelope | Not applicable |

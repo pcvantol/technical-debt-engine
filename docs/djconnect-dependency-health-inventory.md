@@ -1,34 +1,26 @@
 # DJConnect dependency-health inventory
 
-## Selection for G2-B
+## Platform consumer set
 
-The selected 1.0 dependency-health consumer is `pcvantol/djconnect-api`.
-Its root `package.json` and committed `package-lock.json` identify npm as the
-package manager, and its active `ci-cd.yml` pipeline provides a practical
-consumer path. npm can supply lockfile-backed direct/transitive evidence and
-native `npm outdated --json` evidence without introducing a second dependency
-analysis product.
+Dependency Health is a DJConnect-platform capability. It executes in every
+active DJConnect repository pipeline; it does not select a single consumer.
+Each assessment remains repository-scoped, and G2-D will retain the resulting
+canonical evidence from every repository for platform-level consumption.
 
-`pcvantol/djconnect-pi` was inspected but is not selected for this capability:
-it declares Python dependencies in `pyproject.toml` but does not provide a
-committed Python lockfile. It therefore cannot presently provide reproducible
-transitive and outdated evidence for this narrow 1.0 capability. Python support
-is post-1.0 until a concrete consumer and reliable artifact exist.
+| Repository | Ecosystem / package manager | Dependency source | Native outdated evidence |
+| --- | --- | --- | --- |
+| `djconnect` | Python / pip | `requirements-dev.txt`, verification requirements | `pip index versions` for pinned requirements |
+| `djconnect-pi` | Python / pip | `pyproject.toml` | Explicit unavailable when requirements are not pinned |
+| `djconnect-api` | npm | `package.json`, `package-lock.json` | `npm outdated --json --package-lock-only` |
+| `djconnect-website` | npm | `package.json`, `package-lock.json` | `npm outdated --json --package-lock-only` |
+| `djconnect-windows` | NuGet / dotnet | `*.csproj` | `dotnet package list --outdated --include-transitive --format json` |
+| `djconnect-app` | SwiftPM | `Package.swift` | No external dependencies currently; zero dependencies is explicit evidence |
+| `djconnect-esp32` | PlatformIO | `platformio.ini` | `pio pkg outdated` |
+| `djconnect-firmware` | none | release artifacts only | Explicit unavailable/no manifest evidence |
 
-No NuGet repository is selected: `djconnect-windows` contains project files,
-but no selected 1.0 pipeline or lockfile-backed consumer evidence was identified
-for this increment.
+## Boundary
 
-## Scope record
-
-| Item | Decision |
-| --- | --- |
-| Ecosystem | npm only |
-| Package manager | npm with `package-lock.json` |
-| Consumer | `pcvantol/djconnect-api` |
-| Native analyzer | `npm outdated --json --package-lock-only` |
-| Evidence source | `package.json`, `package-lock.json`, native npm output |
-| Unsupported | Python, NuGet, other JavaScript package managers, unlocked npm projects |
-
-TDE reads these inputs and normalizes evidence only. It does not install,
-update, publish, or rewrite dependencies.
+The capability normalizes package-manager output; it does not install, update,
+publish, resolve, or rewrite dependencies. Unavailable native data is retained
+per ecosystem rather than guessed. CVE data, licenses, SBOMs, supply-chain
+governance, and automatic remediation remain post-1.0.
