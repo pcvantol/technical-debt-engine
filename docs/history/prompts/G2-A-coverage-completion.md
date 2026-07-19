@@ -33,10 +33,11 @@ tests, or install consumer CI integration.
 ## Closure and limits
 
 G2-A moves from the active backlog to completed work. Supported artifacts are
-Cobertura-compatible XML (including coverage.py XML) and LCOV. JaCoCo and
-other report formats are not added speculatively. Test execution, coverage
-generation, test-health analysis, and consumer CI installation remain out of
-scope; consumer rollout remains G2-D.
+Cobertura-compatible XML (including coverage.py XML), LCOV, and the JSON
+summary emitted by `xcrun xccov view --json` are supported because they are
+used by DJConnect. JaCoCo and other report formats are not added speculatively.
+Test execution, coverage generation, test-health analysis, and consumer CI
+installation remain out of scope; consumer rollout remains G2-D.
 
 ## Next bounded work
 

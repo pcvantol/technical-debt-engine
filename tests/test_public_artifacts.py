@@ -34,6 +34,13 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
         (target / "coverage.xml").write_text('<coverage line-rate="0.5"><packages><package><classes><class><lines><line number="1" hits="1"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>', encoding="utf-8")
         return target
 
+    def _xccov_repository(self, directory: Path) -> Path:
+        target = directory / "xccov-repository"
+        target.mkdir()
+        (target / "sample.swift").write_text("let value = 1\n", encoding="utf-8")
+        (target / "coverage.json").write_text('{"coveredLines":3,"executableLines":4,"lineCoverage":0.75,"targets":[]}', encoding="utf-8")
+        return target
+
     def _dependency_repository(self, directory: Path) -> Path:
         target = directory / "dependency-repository"
         target.mkdir()
@@ -84,6 +91,18 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             response = json.loads(completed.stdout)
             self.assertEqual("coverage", response["evidence"]["capabilityResults"][0]["capabilityId"])
             self.assertEqual("cobertura-xml", response["evidence"]["adapterResults"][0]["evidence"]["parser"])
+
+    def test_wheel_public_cli_consumes_xccov_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); wheel = self._wheel(root); environment = root / "venv"
+            child_environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
+            subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True, env=child_environment)
+            commands = environment / ("Scripts" if os.name == "nt" else "bin")
+            subprocess.run([str(commands / "pip"), "install", "--no-deps", str(wheel)], check=True, capture_output=True, text=True, env=child_environment)
+            completed = subprocess.run([str(commands / "tde"), "--format", "json", "assess", "--capability", "coverage", str(self._xccov_repository(root))], capture_output=True, text=True, check=False, env=child_environment)
+            self.assertEqual(0, completed.returncode, completed.stderr)
+            response = json.loads(completed.stdout)
+            self.assertEqual("xccov-json", response["evidence"]["adapterResults"][0]["evidence"]["parser"])
 
     def test_wheel_public_cli_normalizes_dependency_health(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
