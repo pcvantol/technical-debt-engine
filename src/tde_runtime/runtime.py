@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -91,8 +92,14 @@ class Runtime:
     def _repository_digest(root: Path) -> str:
         """Identify source content independently of an absolute checkout path."""
         digest = sha256()
-        excluded = {".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist"}
-        for path in sorted(item for item in root.rglob("*") if item.is_file() and not any(part in excluded for part in item.relative_to(root).parts)):
+        excluded = {".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist", ".build", ".swiftpm", ".pio", ".release", ".public-release"}
+        def included_directory(name: str) -> bool:
+            return name not in excluded and not name.startswith(".xcode-derived")
+        files = []
+        for directory, names, filenames in os.walk(root):
+            names[:] = [name for name in names if included_directory(name)]
+            files.extend(Path(directory, name) for name in filenames)
+        for path in sorted(files):
             relative = path.relative_to(root).as_posix()
             digest.update(relative.encode("utf-8"))
             digest.update(b"\0")

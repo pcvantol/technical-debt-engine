@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import fnmatch
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -56,7 +58,7 @@ def _npm(root: Path, timeout: int) -> dict[str, Any]:
 
 
 def _python(root: Path, timeout: int) -> dict[str, Any] | None:
-    requirements = [path for path in root.rglob("requirements*.txt") if not _ignored(path, root)]
+    requirements = _manifest_files(root, "requirements*.txt")
     pyproject = root / "pyproject.toml"
     if not requirements and not pyproject.is_file(): return None
     direct: dict[str, str] = {}
@@ -87,7 +89,7 @@ def _python(root: Path, timeout: int) -> dict[str, Any] | None:
 
 
 def _nuget(root: Path, timeout: int) -> dict[str, Any] | None:
-    projects = [path for path in root.rglob("*.csproj") if not _ignored(path, root)]
+    projects = _manifest_files(root, "*.csproj")
     if not projects: return None
     direct = []
     for project in projects:
@@ -159,4 +161,13 @@ def _outdated_command(name: str, command: list[str], root: Path, timeout: int) -
         completed = subprocess.run([executable, *command[1:]], cwd=root, capture_output=True, text=True, timeout=timeout, check=False); raw = completed.stdout or "{}"; parsed = json.loads(raw)
         return sorted(parsed) if isinstance(parsed, dict) else None, {"id": name, "version": _version(executable, root, timeout)}, raw, []
     except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as error: return None, {"id": name, "version": "UNAVAILABLE"}, "", [_limitation(f"dependency_health.{name}.outdated.unavailable", str(error))]
-def _ignored(path: Path, root: Path) -> bool: return any(part in {".git", "node_modules", "dist", ".venv", "venv"} for part in path.relative_to(root).parts)
+def _manifest_files(root: Path, pattern: str) -> list[Path]:
+    manifests = []
+    for directory, names, files in os.walk(root):
+        names[:] = [name for name in names if not _ignored_directory(name)]
+        manifests.extend(Path(directory, name) for name in files if fnmatch.fnmatch(name, pattern))
+    return sorted(manifests)
+
+
+def _ignored_directory(name: str) -> bool:
+    return name in {".git", "node_modules", "dist", "build", ".venv", "venv", ".build", ".swiftpm", ".pio", ".release", ".public-release"} or name.startswith(".xcode-derived")

@@ -78,6 +78,16 @@ class RuntimeFoundationTests(unittest.TestCase):
             (Path(second) / "sample.py").write_bytes(b"VALUE = 1\r\n")
             self.assertEqual(Runtime._repository_digest(Path(first)), Runtime._repository_digest(Path(second)))
 
+    def test_repository_digest_ignores_generated_dependency_artifacts(self) -> None:
+        (self.root / "sample.py").write_text("VALUE = 1\n", encoding="utf-8")
+        original = Runtime._repository_digest(self.root)
+        generated = self.root / ".xcode-derived-build" / "Build"
+        generated.mkdir(parents=True)
+        (generated / "generated.bin").write_bytes(b"generated output")
+        (self.root / ".build").mkdir()
+        (self.root / ".build" / "manifest.db").write_bytes(b"generated output")
+        self.assertEqual(original, Runtime._repository_digest(self.root))
+
     def test_repository_identity_uses_git_origin_across_checkouts(self) -> None:
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
             for directory in (Path(first), Path(second)):
