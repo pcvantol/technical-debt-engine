@@ -105,6 +105,14 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         self.assertEqual("NuGet", ecosystem["ecosystem"])
         self.assertEqual(["Example"], ecosystem["outdatedDependencies"])
 
+    def test_nuget_restore_failure_fails_closed(self) -> None:
+        (self.root / "app.csproj").write_text('<Project><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
+        payload = {"version": 1, "problems": [{"text": "Restore failed", "level": "error"}]}
+        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else printf "%s\\n" \'' + json.dumps(payload) + '\'; exit 1; fi\n')
+        code, result = self.assess()
+        self.assertEqual(ExitCode.BLOCKED, code)
+        self.assertEqual("BLOCKED", result["status"])
+
     def test_platformio_uses_native_outdated_output(self) -> None:
         (self.root / "platformio.ini").write_text("[env:device]\nlib_deps =\n  vendor/OldLib@^1.0.0\n", encoding="utf-8")
         self.tool("pio", 'if [ "$1" = "--version" ]; then echo "PlatformIO 6"; else echo "OldLib  1.0.0  1.0.0  2.0.0"; fi\n')
@@ -116,9 +124,10 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
 
     def test_swiftpm_without_external_packages_is_healthy(self) -> None:
         (self.root / "Package.swift").write_text('// swift-tools-version: 6.0\nimport PackageDescription\nlet package = Package(name: "Fixture")\n', encoding="utf-8")
-        self.tool("swift", 'echo "Swift 6"\n')
+        self.tool("swift", 'exit 97\n')
         code, result = self.assess()
         self.assertEqual(ExitCode.SUCCESS, code)
         ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
         self.assertEqual("SwiftPM", ecosystem["ecosystem"])
         self.assertEqual([], ecosystem["outdatedDependencies"])
+        self.assertEqual("NOT_REQUIRED", ecosystem["analyzer"]["version"])

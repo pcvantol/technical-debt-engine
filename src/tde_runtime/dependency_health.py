@@ -31,10 +31,13 @@ def analyze(root: Path, timeout: int) -> dict[str, Any]:
     if (root / "Package.swift").is_file(): records.append(_swift(root, timeout))
     if not records:
         return _unavailable("no supported dependency manifest was found")
+    limitations = [item for record in records for item in record["limitations"]]
+    if any(item["blocking"] for item in limitations):
+        return {"status": "BLOCKED", "limitations": limitations}
     raw = "\n".join(item["rawOutput"] for item in records)
     return {"status": "VALID", "ecosystems": records, "rawOutput": raw,
             "rawOutputHash": "sha256:" + sha256(raw.encode()).hexdigest(),
-            "limitations": [item for record in records for item in record["limitations"]]}
+            "limitations": limitations}
 
 
 def _npm(root: Path, timeout: int) -> dict[str, Any]:
@@ -97,6 +100,11 @@ def _nuget(root: Path, timeout: int) -> dict[str, Any] | None:
         try:
             completed = subprocess.run([dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"], cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
             raw.append(completed.stdout); payload = json.loads(completed.stdout or "{}")
+            problems = payload.get("problems", [])
+            errors = [item.get("text", "NuGet analysis failed") for item in problems if item.get("level") == "error"]
+            if completed.returncode != 0 or errors:
+                detail = "; ".join(errors) or completed.stderr.strip() or f"dotnet exited with status {completed.returncode}"
+                return _analysis_failed("NuGet", "dotnet", f"{project}: {detail}")
             for project_data in payload.get("projects", []):
                 for framework in project_data.get("frameworks", []):
                     outdated.extend(item["id"] for item in framework.get("topLevelPackages", []) if item.get("latestVersion"))
@@ -126,8 +134,7 @@ def _platformio(root: Path, timeout: int) -> dict[str, Any]:
 def _swift(root: Path, timeout: int) -> dict[str, Any]:
     contents = (root / "Package.swift").read_text(encoding="utf-8")
     direct = re.findall(r"\.package\([^\n]*?(?:url|path):\s*\"([^\"]+)", contents)
-    swift = shutil.which("swift")
-    analyzer = {"id": "swift", "version": _version(swift, root, timeout) if swift else "UNAVAILABLE"}
+    analyzer = {"id": "swift", "version": "NOT_REQUIRED"}
     limitations = [] if not direct else [_limitation("dependency_health.swift.outdated.unavailable", "SwiftPM has no non-mutating outdated command")]
     return _record("SwiftPM", "SwiftPM", sorted(direct), None, None, [] if not direct else None, analyzer, "", limitations)
 
@@ -137,6 +144,7 @@ def _record(ecosystem: str, manager: str, direct: list[str], transitive: list[st
 
 
 def _blocked(ecosystem: str, manager: str, reason: str) -> dict[str, Any]: return _record(ecosystem, manager, [], None, None, None, {"id": manager, "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.manifest.invalid", reason, True)])
+def _analysis_failed(ecosystem: str, manager: str, reason: str) -> dict[str, Any]: return _record(ecosystem, manager, [], None, None, None, {"id": manager, "version": "UNAVAILABLE"}, "", [_limitation(f"dependency_health.{manager}.analysis.failed", reason, True)])
 def _unavailable(reason: str) -> dict[str, Any]: return {"status": "VALID", "ecosystems": [], "rawOutput": "", "rawOutputHash": "sha256:" + sha256(b"").hexdigest(), "limitations": [_limitation("dependency_health.ecosystem.unavailable", reason)] , "available": False}
 def _limitation(identifier: str, description: str, blocking: bool = False) -> dict[str, Any]: return {"id": identifier, "description": description, "cause": "dependency health", "blocking": blocking}
 def _version(executable: str, root: Path, timeout: int) -> str:
