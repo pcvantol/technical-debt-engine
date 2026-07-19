@@ -14,6 +14,10 @@ development, real pipeline risk, supported analyzer/language, existing coverage
 or dependency artifacts, reasonable execution time, clear ownership, and no
 duplicate required checks.
 
+G2-B established the platform-wide dependency-health baseline but does not
+select the G2-D CI pilot or claim that every repository already runs TDE as a
+required check. That selection remains intentionally small and evidence-led.
+
 Each selected pipeline progresses from read-only observation to warning and
 soft-fail. A required check is allowed only after a documented stable-evidence
 period. CI retains the canonical assessment evidence as an artifact. The
