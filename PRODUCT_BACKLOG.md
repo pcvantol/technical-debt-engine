@@ -4,7 +4,7 @@
 
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
-| G2-D CI integration and production pilot | Selected DJConnect pipelines run pinned TDE and retain evidence. | Immutable version/artifact; evidence artifacts; observe/warn/soft-fail history; required-check proof only where stable. | Consumer-side analyzer/policy duplication; unpinned checkout integration. |
+| G2-D CI integration and production pilot | `djconnect-pi` runs exact-pinned public TDE in Observe mode and retains evidence. | [Two successful Observe runs](docs/djconnect-observe-pilot.md); then a documented stable-evidence period before any warn/soft-fail/required decision. | Consumer-side analyzer/policy duplication; unpinned checkout integration; phase promotion without evidence. |
 | G2-E 1.0 qualification and release | DJConnect can trust one certified release across chosen distribution paths. | Green artifact and consumer qualification; known limitations; one `1.0.0` publication bundle. | Per-capability public releases; release-engineering expansion without a proven gap. |
 
 ## Completed in Generation 2
