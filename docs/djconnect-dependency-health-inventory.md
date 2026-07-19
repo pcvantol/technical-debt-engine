@@ -25,5 +25,7 @@ publish, resolve, or rewrite dependencies. Unavailable native data is retained
 per ecosystem rather than guessed. A failed native analysis, including a NuGet
 restore failure, blocks the capability rather than reporting healthy zero
 metrics. SwiftPM projects without external dependencies do not invoke Swift;
-their zero-dependency evidence is derived from the manifest. CVE data, licenses,
-SBOMs, supply-chain governance, and automatic remediation remain post-1.0.
+their zero-dependency evidence is derived from the manifest. For NuGet, outdated
+evidence includes direct and transitive packages when the native output supplies
+a newer version. CVE data, licenses, SBOMs, supply-chain governance, and
+automatic remediation remain post-1.0.
