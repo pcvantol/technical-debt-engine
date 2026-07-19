@@ -24,6 +24,9 @@ an assessment failure.
 Dependency Health detects only the dependency ecosystems documented in the
 DJConnect platform inventory; otherwise it records explicit unavailable
 evidence without invalidating the repository assessment.
+Code Size excludes generated dependency and build directories, including .NET
+`bin` and `obj`, before invoking `cloc`; local compilation output is not
+repository source code and cannot affect policy measurements.
 
 Profiles are JSON documents with an identifier, version, description,
 capability entries, a policy file and metadata. Each capability selects exactly

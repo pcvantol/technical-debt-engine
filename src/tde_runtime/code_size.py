@@ -12,6 +12,7 @@ CAPABILITY_VERSION = "0.1.0"
 ADAPTER_ID = "code_size.cloc"
 ADAPTER_VERSION = "0.1.0"
 MINIMUM_ANALYZER_VERSION = (2, 10)
+EXCLUDED_DIRECTORIES = (".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio", ".release", ".public-release")
 
 def classify(path: str) -> str:
     value = path.replace("\\", "/").lower()
@@ -27,7 +28,7 @@ def analyze(root: Path, timeout: int = 60) -> dict[str, Any]:
     if discovery["status"] != "VALID":
         return {"status": discovery["status"], "limitations": [discovery["limitation"]]}
     try:
-        result = subprocess.run([discovery["executable"], "--json", "--by-file", "--quiet", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
+        result = subprocess.run([discovery["executable"], "--json", "--by-file", "--quiet", f"--exclude-dir={','.join(EXCLUDED_DIRECTORIES)}", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
         raw = result.stdout
         data = json.loads(raw)
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError, json.JSONDecodeError) as error:

@@ -92,7 +92,7 @@ class Runtime:
     def _repository_digest(root: Path) -> str:
         """Identify source content independently of an absolute checkout path."""
         digest = sha256()
-        excluded = {".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist", ".build", ".swiftpm", ".pio", ".release", ".public-release"}
+        excluded = {".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio", ".release", ".public-release"}
         def included_directory(name: str) -> bool:
             return name not in excluded and not name.startswith(".xcode-derived")
         files = []
