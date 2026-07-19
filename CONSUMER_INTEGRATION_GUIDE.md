@@ -6,4 +6,8 @@
 4. Validate schema/runtime versions, candidate/repository IDs and evidence integrity.
 5. Store source evidence immutably and project platform summaries without changing it.
 
-The current integration is blocked at steps 1 and 2; this guide introduces no consumer implementation.
+`djconnect-pi` completed steps 1–5 in Observe mode with the exact published
+`technical-debt-engine-runtime==0.2.0` distribution. Its retained evidence and
+current limitations are recorded in
+[the Phase 1 Observe record](docs/djconnect-observe-pilot.md). No other
+consumer is selected by this guide.
