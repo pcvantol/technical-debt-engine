@@ -23,6 +23,21 @@ qualification. The website artifact also produced a public-CLI baseline and
 differential whose sole capability delta is `coverage`, plus a repository
 qualification of `QUALIFIED` with assessment decision `PASS`.
 
+## Post-merge completion proof — 2026-07-19
+
+The branch-collection changes were subsequently merged in the two Python
+consumer repositories and their fresh post-merge artifacts were assessed with
+the public CLI:
+
+| Repository | Source CI artifact | Canonical result |
+| --- | --- | --- |
+| `djconnect` | Run `29683579286`, `ha-cobertura-coverage`, main `b2681ad` | 37,275 / 42,486 lines (87.73%) and 6,566 / 9,528 branches (68.91%); `VALID` / `QUALIFIED`. |
+| `djconnect-pi` | Run `29683630590`, `pi-cobertura-coverage`, main `55a2f34` | 4,201 / 5,594 lines (75.10%) and 1,063 / 1,704 branches (62.38%); `VALID` / `QUALIFIED`. |
+
+This completes the live-artifact proof for the read-only Coverage capability.
+It does not activate a required TDE CI check; that phased consumer rollout is
+still G2-D work.
+
 ## Platform coverage snapshot — 2026-07-19
 
 The read-only platform scan consumes the latest non-expired coverage artifact
@@ -31,8 +46,8 @@ cross-repository quality score.
 
 | Repository | Artifact format | Line coverage | Branch coverage | TDE result |
 | --- | --- | ---: | ---: | --- |
-| `djconnect` | coverage.py XML | 37,242 / 42,454 (87.72%) | unavailable | `VALID` / `QUALIFIED` |
-| `djconnect-pi` | coverage.py XML | 4,201 / 5,594 (75.10%) | unavailable | `VALID` / `QUALIFIED` |
+| `djconnect` | coverage.py XML | 37,275 / 42,486 (87.73%) | 6,566 / 9,528 (68.91%) | `VALID` / `QUALIFIED` |
+| `djconnect-pi` | coverage.py XML | 4,201 / 5,594 (75.10%) | 1,063 / 1,704 (62.38%) | `VALID` / `QUALIFIED` |
 | `djconnect-api` | Cobertura XML | 509 / 571 (89.14%) | 354 / 459 (77.12%) | `VALID` / `QUALIFIED` |
 | `djconnect-website` | Cobertura XML | 198 / 205 (96.59%) | 29 / 35 (82.86%) | `VALID` / `QUALIFIED` |
 | `djconnect-windows` | coverage.py XML | 4,348 / 5,031 (86.42%) | 1,324 / 2,138 (61.93%) | `VALID` / `QUALIFIED` |
