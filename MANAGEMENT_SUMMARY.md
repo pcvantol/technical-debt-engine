@@ -12,13 +12,16 @@ release. No per-capability public release is planned; post-1.0 is
 maintenance-first. [ADR-0064](architecture/adr/ADR-0064-djconnect-enablement-program.md)
 and [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md) are canonical for this decision.
 
-G2-B Minimal Dependency Health is complete. The public CLI produced valid,
+G2-A Coverage Completion and G2-B Minimal Dependency Health are complete. G2-A
+validated existing CI artifacts from the Python backend, website, and ESP32
+firmware through public CLI, differential, and qualification contracts; TDE
+does not generate those artifacts. G2-B produced valid,
 qualified, package-manager-native evidence across the eight active DJConnect
 repositories. The baseline is intentionally limited to pip, npm, NuGet,
 SwiftPM, and PlatformIO where those repositories require them; it remains a
 pipeline decision capability, not a supply-chain product. The remaining active
-1.0 work is G2-A Coverage Completion, G2-C Basic Security Evidence, G2-D
-consumer integration/pilot, and G2-E integrated qualification and release.
+1.0 work is G2-C Basic Security Evidence, G2-D consumer integration/pilot, and
+G2-E integrated qualification and release.
 
 The remainder of this document is preserved historical management context and
 does not override the current decision above.
