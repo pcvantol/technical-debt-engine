@@ -124,10 +124,15 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
 
     def test_swiftpm_without_external_packages_is_healthy(self) -> None:
         (self.root / "Package.swift").write_text('// swift-tools-version: 6.0\nimport PackageDescription\nlet package = Package(name: "Fixture")\n', encoding="utf-8")
+        generated = self.root / ".xcode-derived" / "cache"
+        generated.mkdir(parents=True)
+        (generated / "requirements.txt").write_text("generated-package==1.0.0\n", encoding="utf-8")
         self.tool("swift", 'exit 97\n')
         code, result = self.assess()
         self.assertEqual(ExitCode.SUCCESS, code)
-        ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
+        ecosystems = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"]
+        self.assertEqual(["SwiftPM"], [item["ecosystem"] for item in ecosystems])
+        ecosystem = ecosystems[0]
         self.assertEqual("SwiftPM", ecosystem["ecosystem"])
         self.assertEqual([], ecosystem["outdatedDependencies"])
         self.assertEqual("NOT_REQUIRED", ecosystem["analyzer"]["version"])

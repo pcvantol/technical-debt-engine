@@ -29,3 +29,8 @@ their zero-dependency evidence is derived from the manifest. For NuGet, outdated
 evidence includes direct and transitive packages when the native output supplies
 a newer version. CVE data, licenses, SBOMs, supply-chain governance, and
 automatic remediation remain post-1.0.
+
+Generated dependency artifacts, including SwiftPM, Xcode-derived, PlatformIO,
+and release-output directories, are excluded before manifest discovery and
+candidate hashing. They cannot change dependency evidence or make a repository
+scan scale with local build output.
