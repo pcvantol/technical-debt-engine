@@ -2,7 +2,8 @@
 
 This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md); immutable archives are in [docs/history/prompts](docs/history/prompts). Prompt archives apply prospectively from `G2-GOV-1`; earlier rows remain preserved historical navigation until separately archived.
 
-| [G2-GOV-7](docs/history/prompts/G2-GOV-7-tde-1-0-djconnect-enablement.md) | TDE 1.0 DJConnect Enablement Program Initialization | Active — governance-only draft PR in preparation |
+| [G2-GOV-7](docs/history/prompts/G2-GOV-7-tde-1-0-djconnect-enablement.md) | TDE 1.0 DJConnect Enablement Program Initialization | [Merged — #109](https://github.com/pcvantol/technical-debt-engine/pull/109) |
+| [G2-B](docs/history/prompts/G2-B-minimal-dependency-health-closure.md) | Minimal Dependency Health Closure | Active — closure record prepared before reviewable transition |
 
 | Prompt | Scope | Status |
 | --- | --- | --- |

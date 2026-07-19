@@ -12,7 +12,7 @@ Generation 1 is complete. Generation 2 is a deliberately compact path to
 | Stream | Outcome | Gate before completion |
 | --- | --- | --- |
 | G2-A Coverage Completion | Existing coverage artifacts become qualified canonical assessment evidence; TDE never produces them. | Public CLI/schema/policy/differential/qualification proof. |
-| G2-B Minimal Dependency Health | Minimal, pilot-selected ecosystem support with useful evidence and policy decisions. | Ecosystem inventory, explicit support boundary, and public evidence proof. |
+| G2-B Minimal Dependency Health | **Complete.** Platform-wide, package-manager-native dependency evidence for the active DJConnect repositories. | Inventory, bounded support, canonical evidence, policy, differential, qualification, and public-CLI proof recorded. |
 | G2-C Basic Security Evidence | Minimal normalized security evidence that adds one DJConnect assessment decision without duplicating native controls. | GitHub-native-tooling gap analysis and pilot decision proof. |
 | G2-D Consumer Integration | A thin pinned public-CLI integration in a small selected DJConnect pilot set. | Observe → warn → soft-fail → required only after stability evidence. |
 | G2-E Qualification and Release | One qualified public `1.0.0` release. | Artifact, consumer, limitation, and release qualification all green. |

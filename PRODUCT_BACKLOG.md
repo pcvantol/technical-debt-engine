@@ -5,10 +5,15 @@
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
 | G2-A Coverage completion | A selected pilot consumes its existing coverage artifact for a reliable policy decision. Consumer selected during G2-D discovery. | Public CLI, schema, policy, differential, and qualification evidence; no test execution by TDE. | Test execution, coverage generation, test-health analysis. |
-| G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
 | G2-C Basic security | A selected pilot receives one useful normalized security decision beyond existing native checks. | Native-tooling gap analysis; canonical evidence; policy and pilot proof. | Security-platform replacement, broad scanning, duplicate GitHub-native checks. |
 | G2-D CI integration and production pilot | Selected DJConnect pipelines run pinned TDE and retain evidence. | Immutable version/artifact; evidence artifacts; observe/warn/soft-fail history; required-check proof only where stable. | Consumer-side analyzer/policy duplication; unpinned checkout integration. |
 | G2-E 1.0 qualification and release | DJConnect can trust one certified release across chosen distribution paths. | Green artifact and consumer qualification; known limitations; one `1.0.0` publication bundle. | Per-capability public releases; release-engineering expansion without a proven gap. |
+
+## Completed in Generation 2
+
+| Item | Concrete DJConnect value / validated consumers | Acceptance evidence | Explicit non-goals |
+| --- | --- | --- | --- |
+| G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, qualification, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
 
 ## Conditional — only if the pilot proves necessary
 
