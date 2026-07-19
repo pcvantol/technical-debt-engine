@@ -31,7 +31,7 @@ and `complexity.cyclomatic.maximum` for `complexity`.
       "capability": "code_size",
       "metric": "code_size.code_lines",
       "operator": "greater_than",
-      "threshold": {"warning": 10000, "blocking": 25000},
+      "threshold": {"warning": 25000, "blocking": 50000},
       "severity": {"warning": "WARNING", "blocking": "BLOCKING"},
       "enabled": true,
       "rationale": "Large repositories require deliberate decomposition."

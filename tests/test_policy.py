@@ -97,6 +97,11 @@ class PolicyEngineTests(unittest.TestCase):
                           "BLOCKED": ExitCode.BLOCKED, "NOT_APPLICABLE": ExitCode.NOT_SUPPORTED},
                          {decision: _policy_exit_code(decision) for decision in ("PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED", "NOT_APPLICABLE")})
 
+    def test_bundled_code_size_policy_has_product_repository_thresholds(self) -> None:
+        bundled = Path(__file__).parents[1] / "src" / "tde_runtime" / "policies" / "generation-1.json"
+        rule = next(item for item in json.loads(bundled.read_text(encoding="utf-8"))["rules"] if item["id"] == "code_size.repository_lines")
+        self.assertEqual({"warning": 25000, "blocking": 50000}, rule["threshold"])
+
     def test_real_code_size_and_complexity_evidence_drives_policy_and_persistence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
