@@ -19,9 +19,10 @@ An increment without convincing answers is not active 1.0 work.
 
 ## Active workstreams
 
-- **G2-A — Coverage Completion.** Finish and qualify the merged coverage
-  capability through public contracts. It consumes existing artifacts only and
-  never runs tests or generates coverage.
+- **G2-A — Coverage Completion.** **Complete.** Existing CI artifacts from
+  `djconnect`, `djconnect-website`, and `djconnect-esp32` are qualified through
+  public contracts. TDE consumes them only and never runs tests or generates
+  coverage.
 - **G2-B — Minimal Dependency Health.** Select only ecosystems used by the
   chosen pilot and produce the canonical evidence and policy decisions it
   needs. Unsupported ecosystems are explicit.

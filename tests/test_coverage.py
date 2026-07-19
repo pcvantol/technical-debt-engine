@@ -12,6 +12,7 @@ from tde_cli.main import ExitCode, main
 COBERTURA = '''<coverage line-rate="0.5" branch-rate="0.5"><packages><package><classes><class><lines><line number="1" hits="1" branch="true" condition-coverage="50% (1/2)"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>'''
 COVERAGE_PY = '''<coverage version="7.0" line-rate="0.5" branch-rate="0.5" lines-valid="2" lines-covered="1" branches-valid="2" branches-covered="1"><packages><package><classes><class><lines><line number="1" hits="1" branch="true" condition-coverage="50% (1/2)"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>'''
 LCOV = "SF:sample.py\nDA:1,1\nDA:2,0\nBRDA:1,0,0,1\nBRDA:1,0,1,0\nend_of_record\n"
+COBERTURA_METHOD_DUPLICATES = '''<coverage version="0.1" line-rate="0.5" branch-rate="0" lines-valid="2" lines-covered="1" branches-valid="0" branches-covered="0"><packages><package><classes><class><methods><method><lines><line number="1" hits="1"/><line number="2" hits="0"/></lines></method></methods><lines><line number="1" hits="1"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>'''
 
 
 class CoverageBlackBoxTests(unittest.TestCase):
@@ -54,6 +55,16 @@ class CoverageBlackBoxTests(unittest.TestCase):
         values = {item["metricKey"]: item["value"] for item in result["evidence"]["measurements"]}
         self.assertEqual(1, values["coverage.covered_lines"])
         self.assertEqual(2, values["coverage.total_branches"])
+
+    def test_cobertura_method_lines_are_not_double_counted_and_zero_branch_summary_is_unavailable(self) -> None:
+        (self.root / "coverage.xml").write_text(COBERTURA_METHOD_DUPLICATES, encoding="utf-8")
+        code, result = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
+        values = {item["metricKey"]: item for item in result["evidence"]["measurements"]}
+        self.assertEqual("cobertura-xml", result["evidence"]["adapterResults"][0]["evidence"]["parser"])
+        self.assertEqual(50.0, values["coverage.line_coverage"]["value"])
+        self.assertIsNone(values["coverage.branch_coverage"]["value"])
+        self.assertEqual("UNAVAILABLE", values["coverage.branch_coverage"]["availability"])
 
     def test_missing_coverage_is_available_as_explicit_unavailable_evidence(self) -> None:
         code, result = self.assess()
