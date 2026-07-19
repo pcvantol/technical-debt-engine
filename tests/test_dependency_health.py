@@ -97,13 +97,13 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
 
     def test_nuget_uses_dotnet_outdated_evidence(self) -> None:
         (self.root / "app.csproj").write_text('<Project><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
-        payload = {"projects": [{"frameworks": [{"topLevelPackages": [{"id": "Example", "latestVersion": "2.0.0"}], "transitivePackages": [{"id": "Transit"}]}]}]}
+        payload = {"projects": [{"frameworks": [{"topLevelPackages": [{"id": "Example", "latestVersion": "2.0.0"}], "transitivePackages": [{"id": "Transit", "latestVersion": "2.0.0"}]}]}]}
         self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else printf "%s\\n" \'' + json.dumps(payload) + '\'; fi\n')
         code, result = self.assess()
         self.assertEqual(ExitCode.SUCCESS, code)
         ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
         self.assertEqual("NuGet", ecosystem["ecosystem"])
-        self.assertEqual(["Example"], ecosystem["outdatedDependencies"])
+        self.assertEqual(["Example", "Transit"], ecosystem["outdatedDependencies"])
 
     def test_nuget_restore_failure_fails_closed(self) -> None:
         (self.root / "app.csproj").write_text('<Project><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")

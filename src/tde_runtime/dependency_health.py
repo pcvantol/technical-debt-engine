@@ -108,6 +108,7 @@ def _nuget(root: Path, timeout: int) -> dict[str, Any] | None:
             for project_data in payload.get("projects", []):
                 for framework in project_data.get("frameworks", []):
                     outdated.extend(item["id"] for item in framework.get("topLevelPackages", []) if item.get("latestVersion"))
+                    outdated.extend(item["id"] for item in framework.get("transitivePackages", []) if item.get("latestVersion"))
                     transitive.extend(item["id"] for item in framework.get("transitivePackages", []) if item.get("id"))
         except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as error:
             outdated = None; transitive = None; limitations.append(_limitation("dependency_health.nuget.outdated.unavailable", str(error)))
