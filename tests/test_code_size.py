@@ -25,6 +25,9 @@ class CodeSizeTests(unittest.TestCase):
         (self.root / "tests" / "test_app.py").write_text("def test_value():\n    assert 1 == 1\n", encoding="utf-8")
         (self.root / "docs" / "readme.md").write_text("# Documentation\n", encoding="utf-8")
         (self.root / "vendor" / "library.py").write_text("x = 1\n", encoding="utf-8")
+        (self.root / "obj").mkdir(); (self.root / "bin").mkdir()
+        (self.root / "obj" / "generated.cs").write_text("generated output\n", encoding="utf-8")
+        (self.root / "bin" / "generated.cs").write_text("generated output\n", encoding="utf-8")
 
     def tearDown(self) -> None: self.directory.cleanup()
 
@@ -40,6 +43,10 @@ class CodeSizeTests(unittest.TestCase):
         self.assertTrue(evidence["adapterResults"][0]["rawOutputHash"].startswith("sha256:"))
         self.assertTrue(any(item["scope"] == "language" for item in evidence["measurements"]))
         self.assertTrue(any(item["scope"] == "file" for item in evidence["measurements"]))
+
+    def test_code_size_excludes_dotnet_build_output(self) -> None:
+        result = analyze(self.root)
+        self.assertTrue(all(not item["path"].startswith(("obj/", "bin/")) for item in result["files"]))
 
     def test_evidence_digest_is_stable_for_same_repository_and_configuration(self) -> None:
         configuration = RuntimeConfiguration.load({"capabilities": {"code_size": {"enabled": True}}})

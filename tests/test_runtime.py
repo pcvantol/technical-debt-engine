@@ -86,6 +86,10 @@ class RuntimeFoundationTests(unittest.TestCase):
         (generated / "generated.bin").write_bytes(b"generated output")
         (self.root / ".build").mkdir()
         (self.root / ".build" / "manifest.db").write_bytes(b"generated output")
+        (self.root / "obj").mkdir()
+        (self.root / "obj" / "generated.dll.s").write_bytes(b"generated output")
+        (self.root / "bin").mkdir()
+        (self.root / "bin" / "generated.dll.s").write_bytes(b"generated output")
         self.assertEqual(original, Runtime._repository_digest(self.root))
 
     def test_repository_identity_uses_git_origin_across_checkouts(self) -> None:
