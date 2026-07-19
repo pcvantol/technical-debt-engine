@@ -12,7 +12,7 @@
 
 | Item | Concrete DJConnect value / validated consumers | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
-| G2-A Coverage completion | Existing CI coverage artifacts from `djconnect`, `djconnect-website`, and `djconnect-esp32` become reliable canonical evidence without test execution by TDE. | Public CLI parser, policy, baseline/differential, runtime and repository-qualification proof; real CI artifact validation. | Test execution, coverage generation, test-health analysis, consumer-CI integration. |
+| G2-A Coverage completion | Existing CI coverage artifacts from `djconnect`, `djconnect-pi`, `djconnect-website`, and `djconnect-esp32` become reliable canonical evidence without test execution by TDE. | Public CLI parser, policy, baseline/differential, runtime and repository-qualification proof; fresh post-merge branch-coverage and real CI artifact validation. | Test execution, coverage generation, test-health analysis, consumer-CI integration. |
 | G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, qualification, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
 
 ## Conditional — only if the pilot proves necessary
