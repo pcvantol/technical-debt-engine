@@ -4,7 +4,6 @@
 
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
-| G2-C Basic security | A selected pilot receives one useful normalized security decision beyond existing native checks. | Native-tooling gap analysis; canonical evidence; policy and pilot proof. | Security-platform replacement, broad scanning, duplicate GitHub-native checks. |
 | G2-D CI integration and production pilot | Selected DJConnect pipelines run pinned TDE and retain evidence. | Immutable version/artifact; evidence artifacts; observe/warn/soft-fail history; required-check proof only where stable. | Consumer-side analyzer/policy duplication; unpinned checkout integration. |
 | G2-E 1.0 qualification and release | DJConnect can trust one certified release across chosen distribution paths. | Green artifact and consumer qualification; known limitations; one `1.0.0` publication bundle. | Per-capability public releases; release-engineering expansion without a proven gap. |
 
@@ -14,6 +13,7 @@
 | --- | --- | --- | --- |
 | G2-A Coverage completion | Existing CI coverage artifacts from `djconnect`, `djconnect-pi`, `djconnect-website`, and `djconnect-esp32` become reliable canonical evidence without test execution by TDE. | Public CLI parser, policy, baseline/differential, runtime and repository-qualification proof; fresh post-merge branch-coverage and real CI artifact validation. | Test execution, coverage generation, test-health analysis, consumer-CI integration. |
 | G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, qualification, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
+| G2-C Security gap assessment | The eight active DJConnect repositories have an evidence-based security architecture decision before TDE scope expands. | [Security Gap Assessment](SECURITY_GAP_ASSESSMENT.md): native controls inventoried; no selected-pilot decision requires TDE security evidence; no 1.0 capability approved. | New analyzer, runtime/schema/policy changes, dependency or security scanning, SBOM, dashboards, and release-engineering changes. |
 
 ## Conditional — only if the pilot proves necessary
 
@@ -41,3 +41,6 @@ activation and priority:
   work without a demonstrated bottleneck; parallel execution, caching, and
   incremental analysis without operational evidence.
 - Any release-per-capability practice.
+- Security-evidence normalization, Dependency Review evidence, container
+  vulnerability evidence, licence evidence, and native code-scanning expansion
+  without a selected DJConnect consumer and demonstrated missing decision.
