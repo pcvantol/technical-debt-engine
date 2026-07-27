@@ -91,40 +91,64 @@ def _python(root: Path, timeout: int) -> dict[str, Any] | None:
 def _nuget(root: Path, timeout: int, settings: Mapping[str, Any] | None = None) -> dict[str, Any] | None:
     projects = _manifest_files(root, "*.csproj")
     if not projects: return None
-    direct = []
     for project in projects:
-        try: direct.extend(item.attrib["Include"] for item in ET.parse(project).iter() if item.tag.endswith("PackageReference") and "Include" in item.attrib)
+        try: _project_frameworks(project)
         except (ET.ParseError, OSError) as error: return _blocked("NuGet", "dotnet", str(error))
+    direct = _nuget_direct_dependencies(projects)
     dotnet = shutil.which("dotnet")
     if not dotnet: return _record("NuGet", "dotnet", sorted(set(direct)), None, None, None, {"id": "dotnet", "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.dotnet.unavailable", "dotnet was not found on PATH")])
-    selected_framework = (settings or {}).get("nugetFramework")
-    if selected_framework is not None and (not isinstance(selected_framework, str) or not selected_framework.strip()):
-        return _configuration_failed("NuGet", "dotnet", "dependency_health.nugetFramework must be a non-empty string")
-    selected_framework = selected_framework.strip() if isinstance(selected_framework, str) else None
+    try: selected_framework = _nuget_framework(settings)
+    except ValueError as error: return _configuration_failed("NuGet", "dotnet", str(error))
     raw, outdated, transitive, limitations = [], [], [], []
     for project in projects:
         try:
-            frameworks = _project_frameworks(project)
-            if selected_framework and frameworks and selected_framework not in frameworks:
-                return _configuration_failed("NuGet", "dotnet", f"{project}: configured nugetFramework '{selected_framework}' is not declared by the project")
-            command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"]
-            if selected_framework:
-                command.extend(["--framework", selected_framework])
-            completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
-            raw.append(completed.stdout); payload = json.loads(completed.stdout or "{}")
-            problems = payload.get("problems", [])
-            errors = [item.get("text", "NuGet analysis failed") for item in problems if item.get("level") == "error"]
-            if completed.returncode != 0 or errors:
-                detail = "; ".join(errors) or completed.stderr.strip() or f"dotnet exited with status {completed.returncode}"
-                return _analysis_failed("NuGet", "dotnet", f"{project}: {detail}")
-            for project_data in payload.get("projects", []):
-                for framework in project_data.get("frameworks", []):
-                    outdated.extend(item["id"] for item in framework.get("topLevelPackages", []) if item.get("latestVersion"))
-                    outdated.extend(item["id"] for item in framework.get("transitivePackages", []) if item.get("latestVersion"))
-                    transitive.extend(item["id"] for item in framework.get("transitivePackages", []) if item.get("id"))
+            output, project_outdated, project_transitive = _nuget_project(dotnet, root, project, selected_framework, timeout)
+            raw.append(output); outdated.extend(project_outdated); transitive.extend(project_transitive)
+        except ValueError as error:
+            return _configuration_failed("NuGet", "dotnet", str(error))
+        except _NugetAnalysisError as error:
+            return _analysis_failed("NuGet", "dotnet", f"{project}: {error}")
         except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as error:
             outdated = None; transitive = None; limitations.append(_limitation("dependency_health.nuget.outdated.unavailable", str(error)))
     return _record("NuGet", "dotnet", sorted(set(direct)), None if transitive is None else sorted(set(transitive) - set(direct)), None, None if outdated is None else sorted(set(outdated)), {"id": "dotnet", "version": _version(dotnet, root, timeout)}, "".join(raw), limitations)
+
+
+class _NugetAnalysisError(Exception):
+    """Native package-manager output cannot provide canonical evidence."""
+
+
+def _nuget_direct_dependencies(projects: list[Path]) -> list[str]:
+    return [item.attrib["Include"] for project in projects for item in ET.parse(project).iter()
+            if item.tag.endswith("PackageReference") and "Include" in item.attrib]
+
+
+def _nuget_framework(settings: Mapping[str, Any] | None) -> str | None:
+    value = (settings or {}).get("nugetFramework")
+    if value is None: return None
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("dependency_health.nugetFramework must be a non-empty string")
+    return value.strip()
+
+
+def _nuget_project(dotnet: str, root: Path, project: Path, framework: str | None, timeout: int) -> tuple[str, list[str], list[str]]:
+    if framework and (declared := _project_frameworks(project)) and framework not in declared:
+        raise ValueError(f"{project}: configured nugetFramework '{framework}' is not declared by the project")
+    command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"]
+    if framework: command.extend(["--framework", framework])
+    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
+    payload = json.loads(completed.stdout or "{}")
+    errors = [item.get("text", "NuGet analysis failed") for item in payload.get("problems", []) if item.get("level") == "error"]
+    if completed.returncode != 0 or errors:
+        raise _NugetAnalysisError("; ".join(errors) or completed.stderr.strip() or f"dotnet exited with status {completed.returncode}")
+    return completed.stdout, *_nuget_packages(payload)
+
+
+def _nuget_packages(payload: Mapping[str, Any]) -> tuple[list[str], list[str]]:
+    frameworks = [framework for project in payload.get("projects", []) for framework in project.get("frameworks", [])]
+    outdated = [item["id"] for framework in frameworks for key in ("topLevelPackages", "transitivePackages")
+                for item in framework.get(key, []) if item.get("latestVersion")]
+    transitive = [item["id"] for framework in frameworks for item in framework.get("transitivePackages", []) if item.get("id")]
+    return outdated, transitive
 
 
 def _platformio(root: Path, timeout: int) -> dict[str, Any]:
