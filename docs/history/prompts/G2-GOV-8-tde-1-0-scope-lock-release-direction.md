@@ -48,6 +48,14 @@ analyzer, schema, policy, workflow, consumer, or release-engineering change.
   that still reported two runs or no selected consumer.
 - `git diff --check` passed before the implementation commit.
 
+## Archive delivery reconciliation
+
+PR #125 merged automatically when it was changed from draft to reviewable,
+before this finalization record was included in its merged head. This immutable
+record is therefore delivered unchanged by a documentation-only reconciliation
+PR. The scope decision, implementation commit, and PR #125 identity above are
+unchanged; the reconciliation adds no product decision or implementation.
+
 ## Known limitations
 
 - The `djconnect-pi` assessment and qualification outcomes remain `FAIL` and
