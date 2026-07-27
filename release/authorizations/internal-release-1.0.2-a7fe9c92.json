@@ -1,0 +1,31 @@
+{
+  "approvedDockerHub": "docker.io/pcvantol/technical-debt-engine:1.0.2",
+  "approvedGitHubRelease": "1.0.2",
+  "approvedGitTag": "1.0.2",
+  "approvedPyPI": "1.0.2",
+  "authorizationId": "authorization.sha256.612fa7a2ef43422f7cfb7153bb647190b2af90e36811be86aacc8d2f68252a40",
+  "authorizedAt": "2026-07-27T20:36:00Z",
+  "authorizedBy": "pcvantol",
+  "bundleArtifact": {
+    "id": "8667384582",
+    "name": "docker-release-candidate-a7fe9c9250049057c2aa9691655a453524e3bc73",
+    "retentionDays": 90,
+    "runId": "30303126723"
+  },
+  "bundleChecksum": "sha256:1e37a76e2f41d4e528f440afd9dcaa026adcf6b5f299cda8e688d75ab436d787",
+  "bundleId": "bundle.sha256.da8ab306b07698ae254eae3f50511a1d3152a4e169a349030375d1b781645118",
+  "candidateSha": "a7fe9c9250049057c2aa9691655a453524e3bc73",
+  "decision": "TDE_1_0_2_RELEASE_AUTHORIZED",
+  "protectedEnvironment": "internal-release",
+  "publicationExecuted": false,
+  "publicationWorkflow": ".github/workflows/internal-release-publish.yml",
+  "releaseVersion": "1.0.2",
+  "schemaId": "tde.internal-release-authorization",
+  "schemaVersion": "1.0.0",
+  "targetApprovals": {
+    "docker_hub": true,
+    "github_release": true,
+    "pypi": true
+  },
+  "targets": ["github_release", "pypi", "docker_hub"]
+}
