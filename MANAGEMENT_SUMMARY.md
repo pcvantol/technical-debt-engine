@@ -4,7 +4,7 @@
 
 `0.2.0` is published and qualified. Generation 1 is complete. DJConnect is the
 primary product and TDE supplies a small, reproducible pipeline-assessment
-function. The locked 1.0 scope is one immutable candidate, qualification with
+function. The locked 1.0 scope is one immutable `1.0.0rc1` candidate, qualification with
 the selected `djconnect-pi` consumer, and one integrated public `1.0.0`
 release. No per-capability public release is planned; post-1.0 is
 maintenance-first. The binding decision and its release sequence are in
@@ -16,7 +16,8 @@ repository-native controls; no TDE security capability is in 1.0.
 `djconnect-pi` is the sole selected consumer and has three retained successful
 non-blocking Observe runs using the public `0.2.0` CLI. The exact immutable
 1.0 candidate—not the source tree or the prior `0.2.0` observation—is the next
-consumer-qualification subject. WARN, soft-fail, required checks, and broader
+consumer-qualification subject. The candidate preparation aligns the existing
+four-capability standard profile; it does not add functionality. WARN, soft-fail, required checks, and broader
 consumer rollout are not part of this release.
 
 The remainder of this document is preserved historical management context and
