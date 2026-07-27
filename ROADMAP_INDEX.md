@@ -12,9 +12,10 @@ Read active planning sources in this order:
 
 Generation 2 is the **TDE 1.0 DJConnect Enablement Program**. `0.2.0` is
 published and qualified; `1.0.0` is the next planned public release. G2-A
-Coverage Completion and G2-B Minimal Dependency Health are complete. The
-remaining active work is bounded to basic security evidence, selected consumer
-integration/pilot, and integrated qualification/release.
+Coverage Completion, G2-B Minimal Dependency Health, and G2-C Security Gap
+Assessment are complete. The remaining active work is one immutable candidate,
+qualification with the selected `djconnect-pi` consumer, and integrated public
+release. The binding classification is in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
 
 The former three-program roadmap, platform-evolution backlog, and product
 definition expansion documents are historical planning context. They are not

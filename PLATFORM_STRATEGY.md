@@ -26,15 +26,15 @@ An increment without convincing answers is not active 1.0 work.
 - **G2-B — Minimal Dependency Health.** Select only ecosystems used by the
   chosen pilot and produce the canonical evidence and policy decisions it
   needs. Unsupported ecosystems are explicit.
-- **G2-C — Basic Security Evidence.** Normalize only the small set of evidence
-  needed for a DJConnect decision, reusing specialized and GitHub-native tools
-  where possible.
-- **G2-D — DJConnect Consumer Integration.** Use one thin, pinned,
-  reproducible GitHub Actions integration or reusable workflow; public TDE
-  interfaces remain authoritative. Pilot phases are observe, warn, soft-fail,
-  then required check after stable evidence.
-- **G2-E — TDE 1.0 Qualification and Release.** Qualify the real artifacts and
-  chosen consumers, record limitations, and publish `1.0.0` once.
+- **G2-C — Security Gap Assessment.** **Complete.** Existing GitHub-native and
+  repository-native controls remain decision owners; no TDE 1.0 security
+  capability is justified.
+- **G2-D — DJConnect Consumer Integration.** `djconnect-pi` is the sole
+  selected, thin, pinned public-CLI consumer and remains non-blocking in
+  Observe. Wider rollout or phase promotion is post-1.0 work.
+- **G2-E — TDE 1.0 Qualification and Release.** Create one immutable candidate,
+  qualify its real artifacts and selected consumer, record limitations, and
+  publish `1.0.0` once. The binding sequence is in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
 
 ## Boundaries
 
