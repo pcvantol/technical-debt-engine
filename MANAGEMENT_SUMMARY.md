@@ -4,11 +4,13 @@
 
 `0.2.0` is published and qualified. Generation 1 is complete. DJConnect is the
 primary product and TDE supplies a small, reproducible pipeline-assessment
-function. The locked 1.0 scope is one immutable `1.0.0rc1` candidate, qualification with
-the selected `djconnect-pi` consumer, and one integrated public `1.0.0`
-release. No per-capability public release is planned; post-1.0 is
-maintenance-first. The binding decision and its release sequence are in
-[TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
+function. The failed `1.0.0rc1` candidates are preserved as NO-GO evidence:
+the current draft PR #130 repairs release qualification selection so the four
+already completed capabilities can be evaluated. After that merge, the locked
+1.0 scope is one new immutable RC2, qualification with the selected
+`djconnect-pi` consumer, and one integrated public `1.0.0` release. No
+per-capability public release is planned; post-1.0 is maintenance-first. The
+binding decision and its release sequence are in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
 
 G2-A Coverage Completion, G2-B Minimal Dependency Health, and G2-C Security
 Gap Assessment are complete. Security remains owned by GitHub-native and

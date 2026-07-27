@@ -265,7 +265,8 @@ def _apply_command_configuration(configuration: RuntimeConfiguration, arguments:
     if arguments.command == "assess":
         return AssessmentOrchestrator().configure(configuration, profile=arguments.profile, capabilities=tuple(item.replace("-", "_") for item in arguments.capability))
     if arguments.command == "release-qualify":
-        supported = {"code-size": "code_size", "complexity": "complexity"}
+        supported = {"code-size": "code_size", "complexity": "complexity", "coverage": "coverage",
+                     "dependency-health": "dependency_health"}
         if not arguments.release_capability or any(item not in supported for item in arguments.release_capability): raise ValueError("release-qualify requires one or more supported --release-capability values")
         for capability in sorted(set(arguments.release_capability)): configuration = configuration.with_capability(supported[capability])
     return configuration
