@@ -24,7 +24,7 @@ class RuntimeFoundationTests(unittest.TestCase):
 
     def test_pipeline_executes_all_generic_stages(self) -> None:
         result = Runtime().execute(self.root)
-        self.assertEqual(14, len(result.stages))
+        self.assertEqual(15, len(result.stages))
         self.assertEqual("BLOCKED", next(stage for stage in result.stages if stage.identifier == "pipeline-execution").status.value)
         self.assertEqual("BLOCKED", next(stage for stage in result.stages if stage.identifier == "validation").status.value)
         self.assertEqual("execution-planning", result.stages[5].identifier)
@@ -34,7 +34,7 @@ class RuntimeFoundationTests(unittest.TestCase):
         policy_stage = next(stage for stage in result.stages if stage.identifier == "policy-evaluation")
         qualification_stage = next(stage for stage in result.stages if stage.identifier == "qualification")
         self.assertEqual(policy_stage.outputs["decision"], qualification_stage.outputs["policyDecision"])
-        self.assertEqual(policy_stage.outputs, result.evidence["policyEvidence"])
+        self.assertEqual(policy_stage.outputs, {key: value for key, value in result.evidence["policyEvidence"].items() if key != "schema"})
         self.assertEqual(policy_stage.outputs["decision"], result.evidence["assessmentDecision"]["decision"])
         self.assertTrue(result.evidence["assessmentDecision"]["assessmentId"].startswith("assessment."))
         self.assertEqual(result.evidence["policyEvidence"]["policyConfiguration"],
@@ -61,7 +61,7 @@ class RuntimeFoundationTests(unittest.TestCase):
 
     def test_context_contains_canonical_runtime_values(self) -> None:
         result = Runtime().execute(self.root)
-        self.assertEqual("1.0.0rc1", result.context.runtime_version)
+        self.assertEqual("1.0.0rc2", result.context.runtime_version)
         self.assertEqual("1.0.0", result.context.schema_version)
         self.assertTrue(result.context.execution_id.startswith("execution."))
         self.assertEqual("content_digest", result.context.candidate["identityType"])

@@ -51,7 +51,7 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
             "identifier": "example.code-size", "version": "2026.1", "scope": "repository",
             "owner": "example", "description": "Example organization policy.",
             "supportedCapabilities": ["code_size"], "supportedSchemas": ["1.0.0"],
-            "supportedRuntimeVersions": ["1.0.0rc1"],
+            "supportedRuntimeVersions": ["1.0.0rc2"],
             "rules": [{"id": "example.code-size.lines", "type": "threshold", "capability": "code_size",
                        "metric": "code_size.code_lines", "operator": "greater_than",
                        "threshold": {"warning": threshold, "blocking": threshold + 1000},
@@ -93,7 +93,7 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
                      *evidence["assessment"]["capabilityExecutions"]]:
             self.assertEqual("1.0.0", item["schema"]["version"])
             self.assertEqual("1", item["schema"]["compatibilityVersion"])
-            self.assertEqual("1.0.0rc1", item["schema"]["runtimeVersion"])
+            self.assertEqual("1.0.0rc2", item["schema"]["runtimeVersion"])
         record = next((location / "evidence").glob("*.json"))
         persisted = json.loads(record.read_text(encoding="utf-8"))
         persisted["evidence"]["policyEvidence"]["schema"]["version"] = "999.0.0"
@@ -157,10 +157,11 @@ class PublicPolicyConfigurationTests(unittest.TestCase):
         evidence = json.loads(completed.stdout)["evidence"]
         assessment = evidence["assessment"]
         self.assertEqual("standard", assessment["profile"])
-        self.assertEqual("1.0.0", assessment["profileVersion"])
+        self.assertEqual("1.2.0", assessment["profileVersion"])
         self.assertTrue(assessment["profileHash"].startswith("sha256:"))
-        self.assertEqual(["code_size", "complexity"], assessment["executionPlan"]["plannedCapabilities"])
-        self.assertEqual({"code_size", "complexity"}, {item["capability"] for item in assessment["capabilityExecutions"]})
+        self.assertEqual(["code_size", "complexity", "coverage", "dependency_health"], assessment["executionPlan"]["plannedCapabilities"])
+        self.assertEqual({"code_size", "complexity", "coverage", "dependency_health"},
+                         {item["capability"] for item in assessment["capabilityExecutions"]})
         self.assertTrue(assessment["startedAt"])
         self.assertTrue(assessment["completedAt"])
         isolated = {**self.environment, "PATH": str(self.tde.parent)}
