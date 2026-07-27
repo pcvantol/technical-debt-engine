@@ -22,7 +22,7 @@ class ReleasePublicationTests(unittest.TestCase):
         files["qualification.json"] = json.dumps(qualification).encode(); files["certification.json"] = json.dumps(certification).encode()
         for name, value in files.items(): (inputs / name).write_bytes(value)
         output = root / "bundle"
-        command = ["python", "tools/assemble_release_bundle.py", "--candidate-sha", self.candidate, "--release-version", "1.0.0rc2", "--output", str(output),
+        command = ["python", "tools/assemble_release_bundle.py", "--candidate-sha", self.candidate, "--release-version", "1.0.0rc3", "--output", str(output),
                    "--wheel", str(inputs / "wheel.whl"), "--sdist", str(inputs / "source.tar.gz"), "--oci-archive", str(inputs / "image.tar"),
                    "--docker-provenance", str(inputs / "docker-provenance.json"), "--release-manifest", str(inputs / "manifest.json"),
                    "--release-qualification", str(inputs / "qualification.json"), "--release-certification", str(inputs / "certification.json"), "--release-evidence", str(inputs / "evidence.json")]
@@ -32,13 +32,13 @@ class ReleasePublicationTests(unittest.TestCase):
     def authorization(self, bundle):
         manifest = json.loads((bundle / "bundle-manifest.json").read_text())
         return {"authorizedBy": "release-reviewer", "authorizedAt": "2026-07-16T00:00:00Z", "candidateSha": self.candidate,
-                "releaseVersion": "1.0.0rc2", "bundleId": manifest["bundleId"], "bundleChecksum": manifest["bundleChecksum"],
+                "releaseVersion": "1.0.0rc3", "bundleId": manifest["bundleId"], "bundleChecksum": manifest["bundleChecksum"],
                 "targets": ["github_release", "pypi", "docker_hub"]}
 
     def test_preflight_reads_existing_bundle_and_writes_no_bundle_content(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); bundle = self.bundle(root); before = sorted(item.name for item in bundle.iterdir())
-            result = verify_publication_bundle(bundle, self.candidate, "1.0.0rc2", self.authorization(bundle))
+            result = verify_publication_bundle(bundle, self.candidate, "1.0.0rc3", self.authorization(bundle))
             self.assertEqual("PUBLICATION_PREFLIGHT_READY", result["decision"])
             self.assertEqual(before, sorted(item.name for item in bundle.iterdir()))
 
@@ -52,13 +52,13 @@ class ReleasePublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             bundle = self.bundle(Path(temporary)); record = self.authorization(bundle)
             record.update({"schemaId": "tde.internal-release-authorization",
-                           "approvedGitTag": "1.0.0rc2", "approvedGitHubRelease": "1.0.0rc2", "approvedPyPI": "1.0.0rc2",
-                           "approvedDockerHub": "docker.io/pcvantol/technical-debt-engine:1.0.0rc2", "protectedEnvironment": "internal-release",
+                           "approvedGitTag": "1.0.0rc3", "approvedGitHubRelease": "1.0.0rc3", "approvedPyPI": "1.0.0rc3",
+                           "approvedDockerHub": "docker.io/pcvantol/technical-debt-engine:1.0.0rc3", "protectedEnvironment": "internal-release",
                            "publicationWorkflow": ".github/workflows/internal-release-publish.yml", "targetApprovals": {"github_release": True, "pypi": True, "docker_hub": True}})
             record["authorizationId"] = "authorization.sha256." + sha256(canonical(record)).hexdigest()
-            self.assertFalse(validate_authorization_record(record, self.candidate, "1.0.0rc2", record["bundleId"], record["bundleChecksum"]))
+            self.assertFalse(validate_authorization_record(record, self.candidate, "1.0.0rc3", record["bundleId"], record["bundleChecksum"]))
             record["targetApprovals"]["pypi"] = False
-            self.assertTrue(validate_authorization_record(record, self.candidate, "1.0.0rc2", record["bundleId"], record["bundleChecksum"]))
+            self.assertTrue(validate_authorization_record(record, self.candidate, "1.0.0rc3", record["bundleId"], record["bundleChecksum"]))
 
     def test_workflow_is_manual_dry_run_and_never_rebuilds(self):
         workflow = Path(".github/workflows/internal-release-publish.yml").read_text(encoding="utf-8")
