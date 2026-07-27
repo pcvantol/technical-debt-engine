@@ -71,7 +71,7 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
 
     def test_unknown_dependency_and_policy_are_evaluated(self) -> None:
         self.project(missing=True); self.npm({})
-        policy = {"identifier": "dependency-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "dependency threshold", "supportedCapabilities": ["dependency_health"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.1"], "rules": [{"id": "unknown", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.unknown_dependencies", "operator": "greater_than", "threshold": {"warning": 1, "blocking": 1}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "unknown dependencies"}]}
+        policy = {"identifier": "dependency-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "dependency threshold", "supportedCapabilities": ["dependency_health"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.2"], "rules": [{"id": "unknown", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.unknown_dependencies", "operator": "greater_than", "threshold": {"warning": 1, "blocking": 1}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "unknown dependencies"}]}
         path = self.root / "policy.json"; path.write_text(json.dumps(policy), encoding="utf-8")
         code, result = self.invoke("--policy", str(path), "assess", "--capability", "dependency_health", str(self.root))
         self.assertEqual(ExitCode.FAILED, code)
@@ -115,6 +115,16 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         self.assertEqual(ExitCode.SUCCESS, code)
         ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
         self.assertEqual(["Example"], ecosystem["outdatedDependencies"])
+
+    def test_nuget_framework_is_scoped_to_projects_that_declare_it(self) -> None:
+        app = self.root / "app.csproj"; tests = self.root / "tests.csproj"
+        app.write_text('<Project><PropertyGroup><TargetFrameworks>net10.0-maccatalyst;net10.0-windows10.0.19041.0</TargetFrameworks></PropertyGroup><ItemGroup><PackageReference Include="App" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
+        tests.write_text('<Project><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Tests" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
+        (self.root / ".tde.yml").write_text("capabilities:\n  dependency_health:\n    nugetFramework: net10.0-windows10.0.19041.0\n", encoding="utf-8")
+        payload = {"projects": [{"frameworks": [{"topLevelPackages": [], "transitivePackages": []}]}]}
+        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else case "$*" in *app.csproj*--framework\ net10.0-windows10.0.19041.0*) printf "%s\\n" \'' + json.dumps(payload) + '\';; *tests.csproj*) case "$*" in *--framework*) exit 1;; *) printf "%s\\n" \'' + json.dumps(payload) + '\';; esac;; *) exit 1;; esac; fi\n')
+        code, _ = self.assess()
+        self.assertEqual(ExitCode.SUCCESS, code)
 
     def test_nuget_rejects_framework_not_declared_by_project(self) -> None:
         (self.root / "app.csproj").write_text('<Project><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")

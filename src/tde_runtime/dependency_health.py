@@ -99,6 +99,8 @@ def _nuget(root: Path, timeout: int, settings: Mapping[str, Any] | None = None) 
     if not dotnet: return _record("NuGet", "dotnet", sorted(set(direct)), None, None, None, {"id": "dotnet", "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.dotnet.unavailable", "dotnet was not found on PATH")])
     try: selected_framework = _nuget_framework(settings)
     except ValueError as error: return _configuration_failed("NuGet", "dotnet", str(error))
+    if selected_framework and not any(selected_framework in _project_frameworks(project) for project in projects):
+        return _configuration_failed("NuGet", "dotnet", f"configured nugetFramework '{selected_framework}' is not declared by any project")
     raw, outdated, transitive, limitations = [], [], [], []
     for project in projects:
         try:
@@ -131,8 +133,7 @@ def _nuget_framework(settings: Mapping[str, Any] | None) -> str | None:
 
 
 def _nuget_project(dotnet: str, root: Path, project: Path, framework: str | None, timeout: int) -> tuple[str, list[str], list[str]]:
-    if framework and (declared := _project_frameworks(project)) and framework not in declared:
-        raise ValueError(f"{project}: configured nugetFramework '{framework}' is not declared by the project")
+    framework = framework if framework in _project_frameworks(project) else None
     command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"]
     if framework: command.extend(["--framework", framework])
     completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)

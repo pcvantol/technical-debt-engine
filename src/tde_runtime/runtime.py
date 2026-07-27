@@ -20,7 +20,7 @@ from .execution import CapabilityExecutionEngine
 from .runtime_qualification import RuntimeQualificationEngine
 from .schemas import SchemaRegistry
 
-RUNTIME_VERSION = "1.0.1"
+RUNTIME_VERSION = "1.0.2"
 EVIDENCE_SCHEMA_VERSION = "1.0.0"
 
 
