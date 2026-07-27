@@ -121,7 +121,8 @@ class CapabilityExecutionEngine:
                 return self._blocked(COVERAGE_CAPABILITY_ID, COVERAGE_CAPABILITY_VERSION, [COVERAGE_ADAPTER_ID], result["limitations"], duration, result["status"])
             return self._coverage_result(context, result, duration)
         if identifier == DEPENDENCY_CAPABILITY_ID and selected_adapter == DEPENDENCY_ADAPTER_ID:
-            result = analyze_dependencies(context.repository_root, timeout)
+            settings = context.execution_options.get("capabilities", {}).get(DEPENDENCY_CAPABILITY_ID, {})
+            result = analyze_dependencies(context.repository_root, timeout, settings)
             duration = int((perf_counter() - started) * 1000)
             if result["status"] != "VALID":
                 return self._blocked(DEPENDENCY_CAPABILITY_ID, DEPENDENCY_CAPABILITY_VERSION, [DEPENDENCY_ADAPTER_ID], result["limitations"], duration)

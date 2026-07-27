@@ -24,7 +24,20 @@ The capability normalizes package-manager output; it does not install, update,
 publish, resolve, or rewrite dependencies. Unavailable native data is retained
 per ecosystem rather than guessed. A failed native analysis, including a NuGet
 restore failure, blocks the capability rather than reporting healthy zero
-metrics. SwiftPM projects without external dependencies do not invoke Swift;
+metrics. A multi-target NuGet project may select one framework explicitly in
+the existing repository configuration when its CI runner does not support all
+declared targets:
+
+```yaml
+capabilities:
+  dependency_health:
+    nugetFramework: net10.0-windows10.0.19041.0
+```
+
+TDE validates the selected value against a project's declared target metadata
+before passing it as `dotnet package list --framework`; an unknown or malformed
+value blocks instead of silently substituting another target. SwiftPM projects
+without external dependencies do not invoke Swift;
 their zero-dependency evidence is derived from the manifest. For NuGet, outdated
 evidence includes direct and transitive packages when the native output supplies
 a newer version. CVE data, licenses, SBOMs, supply-chain governance, and
