@@ -2,7 +2,8 @@ import json, os, subprocess, tempfile, unittest
 from pathlib import Path
 from hashlib import sha256
 from unittest.mock import patch
-from tde_cli.main import ExitCode, main
+from tde_cli.main import ExitCode, _apply_command_configuration, build_parser, main
+from tde_runtime.configuration import RuntimeConfiguration
 from tde_runtime.release_qualification import ReleaseQualification, _candidate_branch
 
 class ReleaseQualificationTests(unittest.TestCase):
@@ -21,6 +22,14 @@ class ReleaseQualificationTests(unittest.TestCase):
    def flush(self): pass
   self.assertEqual(ExitCode.BLOCKED,main(["--format","json","release-qualify",".","--manifest-output","/tmp/release.json"],Stream()))
   self.assertIn("requires one or more supported",''.join(output))
+
+ def test_cli_accepts_all_selected_release_capabilities(self):
+  arguments=build_parser().parse_args(["release-qualify",".","--manifest-output","/tmp/release.json",
+                                       "--release-capability","code-size","--release-capability","complexity",
+                                       "--release-capability","coverage","--release-capability","dependency-health"])
+  configuration=_apply_command_configuration(RuntimeConfiguration.load({}),arguments)
+  self.assertEqual({"code_size","complexity","coverage","dependency_health"},
+                   set(configuration.as_dict()["executionOptions"]["capabilities"]))
 
  def test_release_evidence_binds_manifest_and_blocks_without_passing_assurance(self):
   with tempfile.TemporaryDirectory() as temporary:
