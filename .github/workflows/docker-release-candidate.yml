@@ -63,7 +63,7 @@ jobs:
       - name: Qualify and certify the complete candidate without publication
         run: |
           set -o pipefail
-          PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json release-qualify . --release-capability code-size --release-capability complexity --artifact-directory "$RUNNER_TEMP/package-one" --artifact-directory "$RUNNER_TEMP/package-two" --docker-artifact-directory "$RUNNER_TEMP/oci" --manifest-output "$RUNNER_TEMP/release-manifest.json" | tee "$RUNNER_TEMP/release-qualification.json"
+          PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json release-qualify . --release-capability code-size --release-capability complexity --release-capability coverage --release-capability dependency-health --artifact-directory "$RUNNER_TEMP/package-one" --artifact-directory "$RUNNER_TEMP/package-two" --docker-artifact-directory "$RUNNER_TEMP/oci" --manifest-output "$RUNNER_TEMP/release-manifest.json" | tee "$RUNNER_TEMP/release-qualification.json"
           PYTHONPATH=src python -c 'from tde_cli.main import main; raise SystemExit(main())' --format json certify . --qualification-evidence "$RUNNER_TEMP/release-qualification.json" --report-output "$RUNNER_TEMP/release-certification.json" | tee "$RUNNER_TEMP/certify-output.json"
       - name: Assemble checksum-bound certified bundle
         run: |
