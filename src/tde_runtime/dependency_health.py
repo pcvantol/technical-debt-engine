@@ -11,7 +11,7 @@ import re
 import shutil
 import subprocess
 import tomllib
-from typing import Any
+from typing import Any, Mapping
 import xml.etree.ElementTree as ET
 
 
@@ -21,13 +21,13 @@ CAPABILITY_ID = "dependency_health"
 CAPABILITY_VERSION = "1.0.0"
 
 
-def analyze(root: Path, timeout: int) -> dict[str, Any]:
+def analyze(root: Path, timeout: int, settings: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Normalize only package ecosystems actually present in a repository."""
     records = []
     if (root / "package.json").is_file(): records.append(_npm(root, timeout))
     python = _python(root, timeout)
     if python is not None: records.append(python)
-    nuget = _nuget(root, timeout)
+    nuget = _nuget(root, timeout, settings)
     if nuget is not None: records.append(nuget)
     if (root / "platformio.ini").is_file(): records.append(_platformio(root, timeout))
     if (root / "Package.swift").is_file(): records.append(_swift(root, timeout))
@@ -88,7 +88,7 @@ def _python(root: Path, timeout: int) -> dict[str, Any] | None:
     return _record("PyPI", "pip", sorted(direct), None, None, outdated, {"id": "pip", "version": version}, "".join(raw), limitations)
 
 
-def _nuget(root: Path, timeout: int) -> dict[str, Any] | None:
+def _nuget(root: Path, timeout: int, settings: Mapping[str, Any] | None = None) -> dict[str, Any] | None:
     projects = _manifest_files(root, "*.csproj")
     if not projects: return None
     direct = []
@@ -97,10 +97,20 @@ def _nuget(root: Path, timeout: int) -> dict[str, Any] | None:
         except (ET.ParseError, OSError) as error: return _blocked("NuGet", "dotnet", str(error))
     dotnet = shutil.which("dotnet")
     if not dotnet: return _record("NuGet", "dotnet", sorted(set(direct)), None, None, None, {"id": "dotnet", "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.dotnet.unavailable", "dotnet was not found on PATH")])
+    selected_framework = (settings or {}).get("nugetFramework")
+    if selected_framework is not None and (not isinstance(selected_framework, str) or not selected_framework.strip()):
+        return _configuration_failed("NuGet", "dotnet", "dependency_health.nugetFramework must be a non-empty string")
+    selected_framework = selected_framework.strip() if isinstance(selected_framework, str) else None
     raw, outdated, transitive, limitations = [], [], [], []
     for project in projects:
         try:
-            completed = subprocess.run([dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"], cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
+            frameworks = _project_frameworks(project)
+            if selected_framework and frameworks and selected_framework not in frameworks:
+                return _configuration_failed("NuGet", "dotnet", f"{project}: configured nugetFramework '{selected_framework}' is not declared by the project")
+            command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"]
+            if selected_framework:
+                command.extend(["--framework", selected_framework])
+            completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
             raw.append(completed.stdout); payload = json.loads(completed.stdout or "{}")
             problems = payload.get("problems", [])
             errors = [item.get("text", "NuGet analysis failed") for item in problems if item.get("level") == "error"]
@@ -148,6 +158,7 @@ def _record(ecosystem: str, manager: str, direct: list[str], transitive: list[st
 
 def _blocked(ecosystem: str, manager: str, reason: str) -> dict[str, Any]: return _record(ecosystem, manager, [], None, None, None, {"id": manager, "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.manifest.invalid", reason, True)])
 def _analysis_failed(ecosystem: str, manager: str, reason: str) -> dict[str, Any]: return _record(ecosystem, manager, [], None, None, None, {"id": manager, "version": "UNAVAILABLE"}, "", [_limitation(f"dependency_health.{manager}.analysis.failed", reason, True)])
+def _configuration_failed(ecosystem: str, manager: str, reason: str) -> dict[str, Any]: return _record(ecosystem, manager, [], None, None, None, {"id": manager, "version": "UNAVAILABLE"}, "", [_limitation("dependency_health.nuget.configuration.invalid", reason, True)])
 def _unavailable(reason: str) -> dict[str, Any]: return {"status": "VALID", "ecosystems": [], "rawOutput": "", "rawOutputHash": "sha256:" + sha256(b"").hexdigest(), "limitations": [_limitation("dependency_health.ecosystem.unavailable", reason)] , "available": False}
 def _limitation(identifier: str, description: str, blocking: bool = False) -> dict[str, Any]: return {"id": identifier, "description": description, "cause": "dependency health", "blocking": blocking}
 def _version(executable: str, root: Path, timeout: int) -> str:
@@ -167,6 +178,16 @@ def _manifest_files(root: Path, pattern: str) -> list[Path]:
         names[:] = [name for name in names if not _ignored_directory(name)]
         manifests.extend(Path(directory, name) for name in files if fnmatch.fnmatch(name, pattern))
     return sorted(manifests)
+
+
+def _project_frameworks(project: Path) -> set[str]:
+    """Return target frameworks declared by a project without evaluating it."""
+    document = ET.parse(project)
+    values = []
+    for element in document.iter():
+        if element.tag.endswith(("TargetFramework", "TargetFrameworks")) and element.text:
+            values.extend(item.strip() for item in element.text.split(";") if item.strip())
+    return set(values)
 
 
 def _ignored_directory(name: str) -> bool:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "technical-debt-engine-runtime"
-version = "1.0.0"
+version = "1.0.1"
 description = "Technical Debt Engine runtime foundation API"
 requires-python = ">=3.11"
 dependencies = ["radon==6.0.1"]
