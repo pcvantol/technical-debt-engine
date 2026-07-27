@@ -2,26 +2,22 @@
 
 ## Current management decision — supersedes earlier active roadmap direction
 
-`0.2.0` is published and qualified. Generation 1 is complete. DJConnect is now
-the primary product and TDE is the supporting engineering tool that supplies
-the minimum reliable assessment function DJConnect pipelines need. Generation
-2 is therefore the compact **TDE 1.0 DJConnect Enablement Program**: coverage
-completion first, then minimal dependency health and basic security evidence,
-a selected-consumer CI pilot, and one integrated `1.0.0` qualification and
+`0.2.0` is published and qualified. Generation 1 is complete. DJConnect is the
+primary product and TDE supplies a small, reproducible pipeline-assessment
+function. The locked 1.0 scope is one immutable candidate, qualification with
+the selected `djconnect-pi` consumer, and one integrated public `1.0.0`
 release. No per-capability public release is planned; post-1.0 is
-maintenance-first. [ADR-0064](architecture/adr/ADR-0064-djconnect-enablement-program.md)
-and [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md) are canonical for this decision.
+maintenance-first. The binding decision and its release sequence are in
+[TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
 
-G2-A Coverage Completion and G2-B Minimal Dependency Health are complete. G2-A
-validated existing CI artifacts from the Python backend, website, and ESP32
-firmware through public CLI, differential, and qualification contracts; TDE
-does not generate those artifacts. G2-B produced valid,
-qualified, package-manager-native evidence across the eight active DJConnect
-repositories. The baseline is intentionally limited to pip, npm, NuGet,
-SwiftPM, and PlatformIO where those repositories require them; it remains a
-pipeline decision capability, not a supply-chain product. The remaining active
-1.0 work is G2-C Basic Security Evidence, G2-D consumer integration/pilot, and
-G2-E integrated qualification and release.
+G2-A Coverage Completion, G2-B Minimal Dependency Health, and G2-C Security
+Gap Assessment are complete. Security remains owned by GitHub-native and
+repository-native controls; no TDE security capability is in 1.0.
+`djconnect-pi` is the sole selected consumer and has three retained successful
+non-blocking Observe runs using the public `0.2.0` CLI. The exact immutable
+1.0 candidate—not the source tree or the prior `0.2.0` observation—is the next
+consumer-qualification subject. WARN, soft-fail, required checks, and broader
+consumer rollout are not part of this release.
 
 The remainder of this document is preserved historical management context and
 does not override the current decision above.
