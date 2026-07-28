@@ -41,8 +41,8 @@ class CliFoundationTests(unittest.TestCase):
         code, output = self.invoke("--format", "json", "--version")
         self.assertEqual(ExitCode.SUCCESS, code)
         version = json.loads(output)
-        self.assertEqual("1.0.4", version["cliVersion"])
-        self.assertEqual("1.0.4", version["runtimeVersion"])
+        self.assertEqual("1.0.5", version["cliVersion"])
+        self.assertEqual("1.0.5", version["runtimeVersion"])
         self.assertEqual("1.0.0", version["schemaVersion"])
         self.assertEqual("1", version["generation"])
 

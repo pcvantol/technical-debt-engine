@@ -101,7 +101,7 @@ class CoverageBlackBoxTests(unittest.TestCase):
 
     def test_policy_threshold_uses_coverage_without_runtime_specific_policy_logic(self) -> None:
         (self.root / "coverage.xml").write_text(COBERTURA, encoding="utf-8")
-        policy = {"identifier": "coverage-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "coverage threshold", "supportedCapabilities": ["coverage"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.4"], "rules": [{"id": "minimum-line-coverage", "type": "threshold", "capability": "coverage", "metric": "coverage.line_coverage", "operator": "less_than", "threshold": {"warning": 80, "blocking": 60}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "coverage floor"}]}
+        policy = {"identifier": "coverage-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "coverage threshold", "supportedCapabilities": ["coverage"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.5"], "rules": [{"id": "minimum-line-coverage", "type": "threshold", "capability": "coverage", "metric": "coverage.line_coverage", "operator": "less_than", "threshold": {"warning": 80, "blocking": 60}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "coverage floor"}]}
         path = self.root / "policy.json"; path.write_text(json.dumps(policy), encoding="utf-8")
         code, result = self.invoke("--policy", str(path), "assess", "--capability", "coverage", str(self.root))
         self.assertEqual(ExitCode.FAILED, code)

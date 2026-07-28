@@ -18,7 +18,7 @@ MINIMUM_ANALYZER_VERSION = (2, 10)
 EXCLUDED_DIRECTORIES = (
     ".git", ".tde", "__pycache__", ".venv", "venv",
     "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio",
-    ".release", ".public-release",
+    ".release", ".release-venv", ".public-release",
     "node_modules", "vendor", "third_party", "generated", "artifacts",
 )
 

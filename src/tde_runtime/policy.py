@@ -13,7 +13,7 @@ POLICY_SCHEMA_VERSION = "1.0.0"
 POLICY_DECISIONS = ("PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED", "NOT_APPLICABLE")
 SUPPORTED_POLICY_METRICS = {
     "code_size": {"code_size.code_lines", "code_size.source_lines"},
-    "complexity": {"complexity.cyclomatic.maximum"},
+    "complexity": {"complexity.cyclomatic.maximum", "complexity.cyclomatic.product.maximum"},
     "coverage": {"coverage.line_coverage", "coverage.branch_coverage"},
     "dependency_health": {"dependency_health.unknown_dependencies", "dependency_health.outdated_dependencies"},
 }
@@ -162,6 +162,8 @@ class PolicyEngine:
             identifiers.add(rule["id"])
             if rule["type"] == "threshold" and (declarative_required or any(key in rule for key in ("capability", "metric", "operator", "threshold", "severity", "rationale"))):
                 PolicyEngine._validate_declarative_threshold(rule, threshold_targets)
+            if rule["type"] == "finding_severity" and "classification" in rule and (not isinstance(rule["classification"], str) or not rule["classification"]):
+                raise PolicyError(f"finding severity policy {rule['id']} classification must be a non-empty string")
 
     @staticmethod
     def _validate_declarative_threshold(rule: Mapping[str, Any], targets: set[tuple[str, str, str]]) -> None:
@@ -270,7 +272,8 @@ class PolicyEngine:
         outcome = self._outcome(rule.get("outcome", "PASS_WITH_WARNINGS"))
         return [{"ruleId": rule["id"], "outcome": outcome, "findingId": finding.get("findingId"), "severity": rule.get("severity"),
                  "affectedCapability": finding.get("capabilityId"), "affectedEvidence": {"findingId": finding.get("findingId")}}
-                for finding in findings if finding.get("severity") == rule.get("severity")]
+                for finding in findings if finding.get("severity") == rule.get("severity")
+                and ("classification" not in rule or finding.get("classification") == rule["classification"])]
 
     def _capability_matches(self, rule: Mapping[str, Any], results: list[Mapping[str, Any]], configuration: Mapping[str, Any]) -> list[dict[str, Any]]:
         capability_id = rule.get("capabilityId")

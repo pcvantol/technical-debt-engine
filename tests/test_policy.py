@@ -105,8 +105,23 @@ class PolicyEngineTests(unittest.TestCase):
 
     def test_bundled_complexity_policy_uses_the_approved_blocking_threshold(self) -> None:
         bundled = Path(__file__).parents[1] / "src" / "tde_runtime" / "policies" / "generation-1.json"
-        rule = next(item for item in json.loads(bundled.read_text(encoding="utf-8"))["rules"] if item["id"] == "complexity.maximum")
+        rules = json.loads(bundled.read_text(encoding="utf-8"))["rules"]
+        rule = next(item for item in rules if item["id"] == "complexity.product.maximum")
+        critical = next(item for item in rules if item["id"] == "critical.product.finding")
+        self.assertEqual("complexity.cyclomatic.product.maximum", rule["metric"])
         self.assertEqual({"warning": 15, "blocking": 30}, rule["threshold"])
+        self.assertEqual("PRODUCT_SOURCE", critical["classification"])
+
+    def test_finding_severity_classification_limits_the_policy_decision(self) -> None:
+        rule = {"id": "critical-production", "type": "finding_severity", "severity": "CRITICAL",
+                "classification": "PRODUCT_SOURCE", "outcome": "FAIL"}
+        findings = [
+            {"findingId": "test", "capabilityId": "complexity", "severity": "CRITICAL", "classification": "TEST"},
+            {"findingId": "source", "capabilityId": "complexity", "severity": "CRITICAL", "classification": "PRODUCT_SOURCE"},
+        ]
+        result = self.evaluate([rule], findings=findings)
+        self.assertEqual("FAIL", result["decision"])
+        self.assertEqual(["source"], [item["findingId"] for item in result["triggeredRules"]])
 
     def test_real_code_size_and_complexity_evidence_drives_policy_and_persistence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -114,7 +129,7 @@ class PolicyEngineTests(unittest.TestCase):
             (root / "sample.py").write_text("def branch(value):\n    if value:\n        return 1\n    return 0\n", encoding="utf-8")
             configuration = RuntimeConfiguration.load({"capabilities": {"code_size": {"enabled": True}, "complexity": {"enabled": True}},
                 "policy": {"overrides": {"code_size.repository_lines": {"warning": 0, "blocking": 100000},
-                                           "complexity.maximum": {"warning": 0, "blocking": 100000}}}})
+                                           "complexity.product.maximum": {"warning": 0, "blocking": 100000}}}})
             evidence = Runtime().execute(root, configuration).evidence
             self.assertEqual({"code_size", "complexity"}, {item["capabilityId"] for item in evidence["capabilityResults"]})
             self.assertEqual("PASS_WITH_WARNINGS", evidence["policyEvidence"]["decision"])

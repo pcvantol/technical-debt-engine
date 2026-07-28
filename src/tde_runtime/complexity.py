@@ -36,6 +36,23 @@ def _relative(root: Path, name: str) -> str:
         return path.name
 
 
+def classify_path(path: str) -> str:
+    """Classify a complexity symbol without suppressing it from evidence."""
+    value = path.replace("\\", "/").lower()
+    parts = tuple(part for part in value.split("/") if part)
+    filename = parts[-1] if parts else value
+    if (any(part in {"fixture", "fixtures", "__fixtures__", "testdata", "test-data"} for part in parts)
+            or value.startswith(("fixture/", "fixtures/", "testdata/", "test-data/"))):
+        return "FIXTURE"
+    if (any(part in {"verification", "verify"} for part in parts)
+            or filename.startswith(("validate_", "verify_"))):
+        return "VERIFICATION"
+    if (any(part in {"test", "tests", "spec", "specs"} for part in parts)
+            or filename.startswith(("test_", "spec_")) or filename.endswith(("_test.py", "_spec.py"))):
+        return "TEST"
+    return "PRODUCT_SOURCE"
+
+
 def _portable_native_output(root: Path, data: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
     """Return a stable Radon projection without runner-specific paths."""
     normalized = {_relative(root, path): symbols for path, symbols in data.items()}
@@ -80,7 +97,7 @@ def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | No
         for native in sorted(native_symbols, key=lambda item: (item.get("lineno", 0), item.get("name", ""))):
             if native.get("name") in ignored_symbols:
                 skipped += 1; continue
-            symbols.append({"path":path,"language":"Python","name":native["name"],"type":native.get("type","symbol"),"line":native.get("lineno"),"endLine":native.get("endline"),"complexity":native["complexity"]})
+            symbols.append({"path":path,"classification":classify_path(path),"language":"Python","name":native["name"],"type":native.get("type","symbol"),"line":native.get("lineno"),"endLine":native.get("endline"),"complexity":native["complexity"]})
     limitations=[]
     if skipped: limitations.append({"id":"complexity.configuration.ignored","description":f"{skipped} symbol(s) were excluded by Complexity configuration.","cause":"configured exclusion"})
     if not symbols: limitations.append({"id":"complexity.python.no_symbols","description":"Radon found no supported Python symbols after exclusions.","cause":"analyzer capability limitation"})

@@ -13,9 +13,15 @@ assessment before analyzers are planned or executed.
 Each threshold rule declares its target and decision semantics. The current
 public configuration contract supports `code_size.code_lines` and
 `code_size.source_lines` for `code_size`, and
-`complexity.cyclomatic.maximum` for `complexity`. The bundled policy uses
+`complexity.cyclomatic.maximum` plus
+`complexity.cyclomatic.product.maximum` for `complexity`. The bundled policy uses
 `code_size.source_lines`: test, documentation and configuration lines remain
 in evidence but do not affect its repository-size decision.
+It uses `complexity.cyclomatic.product.maximum` for the blocking complexity
+decision: test, fixture and verification symbols remain visible in canonical
+complexity measurements and findings, but do not affect the production-source
+gate. A finding-severity rule may similarly bind a `classification`, such as
+`PRODUCT_SOURCE`.
 The bundled Generation 1 policy warns above 50,000 repository source lines and
 blocks above 75,000; an explicit policy file may choose different thresholds.
 
