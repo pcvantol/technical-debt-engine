@@ -12,7 +12,7 @@ from typing import Any, Iterable, Mapping
 POLICY_SCHEMA_VERSION = "1.0.0"
 POLICY_DECISIONS = ("PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED", "NOT_APPLICABLE")
 SUPPORTED_POLICY_METRICS = {
-    "code_size": {"code_size.code_lines"},
+    "code_size": {"code_size.code_lines", "code_size.source_lines"},
     "complexity": {"complexity.cyclomatic.maximum"},
     "coverage": {"coverage.line_coverage", "coverage.branch_coverage"},
     "dependency_health": {"dependency_health.unknown_dependencies", "dependency_health.outdated_dependencies"},

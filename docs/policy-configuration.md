@@ -11,9 +11,12 @@ path is never replaced by that default: a missing or invalid file blocks the
 assessment before analyzers are planned or executed.
 
 Each threshold rule declares its target and decision semantics. The current
-public configuration contract supports `code_size.code_lines` for `code_size`
-and `complexity.cyclomatic.maximum` for `complexity`.
-The bundled Generation 1 policy warns above 50,000 repository code lines and
+public configuration contract supports `code_size.code_lines` and
+`code_size.source_lines` for `code_size`, and
+`complexity.cyclomatic.maximum` for `complexity`. The bundled policy uses
+`code_size.source_lines`: test, documentation and configuration lines remain
+in evidence but do not affect its repository-size decision.
+The bundled Generation 1 policy warns above 50,000 repository source lines and
 blocks above 75,000; an explicit policy file may choose different thresholds.
 
 ```json

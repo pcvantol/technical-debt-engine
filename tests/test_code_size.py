@@ -44,6 +44,7 @@ class CodeSizeTests(unittest.TestCase):
         evidence = Runtime().execute(self.root, configuration).evidence
         self.assertEqual("VALID", evidence["capabilityResults"][0]["status"])
         self.assertTrue(any(item["metricKey"] == "code_size.code_lines" for item in evidence["measurements"]))
+        self.assertTrue(any(item["metricKey"] == "code_size.source_lines" for item in evidence["measurements"]))
         self.assertEqual("cloc", evidence["capabilityResults"][0]["adapterIds"][0].split(".")[-1])
         self.assertTrue(evidence["adapterResults"][0]["rawOutputHash"].startswith("sha256:"))
         self.assertTrue(any(item["scope"] == "language" for item in evidence["measurements"]))
