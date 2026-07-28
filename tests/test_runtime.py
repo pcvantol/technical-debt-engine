@@ -61,7 +61,7 @@ class RuntimeFoundationTests(unittest.TestCase):
 
     def test_context_contains_canonical_runtime_values(self) -> None:
         result = Runtime().execute(self.root)
-        self.assertEqual("1.0.4", result.context.runtime_version)
+        self.assertEqual("1.0.5", result.context.runtime_version)
         self.assertEqual("1.0.0", result.context.schema_version)
         self.assertTrue(result.context.execution_id.startswith("execution."))
         self.assertEqual("content_digest", result.context.candidate["identityType"])

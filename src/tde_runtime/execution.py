@@ -213,13 +213,15 @@ class CapabilityExecutionEngine:
         symbols, measurements, findings = result["symbols"], [], []
         def measurement_id(scope: str, entity: str, metric: str) -> str:
             return f"complexity.{scope}.{sha256(entity.encode()).hexdigest()[:16]}.{metric}"
-        def add_summary(scope: str, entity: str, values: list[int]) -> None:
+        def add_summary(scope: str, entity: str, values: list[int], metric_prefix: str = "complexity.cyclomatic.") -> None:
             if not values: return
             for metric, value, aggregation in (("average", sum(values)/len(values), "mean"), ("maximum", max(values), "maximum")):
-                measurements.append({"measurementId":measurement_id(scope,entity,metric),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":f"complexity.cyclomatic.{metric}","value":value,"unit":"score","scope":scope,"targetEntityId":entity,"aggregation":aggregation,"sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
+                measurements.append({"measurementId":measurement_id(scope,entity,metric),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":f"{metric_prefix}{metric}","value":value,"unit":"score","scope":scope,"targetEntityId":entity,"aggregation":aggregation,"sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
             for lower, upper, band in ((1,10,"low"),(11,20,"high"),(21,40,"very_high"),(41,None,"critical")):
                 measurements.append({"measurementId":measurement_id(scope,entity,f"distribution.{band}"),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":"complexity.cyclomatic.distribution","value":sum(1 for value in values if value >= lower and (upper is None or value <= upper)),"unit":"symbols","scope":scope,"targetEntityId":f"{entity}.distribution.{band}","aggregation":"count","sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
         add_summary("repository", context.repository_id, [symbol["complexity"] for symbol in symbols])
+        product_symbols = [symbol for symbol in symbols if symbol["classification"] == "PRODUCT_SOURCE"]
+        add_summary("repository_product", context.repository_id, [symbol["complexity"] for symbol in product_symbols], "complexity.cyclomatic.product.")
         by_language, by_file = {}, {}
         for symbol in symbols:
             by_language.setdefault(symbol["language"], []).append(symbol); by_file.setdefault(symbol["path"], []).append(symbol)
@@ -231,12 +233,12 @@ class CapabilityExecutionEngine:
             elif symbol["complexity"] >= thresholds["veryHigh"]: rule, severity, title, threshold = "complexity.very_high", "HIGH", "Very High Complexity", thresholds["veryHigh"]
             elif symbol["complexity"] >= thresholds["high"]: rule, severity, title, threshold = "complexity.high", "HIGH", "High Complexity", thresholds["high"]
             else: continue
-            findings.append({"findingId":f"{rule}.{entity}","capabilityId":COMPLEXITY_CAPABILITY_ID,"ruleId":rule,"severity":severity,"category":"COMPLEXITY","title":title,"description":f"Cyclomatic complexity is {symbol['complexity']} (threshold: {threshold}).","affectedEntityId":entity,"location":{"path":symbol["path"],"line":symbol["line"],"endLine":symbol["endLine"]},"evidenceReferences":[evidence],"state":"OPEN","regression":"UNKNOWN","confidence":1,"suppressible":True})
+            findings.append({"findingId":f"{rule}.{entity}","capabilityId":COMPLEXITY_CAPABILITY_ID,"ruleId":rule,"severity":severity,"category":"COMPLEXITY","title":title,"description":f"Cyclomatic complexity is {symbol['complexity']} (threshold: {threshold}).","classification":symbol["classification"],"affectedEntityId":entity,"location":{"path":symbol["path"],"line":symbol["line"],"endLine":symbol["endLine"]},"evidenceReferences":[evidence],"state":"OPEN","regression":"UNKNOWN","confidence":1,"suppressible":True})
         for language, values in sorted(by_language.items()): add_summary("language", f"language.{language.lower()}", [item["complexity"] for item in values])
         for path, values in sorted(by_file.items()): add_summary("file", "file."+sha256(path.encode()).hexdigest()[:16], [item["complexity"] for item in values])
         if not symbols:
             findings.append({"findingId":"complexity.missing.repository","capabilityId":COMPLEXITY_CAPABILITY_ID,"ruleId":"complexity.missing","severity":"INFO","category":"COMPLEXITY","title":"Missing Complexity","description":"No supported symbols were measured.","affectedEntityId":context.repository_id,"evidenceReferences":[],"state":"OPEN","regression":"UNKNOWN","confidence":1,"suppressible":False})
-        adapter = {"adapter":result["adapter"],"analyzer":result["analyzer"],"execution":"SUCCESS","rawOutputHash":result["rawOutputHash"],"rawOutput":result["rawOutput"],"measuredScope":["repository","language","file","symbol"],"completeness":1,"draftMeasurements":measurements,"draftFindings":findings,"warnings":[],"errors":[],"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
+        adapter = {"adapter":result["adapter"],"analyzer":result["analyzer"],"execution":"SUCCESS","rawOutputHash":result["rawOutputHash"],"rawOutput":result["rawOutput"],"measuredScope":["repository","repository_product","language","file","symbol"],"completeness":1,"draftMeasurements":measurements,"draftFindings":findings,"warnings":[],"errors":[],"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
         capability = {"capabilityId":COMPLEXITY_CAPABILITY_ID,"capabilityVersion":COMPLEXITY_CAPABILITY_VERSION,"status":"VALID","adapterIds":[COMPLEXITY_ADAPTER_ID],"completeness":1,"qualificationApplicable":True,"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
         return {"measurements":measurements,"findings":findings,"adapterResults":[adapter],"capabilityResults":[capability]}
 
