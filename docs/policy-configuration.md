@@ -13,6 +13,8 @@ assessment before analyzers are planned or executed.
 Each threshold rule declares its target and decision semantics. The current
 public configuration contract supports `code_size.code_lines` for `code_size`
 and `complexity.cyclomatic.maximum` for `complexity`.
+The bundled Generation 1 policy warns above 50,000 repository code lines and
+blocks above 75,000; an explicit policy file may choose different thresholds.
 
 ```json
 {
