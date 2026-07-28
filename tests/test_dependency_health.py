@@ -71,7 +71,7 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
 
     def test_unknown_dependency_and_policy_are_evaluated(self) -> None:
         self.project(missing=True); self.npm({})
-        policy = {"identifier": "dependency-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "dependency threshold", "supportedCapabilities": ["dependency_health"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.3"], "rules": [{"id": "unknown", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.unknown_dependencies", "operator": "greater_than", "threshold": {"warning": 1, "blocking": 1}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "unknown dependencies"}]}
+        policy = {"identifier": "dependency-policy", "version": "1.0.0", "scope": "repository", "owner": "tests", "description": "dependency threshold", "supportedCapabilities": ["dependency_health"], "supportedSchemas": ["1.0.0"], "supportedRuntimeVersions": ["1.0.4"], "rules": [{"id": "unknown", "type": "threshold", "capability": "dependency_health", "metric": "dependency_health.unknown_dependencies", "operator": "greater_than", "threshold": {"warning": 1, "blocking": 1}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": True, "rationale": "unknown dependencies"}]}
         path = self.root / "policy.json"; path.write_text(json.dumps(policy), encoding="utf-8")
         code, result = self.invoke("--policy", str(path), "assess", "--capability", "dependency_health", str(self.root))
         self.assertEqual(ExitCode.FAILED, code)
