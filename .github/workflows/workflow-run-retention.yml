@@ -33,7 +33,8 @@ jobs:
 
           for workflow_name in "${target_workflows[@]}"; do
             workflow_id="$(gh api "/repos/${repository}/actions/workflows" --paginate \
-              --jq ".workflows[] | select(.name == \\\"${workflow_name}\\\") | .id" | head -n 1)"
+              | jq -r --arg name "${workflow_name}" '.workflows[] | select(.name == $name) | .id' \
+              | head -n 1)"
             test -n "${workflow_id}"
 
             mapfile -t completed_run_ids < <(
