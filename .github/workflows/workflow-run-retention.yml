@@ -1,0 +1,67 @@
+name: Workflow run retention
+
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  retain:
+    name: Retain two completed qualification runs
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KEEP_RUNS: "2"
+    steps:
+      - name: Delete completed runs beyond the retention limit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          repository="${GITHUB_REPOSITORY}"
+          keep_runs="${KEEP_RUNS}"
+          target_workflows=(
+            "Code Size cross-platform qualification"
+            "Complexity cross-platform qualification"
+            "Package build reproducibility"
+            "Policy qualification"
+          )
+
+          for workflow_name in "${target_workflows[@]}"; do
+            workflow_id="$(gh api "/repos/${repository}/actions/workflows" --paginate \
+              --jq ".workflows[] | select(.name == \\\"${workflow_name}\\\") | .id" | head -n 1)"
+            test -n "${workflow_id}"
+
+            mapfile -t completed_run_ids < <(
+              gh api "/repos/${repository}/actions/workflows/${workflow_id}/runs?status=completed&per_page=100" \
+                --paginate --jq '.workflow_runs[] | .id'
+            )
+
+            deleted=0
+            for index in "${!completed_run_ids[@]}"; do
+              if [ "${index}" -lt "${keep_runs}" ]; then
+                continue
+              fi
+              gh api --method DELETE "/repos/${repository}/actions/runs/${completed_run_ids[${index}]}"
+              deleted=$((deleted + 1))
+            done
+
+            echo "${workflow_name}: retained the newest ${keep_runs} completed runs; deleted ${deleted}." >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Record protected evidence scope
+        shell: bash
+        run: |
+          {
+            echo "## Retention exclusions"
+            echo
+            echo "The following workflows are deliberately excluded because their 90-day evidence is release-critical:"
+            echo
+            echo "- Docker release candidate"
+            echo "- Internal release publication"
+            echo "- Runtime public qualification"
+          } >> "$GITHUB_STEP_SUMMARY"
