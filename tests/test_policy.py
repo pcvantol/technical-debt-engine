@@ -100,6 +100,7 @@ class PolicyEngineTests(unittest.TestCase):
     def test_bundled_code_size_policy_has_product_repository_thresholds(self) -> None:
         bundled = Path(__file__).parents[1] / "src" / "tde_runtime" / "policies" / "generation-1.json"
         rule = next(item for item in json.loads(bundled.read_text(encoding="utf-8"))["rules"] if item["id"] == "code_size.repository_lines")
+        self.assertEqual("code_size.source_lines", rule["metric"])
         self.assertEqual({"warning": 50000, "blocking": 75000}, rule["threshold"])
 
     def test_bundled_complexity_policy_uses_the_approved_blocking_threshold(self) -> None:
