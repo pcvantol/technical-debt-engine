@@ -25,10 +25,11 @@ class CodeSizeTests(unittest.TestCase):
         (self.root / "tests" / "test_app.py").write_text("def test_value():\n    assert 1 == 1\n", encoding="utf-8")
         (self.root / "docs" / "readme.md").write_text("# Documentation\n", encoding="utf-8")
         (self.root / "vendor" / "library.py").write_text("x = 1\n", encoding="utf-8")
-        (self.root / "node_modules").mkdir(); (self.root / "third_party").mkdir(); (self.root / "generated").mkdir()
+        (self.root / "node_modules").mkdir(); (self.root / "third_party").mkdir(); (self.root / "generated").mkdir(); (self.root / "artifacts").mkdir()
         (self.root / "node_modules" / "package.js").write_text("const dependency = 1;\n", encoding="utf-8")
         (self.root / "third_party" / "library.py").write_text("dependency = 1\n", encoding="utf-8")
         (self.root / "generated" / "api.py").write_text("generated = 1\n", encoding="utf-8")
+        (self.root / "artifacts" / "coverage.py").write_text("generated = 1\n", encoding="utf-8")
         (self.root / "obj").mkdir(); (self.root / "bin").mkdir()
         (self.root / "obj" / "generated.cs").write_text("generated output\n", encoding="utf-8")
         (self.root / "bin" / "generated.cs").write_text("generated output\n", encoding="utf-8")
@@ -50,7 +51,7 @@ class CodeSizeTests(unittest.TestCase):
 
     def test_code_size_excludes_dependency_vendor_and_generated_output(self) -> None:
         result = analyze(self.root)
-        excluded = ("obj/", "bin/", "node_modules/", "vendor/", "third_party/", "generated/")
+        excluded = ("obj/", "bin/", "node_modules/", "vendor/", "third_party/", "generated/", "artifacts/")
         self.assertTrue(all(not item["path"].startswith(excluded) for item in result["files"]))
 
     def test_evidence_digest_is_stable_for_same_repository_and_configuration(self) -> None:
