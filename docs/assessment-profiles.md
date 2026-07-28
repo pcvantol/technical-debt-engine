@@ -26,7 +26,8 @@ DJConnect platform inventory; otherwise it records explicit unavailable
 evidence without invalidating the repository assessment.
 Code Size excludes installed dependency, vendored and generated/build
 directories before invoking `cloc`: `node_modules`, `vendor`, `third_party`,
-`generated`, `build`, `dist`, .NET `bin`/`obj`, and ecosystem build caches.
+`generated`, CI `artifacts`, `build`, `dist`, .NET `bin`/`obj`, and ecosystem
+build caches.
 Local tooling and compilation output are not repository source code and cannot
 affect policy measurements.
 

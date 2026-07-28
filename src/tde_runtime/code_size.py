@@ -19,7 +19,7 @@ EXCLUDED_DIRECTORIES = (
     ".git", ".tde", "__pycache__", ".venv", "venv",
     "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio",
     ".release", ".public-release",
-    "node_modules", "vendor", "third_party", "generated",
+    "node_modules", "vendor", "third_party", "generated", "artifacts",
 )
 
 def classify(path: str) -> str:
