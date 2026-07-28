@@ -134,7 +134,12 @@ def _nuget_framework(settings: Mapping[str, Any] | None) -> str | None:
 
 def _nuget_project(dotnet: str, root: Path, project: Path, framework: str | None, timeout: int) -> tuple[str, list[str], list[str]]:
     framework = framework if framework in _project_frameworks(project) else None
-    command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json"]
+    restore = [dotnet, "restore", str(project)]
+    if framework: restore.append(f"-p:TargetFramework={framework}")
+    restored = subprocess.run(restore, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
+    if restored.returncode != 0:
+        raise _NugetAnalysisError(restored.stderr.strip() or f"dotnet restore exited with status {restored.returncode}")
+    command = [dotnet, "package", "list", "--project", str(project), "--outdated", "--include-transitive", "--format", "json", "--no-restore"]
     if framework: command.extend(["--framework", framework])
     completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
     payload = json.loads(completed.stdout or "{}")

@@ -110,7 +110,7 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         project.write_text('<Project><PropertyGroup><TargetFrameworks>net10.0-maccatalyst;net10.0-windows10.0.19041.0</TargetFrameworks></PropertyGroup><ItemGroup><PackageReference Include="Example" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
         (self.root / ".tde.yml").write_text("capabilities:\n  dependency_health:\n    nugetFramework: net10.0-windows10.0.19041.0\n", encoding="utf-8")
         payload = {"projects": [{"frameworks": [{"topLevelPackages": [{"id": "Example", "latestVersion": "2.0.0"}], "transitivePackages": []}]}]}
-        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else case "$*" in *"--framework net10.0-windows10.0.19041.0"*) printf "%s\\n" \'' + json.dumps(payload) + '\';; *) echo "wrong framework command: $*" >&2; exit 1;; esac; fi\n')
+        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; elif [ "$1" = "restore" ]; then case "$*" in *"-p:TargetFramework=net10.0-windows10.0.19041.0"*) exit 0;; *) echo "wrong restore command: $*" >&2; exit 1;; esac; else case "$*" in *"--no-restore"*"--framework net10.0-windows10.0.19041.0"*) printf "%s\\n" \'' + json.dumps(payload) + '\';; *) echo "wrong package-list command: $*" >&2; exit 1;; esac; fi\n')
         code, result = self.assess()
         self.assertEqual(ExitCode.SUCCESS, code)
         ecosystem = result["evidence"]["adapterResults"][0]["evidence"]["ecosystems"][0]
@@ -122,7 +122,7 @@ class DependencyHealthBlackBoxTests(unittest.TestCase):
         tests.write_text('<Project><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Tests" Version="1.0.0" /></ItemGroup></Project>', encoding="utf-8")
         (self.root / ".tde.yml").write_text("capabilities:\n  dependency_health:\n    nugetFramework: net10.0-windows10.0.19041.0\n", encoding="utf-8")
         payload = {"projects": [{"frameworks": [{"topLevelPackages": [], "transitivePackages": []}]}]}
-        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; else case "$*" in *app.csproj*--framework\ net10.0-windows10.0.19041.0*) printf "%s\\n" \'' + json.dumps(payload) + '\';; *tests.csproj*) case "$*" in *--framework*) exit 1;; *) printf "%s\\n" \'' + json.dumps(payload) + '\';; esac;; *) exit 1;; esac; fi\n')
+        self.tool("dotnet", 'if [ "$1" = "--version" ]; then echo "10.0"; elif [ "$1" = "restore" ]; then exit 0; else case "$*" in *app.csproj*--no-restore*--framework\ net10.0-windows10.0.19041.0*) printf "%s\\n" \'' + json.dumps(payload) + '\';; *tests.csproj*--no-restore*) case "$*" in *--framework*) exit 1;; *) printf "%s\\n" \'' + json.dumps(payload) + '\';; esac;; *) exit 1;; esac; fi\n')
         code, _ = self.assess()
         self.assertEqual(ExitCode.SUCCESS, code)
 
