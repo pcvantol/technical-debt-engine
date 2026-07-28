@@ -12,7 +12,15 @@ CAPABILITY_VERSION = "0.1.0"
 ADAPTER_ID = "code_size.cloc"
 ADAPTER_VERSION = "0.1.0"
 MINIMUM_ANALYZER_VERSION = (2, 10)
-EXCLUDED_DIRECTORIES = (".git", ".tde", "__pycache__", ".venv", "venv", "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio", ".release", ".public-release")
+# These paths contain installed dependencies or generated build output.  They
+# are excluded before cloc runs so policy metrics describe repository source,
+# rather than a local checkout's tooling state.
+EXCLUDED_DIRECTORIES = (
+    ".git", ".tde", "__pycache__", ".venv", "venv",
+    "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio",
+    ".release", ".public-release",
+    "node_modules", "vendor", "third_party", "generated",
+)
 
 def classify(path: str) -> str:
     value = path.replace("\\", "/").lower()
