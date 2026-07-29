@@ -4,25 +4,25 @@ DJConnect is the primary product. Technical Debt Engine (TDE) is its compact,
 supporting engineering tool for producing reliable pipeline assessment
 decisions through public evidence and CLI contracts.
 
-Generation 2 is the consumer-driven **TDE 1.0 DJConnect Enablement Program**.
-It does not expand TDE into a general platform: its active scope is coverage
-completion, minimal dependency and security evidence, selected DJConnect CI
-consumption, and one integrated `1.0.0` qualification and release. See the
-[roadmap](PRODUCT_ROADMAP.md) and [active backlog](PRODUCT_BACKLOG.md).
+TDE 1.0.5 completed the consumer-driven DJConnect enablement program. The
+explicitly authorized TDE 1.1 increment adds cross-language primary-product
+complexity parity without creating a new capability or changing Observe-only
+governance. See the [roadmap](PRODUCT_ROADMAP.md) and [active
+backlog](PRODUCT_BACKLOG.md).
 
-Release `0.2.0` is available as the PyPI distribution
-[`technical-debt-engine-runtime`](https://pypi.org/project/technical-debt-engine-runtime/0.2.0/),
-a [GitHub Release](https://github.com/pcvantol/technical-debt-engine/releases/tag/0.2.0),
-and Docker image `docker.io/pcvantol/technical-debt-engine:0.2.0`. The Docker
-OCI index is `sha256:8285a5082eaa1a5ac914b349ddec21c9e02cc4269421774d4f112383bc688ca9`;
-no `latest` tag exists. See the [Runtime Qualification Report](RUNTIME_QUALIFICATION_REPORT_0.2.0.md)
-for the immutable publication evidence and public-runtime validation.
+Release `1.0.5` is the current public baseline. TDE `1.1.0` is not a consumer
+pin until its public-wheel and cross-platform qualification has completed.
 
 ## Product contracts
 
 Consumers integrate only through the public `tde` CLI, configuration, evidence
 schema, exit codes, and stable released contracts—not runtime internals. See
 [INTEGRATION_MODEL.md](INTEGRATION_MODEL.md).
+
+The `complexity` capability discovers the dominant canonical product language:
+Python uses Radon; JavaScript/TypeScript, Swift, C/C++ and C# use Lizard. All
+five normalize to `complexity.cyclomatic.product.maximum` and the same policy.
+See the [complexity support matrix](docs/complexity-support-matrix.md).
 
 Operational repository assurance is available through `tde assure`; see [SOFTWARE_ASSURANCE.md](SOFTWARE_ASSURANCE.md) for its canonical evidence and candidate-artifact verification contract.
 
@@ -34,6 +34,8 @@ Operational repository assurance is available through `tde assure`; see [SOFTWAR
 - [Capability model](CAPABILITY_MODEL.md)
 - [CLI specification](CLI_SPECIFICATION.md)
 - [Code Size Runtime contract](CODE_SIZE_RUNTIME.md)
+- [Cross-language complexity support](docs/complexity-support-matrix.md) and
+  [ADR-0065](architecture/adr/ADR-0065-cross-language-complexity-policy-parity.md)
 - [Evidence schema](EVIDENCE_SCHEMA.md)
 - [Qualification model](QUALIFICATION_MODEL.md)
 - [Roadmap](PRODUCT_ROADMAP.md) and [backlog](PRODUCT_BACKLOG.md)

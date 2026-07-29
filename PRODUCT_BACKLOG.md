@@ -5,6 +5,7 @@
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
 | Apple coverage improvement | Improve the separately reported Apple product coverage baseline from 38.37% through targeted UI and widget tests when the Apple team schedules the work. | A selected Apple test scope produces a reviewed canonical coverage artifact without changing TDE policy or thresholds. | TDE runtime/capability changes; coverage-threshold changes; treating the current 38.37% baseline as an integration failure. |
+| TDE 1.1 complexity policy parity | Establish canonical primary-product-language complexity evidence for the seven selected DJConnect source consumers using one capability, policy and qualification route. | Public 1.1 runtime, adapter qualification, and seven reviewable Observe-only consumer PRs with provenance-rich primary-language complexity evidence. | Policy forks, threshold increases, consumer-local analyzers, automatic product refactoring, merge blocking, security/SBOM/dashboard work. |
 
 ## Completed in Generation 2
 

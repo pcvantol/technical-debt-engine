@@ -7,11 +7,12 @@ from typing import Any
 from hashlib import sha256
 
 from .code_size import ADAPTER_ID, CAPABILITY_ID, CAPABILITY_VERSION, analyze
-from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
+from .complexity import ADAPTER_ID as COMPLEXITY_ADAPTER_ID, LIZARD_ADAPTER_ID as COMPLEXITY_LIZARD_ADAPTER_ID, CAPABILITY_ID as COMPLEXITY_CAPABILITY_ID, CAPABILITY_VERSION as COMPLEXITY_CAPABILITY_VERSION, analyze as analyze_complexity
 from .coverage import ADAPTER_ID as COVERAGE_ADAPTER_ID, CAPABILITY_ID as COVERAGE_CAPABILITY_ID, CAPABILITY_VERSION as COVERAGE_CAPABILITY_VERSION, analyze as analyze_coverage
 from .dependency_health import ADAPTER_ID as DEPENDENCY_ADAPTER_ID, CAPABILITY_ID as DEPENDENCY_CAPABILITY_ID, CAPABILITY_VERSION as DEPENDENCY_CAPABILITY_VERSION, analyze as analyze_dependencies
 from .maintainability import CAPABILITY_ID as MAINTAINABILITY_CAPABILITY_ID, CAPABILITY_VERSION as MAINTAINABILITY_CAPABILITY_VERSION, derive as derive_maintainability
 from .registries import AdapterRegistry, CapabilityRegistry
+from .source_classification import primary_languages
 
 
 class CapabilityExecutionEngine:
@@ -34,14 +35,24 @@ class CapabilityExecutionEngine:
         # not encode any capability-specific execution sequence.
         planned = [item["id"] for item in registered if item["id"] in requested_plan]
         unsupported = [identifier for identifier in enabled if identifier not in available]
-        selected = {identifier: self._adapter_registry.select(available[identifier]) for identifier in planned if "supportedAnalyzers" in available[identifier]}
-        planned_adapters = [binding["id"] for binding in selected.values() if binding]
+        selected: dict[str, Any] = {}
+        for identifier in planned:
+            if "supportedAnalyzers" not in available[identifier]:
+                continue
+            if identifier == COMPLEXITY_CAPABILITY_ID:
+                supported = set(available[identifier]["supportedAnalyzers"])
+                languages = set(primary_languages(context.repository_root))
+                selected[identifier] = [item for item in self._adapter_registry.discover()
+                                        if item["id"] in supported and languages.intersection(item.get("languages", ()))]
+            else:
+                selected[identifier] = self._adapter_registry.select(available[identifier])
+        planned_adapters = [binding["id"] for value in selected.values() for binding in (value if isinstance(value, list) else [value]) if binding]
         return {
             "state": "PLANNED",
             "capabilities": planned,
             "unsupportedCapabilities": unsupported,
             "plannedAdapters": planned_adapters,
-            "analyzerBindings": {identifier: binding["id"] if binding else None for identifier, binding in selected.items()},
+            "analyzerBindings": {identifier: [item["id"] for item in binding] if isinstance(binding, list) else (binding["id"] if binding else None) for identifier, binding in selected.items()},
             "parallelReady": True,
             "retries": "NONE",
         }
@@ -70,7 +81,8 @@ class CapabilityExecutionEngine:
             else:
                 evidence["blockedCapabilities"].append(identifier)
                 evidence["limitations"].extend(result.get("limitations", []))
-            evidence["workItems"].append({"capabilityId": identifier, "adapterId": adapter_ids[0] if adapter_ids else None,
+            configured_adapter = plan.get("analyzerBindings", {}).get(identifier)
+            evidence["workItems"].append({"capabilityId": identifier, "adapterId": configured_adapter if isinstance(configured_adapter, str) else (adapter_ids[0] if adapter_ids else None),
                                             "state": state, "durationMs": result["executionTiming"]["durationMs"]})
 
         for identifier in plan["unsupportedCapabilities"]:
@@ -96,7 +108,7 @@ class CapabilityExecutionEngine:
             "executionEvidence": evidence,
         }
 
-    def _dispatch(self, identifier: str, selected_adapter: str | None, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
+    def _dispatch(self, identifier: str, selected_adapter: Any, context: Any, measurements: list[dict[str, Any]]) -> dict[str, Any]:
         started = perf_counter()
         # Repository-wide cloc scans can legitimately exceed one minute on a
         # public consumer checkout.  A bounded five-minute default remains
@@ -106,12 +118,12 @@ class CapabilityExecutionEngine:
             result = analyze(context.repository_root, timeout)
             duration = int((perf_counter() - started) * 1000)
             return self._code_size_result(context, result, duration) if result["status"] == "VALID" else self._blocked(CAPABILITY_ID, CAPABILITY_VERSION, [ADAPTER_ID], result["limitations"], duration, result["status"])
-        if identifier == COMPLEXITY_CAPABILITY_ID and selected_adapter == COMPLEXITY_ADAPTER_ID:
+        if identifier == COMPLEXITY_CAPABILITY_ID and set(selected_adapter if isinstance(selected_adapter, list) else [selected_adapter]).issubset({COMPLEXITY_ADAPTER_ID, COMPLEXITY_LIZARD_ADAPTER_ID}):
             settings = context.execution_options.get("capabilities", {}).get(COMPLEXITY_CAPABILITY_ID, {})
             result = analyze_complexity(context.repository_root, timeout, settings)
             duration = int((perf_counter() - started) * 1000)
-            if result["status"] != "VALID":
-                return self._blocked(COMPLEXITY_CAPABILITY_ID, COMPLEXITY_CAPABILITY_VERSION, [COMPLEXITY_ADAPTER_ID], result["limitations"], duration)
+            if result["status"] not in {"VALID", "NO_APPLICABLE_PRODUCT_SOURCE"}:
+                return self._blocked(COMPLEXITY_CAPABILITY_ID, COMPLEXITY_CAPABILITY_VERSION, [COMPLEXITY_ADAPTER_ID, COMPLEXITY_LIZARD_ADAPTER_ID], result["limitations"], duration, result["status"])
             return self._complexity_result(context, result, duration)
         if identifier == COVERAGE_CAPABILITY_ID and selected_adapter == COVERAGE_ADAPTER_ID:
             settings = context.execution_options.get("capabilities", {}).get(COVERAGE_CAPABILITY_ID, {})
@@ -211,23 +223,28 @@ class CapabilityExecutionEngine:
     @staticmethod
     def _complexity_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:
         symbols, measurements, findings = result["symbols"], [], []
+        primary_languages = set(result.get("primaryLanguages", []))
         def measurement_id(scope: str, entity: str, metric: str) -> str:
             return f"complexity.{scope}.{sha256(entity.encode()).hexdigest()[:16]}.{metric}"
-        def add_summary(scope: str, entity: str, values: list[int], metric_prefix: str = "complexity.cyclomatic.") -> None:
+        def add_summary(scope: str, entity: str, values: list[int], metric_prefix: str = "complexity.cyclomatic.", adapter_id: str = "complexity.normalized", tool_id: str = "normalized") -> None:
             if not values: return
             for metric, value, aggregation in (("average", sum(values)/len(values), "mean"), ("maximum", max(values), "maximum")):
-                measurements.append({"measurementId":measurement_id(scope,entity,metric),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":f"{metric_prefix}{metric}","value":value,"unit":"score","scope":scope,"targetEntityId":entity,"aggregation":aggregation,"sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
+                measurements.append({"measurementId":measurement_id(scope,entity,metric),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":f"{metric_prefix}{metric}","value":value,"unit":"score","scope":scope,"targetEntityId":entity,"aggregation":aggregation,"sourceAdapterId":adapter_id,"sourceToolId":tool_id})
             for lower, upper, band in ((1,10,"low"),(11,20,"high"),(21,40,"very_high"),(41,None,"critical")):
-                measurements.append({"measurementId":measurement_id(scope,entity,f"distribution.{band}"),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":"complexity.cyclomatic.distribution","value":sum(1 for value in values if value >= lower and (upper is None or value <= upper)),"unit":"symbols","scope":scope,"targetEntityId":f"{entity}.distribution.{band}","aggregation":"count","sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
+                measurements.append({"measurementId":measurement_id(scope,entity,f"distribution.{band}"),"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":"complexity.cyclomatic.distribution","value":sum(1 for value in values if value >= lower and (upper is None or value <= upper)),"unit":"symbols","scope":scope,"targetEntityId":f"{entity}.distribution.{band}","aggregation":"count","sourceAdapterId":adapter_id,"sourceToolId":tool_id})
         add_summary("repository", context.repository_id, [symbol["complexity"] for symbol in symbols])
-        product_symbols = [symbol for symbol in symbols if symbol["classification"] == "PRODUCT_SOURCE"]
+        product_symbols = [symbol for symbol in symbols if symbol["classification"] == "PRODUCT_SOURCE" and symbol["language"] in primary_languages]
         add_summary("repository_product", context.repository_id, [symbol["complexity"] for symbol in product_symbols], "complexity.cyclomatic.product.")
+        measurements.append({"measurementId": "complexity.repository_product.symbol_count", "capabilityId": COMPLEXITY_CAPABILITY_ID,
+                             "metricKey": "complexity.cyclomatic.product.symbol_count", "value": len(product_symbols), "unit": "symbols",
+                             "scope": "repository_product", "targetEntityId": context.repository_id, "aggregation": "count",
+                             "sourceAdapterId": "complexity.normalized", "sourceToolId": "normalized"})
         by_language, by_file = {}, {}
         for symbol in symbols:
             by_language.setdefault(symbol["language"], []).append(symbol); by_file.setdefault(symbol["path"], []).append(symbol)
             entity = "symbol." + sha256(f"{symbol['path']}:{symbol['name']}:{symbol['line']}".encode()).hexdigest()[:16]
             evidence = measurement_id("symbol", entity, "value")
-            measurements.append({"measurementId":evidence,"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":"complexity.cyclomatic.value","value":symbol["complexity"],"unit":"score","scope":"symbol","targetEntityId":entity,"aggregation":"value","sourceAdapterId":COMPLEXITY_ADAPTER_ID,"sourceToolId":"radon"})
+            measurements.append({"measurementId":evidence,"capabilityId":COMPLEXITY_CAPABILITY_ID,"metricKey":"complexity.cyclomatic.value","value":symbol["complexity"],"unit":"score","scope":"symbol","targetEntityId":entity,"aggregation":"value","sourceAdapterId":symbol["adapterId"],"sourceToolId":symbol["toolId"]})
             thresholds = result["thresholds"]
             if symbol["complexity"] >= thresholds["critical"]: rule, severity, title, threshold = "complexity.critical", "CRITICAL", "Critical Complexity", thresholds["critical"]
             elif symbol["complexity"] >= thresholds["veryHigh"]: rule, severity, title, threshold = "complexity.very_high", "HIGH", "Very High Complexity", thresholds["veryHigh"]
@@ -238,9 +255,13 @@ class CapabilityExecutionEngine:
         for path, values in sorted(by_file.items()): add_summary("file", "file."+sha256(path.encode()).hexdigest()[:16], [item["complexity"] for item in values])
         if not symbols:
             findings.append({"findingId":"complexity.missing.repository","capabilityId":COMPLEXITY_CAPABILITY_ID,"ruleId":"complexity.missing","severity":"INFO","category":"COMPLEXITY","title":"Missing Complexity","description":"No supported symbols were measured.","affectedEntityId":context.repository_id,"evidenceReferences":[],"state":"OPEN","regression":"UNKNOWN","confidence":1,"suppressible":False})
-        adapter = {"adapter":result["adapter"],"analyzer":result["analyzer"],"execution":"SUCCESS","rawOutputHash":result["rawOutputHash"],"rawOutput":result["rawOutput"],"measuredScope":["repository","repository_product","language","file","symbol"],"completeness":1,"draftMeasurements":measurements,"draftFindings":findings,"warnings":[],"errors":[],"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
-        capability = {"capabilityId":COMPLEXITY_CAPABILITY_ID,"capabilityVersion":COMPLEXITY_CAPABILITY_VERSION,"status":"VALID","adapterIds":[COMPLEXITY_ADAPTER_ID],"completeness":1,"qualificationApplicable":True,"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
-        return {"measurements":measurements,"findings":findings,"adapterResults":[adapter],"capabilityResults":[capability]}
+        adapters = result.get("adapters", [])
+        adapter_results = [{"adapter": {"id": adapter["id"], "version": adapter["version"]}, "analyzer": adapter["analyzer"], "execution": "SUCCESS",
+                            "rawOutputHash": adapter["rawOutputHash"], "rawOutput": adapter["rawOutput"], "measuredScope": ["repository", "repository_product", "language", "file", "symbol"],
+                            "completeness": 1, "draftMeasurements": measurements, "draftFindings": findings, "warnings": [], "errors": [], "limitations": result["limitations"], "executionTiming": {"durationMs": duration}}
+                           for adapter in adapters]
+        capability = {"capabilityId":COMPLEXITY_CAPABILITY_ID,"capabilityVersion":COMPLEXITY_CAPABILITY_VERSION,"status":"VALID","adapterIds":[adapter["id"] for adapter in adapters],"completeness":1,"qualificationApplicable":True,"limitations":result["limitations"],"executionTiming":{"durationMs":duration}}
+        return {"measurements":measurements,"findings":findings,"adapterResults":adapter_results,"capabilityResults":[capability]}
 
     @staticmethod
     def _coverage_result(context: Any, result: dict[str, Any], duration: int) -> dict[str, Any]:

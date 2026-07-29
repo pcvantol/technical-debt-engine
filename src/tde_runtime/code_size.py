@@ -1,11 +1,12 @@
 """Code Size capability adapter backed by an explicitly installed cloc executable."""
 from __future__ import annotations
-import json, subprocess
+import json, subprocess, tempfile
 from collections import defaultdict
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 from .analyzer_discovery import discover
+from .source_classification import EXCLUDED_DIRECTORIES, classification
 
 CAPABILITY_ID = "code_size"
 CAPABILITY_VERSION = "0.1.0"
@@ -15,32 +16,47 @@ MINIMUM_ANALYZER_VERSION = (2, 10)
 # These paths contain installed dependencies or generated build output.  They
 # are excluded before cloc runs so policy metrics describe repository source,
 # rather than a local checkout's tooling state.
-EXCLUDED_DIRECTORIES = (
-    ".git", ".tde", "__pycache__", ".venv", "venv",
-    "build", "dist", "bin", "obj", ".build", ".swiftpm", ".pio",
-    ".release", ".release-venv", ".public-release",
-    "node_modules", "vendor", "third_party", "generated", "artifacts",
-)
+EXCLUDED_DIRECTORIES = tuple(sorted(EXCLUDED_DIRECTORIES))
 
 def classify(path: str) -> str:
     value = path.replace("\\", "/").lower()
-    if value.startswith(("vendor/", "third_party/", "node_modules/")) or any(part in value for part in ("/vendor/", "/third_party/", "/node_modules/")): return "VENDOR"
-    if value.startswith(("generated/", "build/", "dist/")) or any(part in value for part in ("/generated/", "/build/", "/dist/")): return "GENERATED"
-    if value.startswith(("tests/", "test/", "spec/")) or "/tests/" in value: return "TEST"
+    source_class = classification(value)
+    if source_class == "DEPENDENCY": return "VENDOR"
+    if source_class in {"GENERATED", "COVERAGE_ARTIFACT"}: return "GENERATED"
+    if source_class in {"TEST", "FIXTURE", "VERIFICATION", "SAMPLE"}: return "TEST"
     if value.startswith(("docs/", "documentation/")) or value.endswith((".md", ".rst", ".txt")): return "DOCUMENTATION"
     if value.endswith((".yml", ".yaml", ".json", ".toml", ".ini")): return "CONFIGURATION"
     return "SOURCE"
+
+
+def _coverage_exclude_list(root: Path) -> str | None:
+    paths = [str(path) for path in root.rglob("*") if path.is_file() and classification(path.relative_to(root)) == "COVERAGE_ARTIFACT"]
+    if not paths:
+        return None
+    handle = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".txt", delete=False)
+    with handle:
+        handle.write("\n".join(sorted(paths)))
+        handle.write("\n")
+    return handle.name
 
 def analyze(root: Path, timeout: int = 60) -> dict[str, Any]:
     discovery = discover("cloc", MINIMUM_ANALYZER_VERSION, timeout)
     if discovery["status"] != "VALID":
         return {"status": discovery["status"], "limitations": [discovery["limitation"]]}
+    exclude_list = _coverage_exclude_list(root)
+    command = [discovery["executable"], "--json", "--by-file", "--quiet", f"--exclude-dir={','.join(EXCLUDED_DIRECTORIES)}"]
+    if exclude_list:
+        command.append(f"--exclude-list-file={exclude_list}")
+    command.append(str(root))
     try:
-        result = subprocess.run([discovery["executable"], "--json", "--by-file", "--quiet", f"--exclude-dir={','.join(EXCLUDED_DIRECTORIES)}", str(root)], capture_output=True, text=True, timeout=timeout, check=True)
+        result = subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=True)
         raw = result.stdout
         data = json.loads(raw)
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError, json.JSONDecodeError) as error:
         return {"status":"FAILED_CLOSED", "limitations":[{"id":"analyzer.cloc.failed","description":str(error),"cause":"analyzer execution failed"}]}
+    finally:
+        if exclude_list:
+            Path(exclude_list).unlink(missing_ok=True)
     files, languages = [], defaultdict(lambda: {"files":0,"code":0,"comment":0,"blank":0})
     totals = defaultdict(int)
     entries = ((name, item) for name, item in data.items() if name not in {"header", "SUM"})

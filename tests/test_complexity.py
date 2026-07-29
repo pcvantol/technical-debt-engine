@@ -6,7 +6,7 @@ from unittest.mock import patch
 from pathlib import Path
 from tde_runtime import Runtime, RuntimeConfiguration
 from tde_runtime.code_size import analyze as analyze_code_size
-from tde_runtime.complexity import _portable_native_output, analyze, classify_path
+from tde_runtime.complexity import _lizard, _portable_native_output, analyze, classify_path
 from tde_cli.main import ExitCode, main
 
 class ComplexityTests(unittest.TestCase):
@@ -63,10 +63,10 @@ class ComplexityTests(unittest.TestCase):
     def test_missing_analyzer_and_unsupported_version_block(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
-            with patch("tde_runtime.analyzer_discovery.shutil.which",return_value=None):
+            (root / "sample.py").write_text("def sample():\n    return 1\n", encoding="utf-8")
+            with patch("tde_runtime.complexity.discover", return_value={"status": "ANALYZER_NOT_FOUND", "limitation": {"id": "analyzer.radon.unavailable", "description": "radon unavailable", "cause": "analyzer unavailable"}}):
                 self.assertEqual("ANALYZER_NOT_FOUND",analyze(root)["status"])
-            with patch("tde_runtime.analyzer_discovery.shutil.which",return_value="radon"), patch("tde_runtime.analyzer_discovery.subprocess.run") as run:
-                run.return_value.stdout="5.0.0"
+            with patch("tde_runtime.complexity.discover", return_value={"status": "ANALYZER_NOT_FOUND", "limitation": {"id": "analyzer.radon.unsupported_version", "description": "unsupported", "cause": "unsupported analyzer version"}}):
                 self.assertEqual("analyzer.radon.unsupported_version",analyze(root)["limitations"][0]["id"])
 
     def test_native_output_is_relative_and_deterministic(self):
@@ -85,3 +85,45 @@ class ComplexityTests(unittest.TestCase):
             assessment=json.loads(stream.getvalue()); self.assertEqual("QUALIFIED",assessment["runtimeQualification"]["level"])
             stream=StringIO(); self.assertEqual(ExitCode.SUCCESS,main(["--format","json","query",str(root),"--resource","findings"],stream)); self.assertGreater(json.loads(stream.getvalue())["queryEvidence"]["resultCount"],0)
             stream=StringIO(); self.assertEqual(ExitCode.SUCCESS,main(["--format","markdown","report","--capability","complexity",str(root)],stream)); self.assertIn("# Complexity Report",stream.getvalue())
+
+    def test_lizard_normalizes_typescript_symbols_with_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "src"; source.mkdir()
+            target = source / "service.ts"
+            target.write_text("export function branch(value: boolean) { if (value) return 1; return 0; }\n", encoding="utf-8")
+            native = f'1,2,12,1,1,"branch@1@{target}","{target}",branch,"branch(value: boolean)",1,1\n'
+            with patch("tde_runtime.complexity.discover", return_value={"status": "VALID", "executable": "lizard", "version": "1.23.0"}), \
+                 patch("tde_runtime.complexity.subprocess.run") as run:
+                run.return_value.stdout = native
+                result = _lizard(root, [target], ("TypeScript",), 10)
+            self.assertEqual("VALID", result["status"])
+            self.assertEqual("TypeScript", result["symbols"][0]["language"])
+            self.assertEqual(2, result["symbols"][0]["complexity"])
+            self.assertEqual("complexity.lizard", result["symbols"][0]["adapterId"])
+            self.assertEqual("lizard==1.23.0", result["adapter"]["analyzer"]["package"])
+
+    def test_primary_language_prevents_auxiliary_python_from_qualifying_csharp(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "Program.cs").write_text("class Program {\n  static int Branch(bool value) {\n    if (value) return 1;\n    return 0;\n  }\n}\n", encoding="utf-8")
+            (root / "tools").mkdir()
+            (root / "tools" / "helper.py").write_text("def branch(value): return 1\n", encoding="utf-8")
+            with patch("tde_runtime.complexity._lizard") as lizard:
+                lizard.return_value = {"status": "VALID", "symbols": [{"path": "Program.cs", "classification": "PRODUCT_SOURCE", "language": "C#", "name": "Branch", "type": "function", "line": 1, "endLine": 1, "complexity": 2, "adapterId": "complexity.lizard", "toolId": "lizard"}], "adapter": {"id": "complexity.lizard", "version": "1.1.0", "analyzer": {"id": "lizard", "version": "1.23.0"}, "rawOutput": "", "rawOutputHash": "sha256:test"}}
+                result = analyze(root)
+            self.assertEqual(["C#"], result["primaryLanguages"])
+            self.assertEqual(["C#"], sorted({symbol["language"] for symbol in result["symbols"]}))
+
+    def test_coverage_and_generated_paths_do_not_contaminate_complexity_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "app.py").write_text("def app():\n    return 1\n", encoding="utf-8")
+            (root / "coverage").mkdir(); (root / "coverage" / "generated.py").write_text("def generated():\n    return 1\n", encoding="utf-8")
+            (root / "verification").mkdir(); (root / "verification" / "verify.py").write_text("def verify():\n    return 1\n", encoding="utf-8")
+            with patch("tde_runtime.complexity._radon") as radon:
+                radon.return_value = {"status": "VALID", "symbols": [{"path": "app.py", "classification": "PRODUCT_SOURCE", "language": "Python", "name": "app", "type": "function", "line": 1, "endLine": 2, "complexity": 1, "adapterId": "complexity.radon", "toolId": "radon"}], "adapter": {"id": "complexity.radon", "version": "1.1.0", "analyzer": {"id": "radon", "version": "6.0.1"}, "rawOutput": "{}", "rawOutputHash": "sha256:test"}}
+                result = analyze(root)
+            supplied = [path.relative_to(root).as_posix() for path in radon.call_args.args[1]]
+            self.assertEqual(["app.py"], supplied)
+            self.assertEqual("VALID", result["status"])

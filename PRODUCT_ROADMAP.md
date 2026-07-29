@@ -5,7 +5,8 @@
 TDE `1.0.5` is the published and qualified public runtime. DJConnect is the
 primary product; TDE is the supporting engineering tool for reliable DJConnect
 pipeline decisions. Generation 1 and the bounded Generation 2 delivery are
-complete; TDE is now maintenance-first.
+complete. TDE 1.1 is the explicitly authorized, bounded cross-language
+complexity parity increment.
 
 ## Generation 2 active roadmap
 
@@ -19,6 +20,8 @@ complete; TDE is now maintenance-first.
 
 Consumer integration remains Observe-only. It does not create required checks,
 merge blocks, soft-fails, or consumer-side analyzer and policy duplication.
+
+| TDE 1.1 Cross-language complexity parity | **In progress.** One canonical complexity capability gains primary-product-language evidence for Python, TypeScript/JavaScript, Swift, C/C++, and C#. | Qualified public runtime; one exact public pin in all seven Observe-only consumers; valid primary-language evidence and unchanged policy thresholds. |
 
 ## Release and operating model
 
