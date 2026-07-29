@@ -4,14 +4,13 @@ DJConnect is the primary product. Technical Debt Engine (TDE) is its compact,
 supporting engineering tool for producing reliable pipeline assessment
 decisions through public evidence and CLI contracts.
 
-TDE 1.0.5 completed the consumer-driven DJConnect enablement program. The
-explicitly authorized TDE 1.1 increment adds cross-language primary-product
-complexity parity without creating a new capability or changing Observe-only
-governance. See the [roadmap](PRODUCT_ROADMAP.md) and [active
-backlog](PRODUCT_BACKLOG.md).
+TDE 1.1.1 completes the consumer-driven DJConnect enablement program and the
+authorized cross-language primary-product complexity parity increment. It adds
+no new capability and does not change Observe-only governance. See the
+[roadmap](PRODUCT_ROADMAP.md) and [active backlog](PRODUCT_BACKLOG.md).
 
-Release `1.0.5` is the current public baseline. TDE `1.1.0` is not a consumer
-pin until its public-wheel and cross-platform qualification has completed.
+Release `1.1.1` is the current public baseline and is exactly pinned by all
+seven selected DJConnect source consumers.
 
 ## Product contracts
 
