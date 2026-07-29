@@ -1,11 +1,10 @@
 # Product backlog
 
-## Active — required for 1.0
+## Active — maintenance-first
 
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
-| G2-D immutable-candidate consumer qualification | `djconnect-pi` runs the exact public `1.0.0` candidate in non-blocking Observe mode and retains full evidence. | Three successful `0.2.0` Observe runs are recorded; the exact candidate produces complete capability, assessment, differential when available, and qualification evidence. | Consumer-side analyzer/policy duplication; unpinned checkout integration; phase promotion or wider rollout. |
-| G2-E 1.0 qualification and release | DJConnect can trust one certified release across chosen distribution paths. | Green immutable-candidate, artifact, Runtime, selected-consumer, and release qualification; known limitations; one `1.0.0` publication bundle. | Per-capability public releases; release-engineering expansion without a proven gap. |
+| Apple coverage improvement | Improve the separately reported Apple product coverage baseline from 38.37% through targeted UI and widget tests when the Apple team schedules the work. | A selected Apple test scope produces a reviewed canonical coverage artifact without changing TDE policy or thresholds. | TDE runtime/capability changes; coverage-threshold changes; treating the current 38.37% baseline as an integration failure. |
 
 ## Completed in Generation 2
 
@@ -14,6 +13,8 @@
 | G2-A Coverage completion | Existing CI coverage artifacts from `djconnect`, `djconnect-pi`, `djconnect-website`, and `djconnect-esp32` become reliable canonical evidence without test execution by TDE. | Public CLI parser, policy, baseline/differential, runtime and repository-qualification proof; fresh post-merge branch-coverage and real CI artifact validation. | Test execution, coverage generation, test-health analysis, consumer-CI integration. |
 | G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, qualification, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
 | G2-C Security gap assessment | The eight active DJConnect repositories have an evidence-based security architecture decision before TDE scope expands. | [Security Gap Assessment](SECURITY_GAP_ASSESSMENT.md): native controls inventoried; no selected-pilot decision requires TDE security evidence; no 1.0 capability approved. | New analyzer, runtime/schema/policy changes, dependency or security scanning, SBOM, dashboards, and release-engineering changes. |
+| G2-D DJConnect consumer integration | The public, exactly pinned `1.0.5` CLI runs in Observe mode on `main` for all seven selected source consumers: `djconnect`, `djconnect-pi`, `djconnect-api`, `djconnect-app`, `djconnect-esp32`, `djconnect-website`, and `djconnect-windows`. | Every consumer executes `code_size`, `complexity`, `coverage`, and `dependency_health`, publishes `tde-observe-evidence`, and has a green post-merge `main` run. Canonical coverage is recorded for all seven: 88.63%, 75.78%, 89.14%, 38.37%, 88.83%, 96.59%, and 86.49% respectively. | Required checks, merge blocks, soft-fails, local source checkout, internal imports, or consumer-side analyzer/policy duplication. |
+| G2-E 1.0 qualification and release | DJConnect consumes the qualified public `1.0.5` release through the public CLI. | `1.0.5` is the latest published release; all selected consumers run the exact public distribution and retain qualification evidence. | Release-per-capability practice or release-engineering expansion without a demonstrated gap. |
 
 ## Conditional — only if the pilot proves necessary
 
