@@ -21,7 +21,7 @@ complexity parity increment.
 Consumer integration remains Observe-only. It does not create required checks,
 merge blocks, soft-fails, or consumer-side analyzer and policy duplication.
 
-| TDE 1.1 Cross-language complexity parity | **Complete.** One canonical complexity capability now produces primary-product-language evidence for Python, TypeScript/JavaScript, Swift, C/C++, and C#. | Public 1.1.1 runtime; exact public pin in all seven Observe-only consumers; valid, qualified primary-language evidence and unchanged policy thresholds. |
+| TDE 1.1 Cross-language complexity parity | **Complete.** One canonical complexity capability now produces primary-product-language evidence for Python, TypeScript/JavaScript, Swift, C/C++, and C#; all seven consumers now have a non-FAIL standard assessment. | Public 1.1.1 runtime; exact public pin in all seven Observe-only consumers; valid, qualified primary-language evidence and unchanged policy thresholds. The post-remediation Apple, ESP32, and Windows `main` runs report `PASS_WITH_WARNINGS` with product complexity 29, 25, and 25 respectively. |
 
 ## Release and operating model
 

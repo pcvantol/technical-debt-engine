@@ -5,8 +5,6 @@
 | Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
 | --- | --- | --- | --- |
 | Apple coverage improvement | Improve the separately reported Apple product coverage baseline from 38.37% through targeted UI and widget tests when the Apple team schedules the work. | A selected Apple test scope produces a reviewed canonical coverage artifact without changing TDE policy or thresholds. | TDE runtime/capability changes; coverage-threshold changes; treating the current 38.37% baseline as an integration failure. |
-| Blocking product-complexity remediation | Remove measured product-source complexity blockers without changing TDE policy: `djconnect-app` Swift root view (48), `djconnect-esp32` device-command parser (52), and `djconnect-windows` C# product code (47). | Each selected refactoring preserves behaviour and tests, and fresh public `tde` 1.1.1 evidence reports product complexity maximum no higher than 30 with a non-FAIL assessment. | Threshold increases, suppressions, policy forks, consumer-local analyzers, merge blocking, or runtime changes. |
-| Strict-PASS warning reduction | Only after blocking remediation, reduce existing warning measurements where the product teams choose to target strict `PASS`: product complexity must be no higher than 15 and product source no higher than 50,000 lines. Current warnings are `djconnect` (58,079 source lines; max 28), `djconnect-api` (max 18), `djconnect-pi` (max 28), `djconnect-website` (max 26), and the Apple source-size warning (58,116 lines). | Fresh public-CLI evidence is `VALID` and the standard assessment decision is `PASS`, without changing policy thresholds. | Reclassifying product code to evade measurement, global threshold changes, suppressions, or treating a warning as an integration defect. |
 
 ## Completed in Generation 2
 
@@ -18,6 +16,7 @@
 | G2-D DJConnect consumer integration | The public, exactly pinned `1.0.5` CLI runs in Observe mode on `main` for all seven selected source consumers: `djconnect`, `djconnect-pi`, `djconnect-api`, `djconnect-app`, `djconnect-esp32`, `djconnect-website`, and `djconnect-windows`. | Every consumer executes `code_size`, `complexity`, `coverage`, and `dependency_health`, publishes `tde-observe-evidence`, and has a green post-merge `main` run. Canonical coverage is recorded for all seven: 88.63%, 75.78%, 89.14%, 38.37%, 88.83%, 96.59%, and 86.49% respectively. | Required checks, merge blocks, soft-fails, local source checkout, internal imports, or consumer-side analyzer/policy duplication. |
 | G2-E 1.0 qualification and release | DJConnect established the qualified public `1.0.5` release through the public CLI; it is now superseded by the compatible `1.1.1` maintenance baseline. | Initial 1.0 qualification is retained; all selected consumers now run the exact public `1.1.1` distribution and retain qualification evidence. | Release-per-capability practice or release-engineering expansion without a demonstrated gap. |
 | TDE 1.1 complexity policy parity | Canonical primary-product-language complexity evidence is available for the seven selected DJConnect source consumers through one capability, policy and qualification route. | Public `1.1.1`, unchanged thresholds, and fresh `main` evidence for all seven consumers are `VALID` and `QUALIFIED` for `code_size`, `complexity`, `coverage`, and `dependency_health`. Website and Windows evidence-normalization defects discovered in `1.1.0` are corrected by `1.1.1`. | Policy forks, threshold increases, consumer-local analyzers, automatic product refactoring, merge blocking, security/SBOM/dashboard work. |
+| Blocking product-complexity remediation | Measured product-source blockers were removed without changing TDE policy: `djconnect-app` is now 29 ([main run 30473879160](https://github.com/pcvantol/djconnect-app/actions/runs/30473879160)), `djconnect-esp32` 25 ([30478582271](https://github.com/pcvantol/djconnect-esp32/actions/runs/30478582271)), and `djconnect-windows` 25 ([30482356905](https://github.com/pcvantol/djconnect-windows/actions/runs/30482356905)). | Each cited post-merge public `tde` 1.1.1 run reports `PASS_WITH_WARNINGS` and `QUALIFIED`; behavior was preserved by consumer tests and builds. | Threshold increases, suppressions, policy forks, consumer-local analyzers, merge blocking, or runtime changes. |
 
 ## Conditional — only if the pilot proves necessary
 
@@ -44,6 +43,10 @@ activation and priority:
 - Broad language/ecosystem coverage outside the selected pilot; performance
   work without a demonstrated bottleneck; parallel execution, caching, and
   incremental analysis without operational evidence.
+- Strict-PASS warning reduction, only if a product team explicitly chooses to
+  target warning thresholds of product complexity no higher than 15 and product
+  source no higher than 50,000 lines. `PASS_WITH_WARNINGS` is the accepted
+  current outcome and warnings are not an integration defect.
 - Any release-per-capability practice.
 - Security-evidence normalization, Dependency Review evidence, container
   vulnerability evidence, licence evidence, and native code-scanning expansion
