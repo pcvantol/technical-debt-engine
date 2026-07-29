@@ -31,6 +31,13 @@ build caches.
 Local tooling and compilation output are not repository source code and cannot
 affect policy measurements.
 
+Complexity uses the same canonical classification. It discovers the primary
+product language by recognised product-source lines, measures it through a
+registered public analyzer, and never lets auxiliary scripts in another
+language substitute for it. Coverage XML/JSON/HTML/intermediate output is
+excluded from Code Size and Complexity discovery but remains available to the
+Coverage capability.
+
 Profiles are JSON documents with an identifier, version, description,
 capability entries, a policy file and metadata. Each capability selects exactly
 one of `required` or `optional`.

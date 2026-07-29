@@ -6,7 +6,7 @@
   "description": "Default, language-independent Generation 1 qualification policy.",
   "supportedCapabilities": ["code_size", "complexity", "coverage", "dependency_health"],
   "supportedSchemas": ["1.0.0"],
-  "supportedRuntimeVersions": ["0.2.0", "1.0.0rc1", "1.0.0rc2", "1.0.0rc3", "1.0.0", "1.0.1", "1.0.2", "1.0.3", "1.0.4", "1.0.5"],
+  "supportedRuntimeVersions": ["0.2.0", "1.0.0rc1", "1.0.0rc2", "1.0.0rc3", "1.0.0", "1.0.1", "1.0.2", "1.0.3", "1.0.4", "1.0.5", "1.1.0"],
   "rules": [
     {"id": "code_size.repository_lines", "type": "threshold", "capability": "code_size", "metric": "code_size.source_lines", "operator": "greater_than", "threshold": {"warning": 50000, "blocking": 75000}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "Repository-size decisions measure product source only. Tests, documentation and configuration remain visible as evidence but do not inflate the source-code threshold."},
     {"id": "complexity.product.maximum", "type": "threshold", "capability": "complexity", "metric": "complexity.cyclomatic.product.maximum", "operator": "greater_than", "threshold": {"warning": 15, "blocking": 30}, "severity": {"warning": "WARNING", "blocking": "BLOCKING"}, "enabled": true, "rationale": "The blocking complexity gate applies only to production source. Test, fixture and verification complexity remains canonical evidence but does not redefine the production-source outcome."},

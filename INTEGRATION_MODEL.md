@@ -10,6 +10,15 @@ TDE is a standalone product. Consumers—including DJConnect—integrate only th
 
 Consumers must never integrate through runtime internals, private adapter APIs, repository layout, or unreleased behavior. Public reusable workflows, if introduced later, are contracts with their own versioning and authorization model; workflow access does not imply artifact or release write access.
 
+## Complexity parity public contract
+
+`tde assess` and `tde qualify` discover a repository's primary product language
+from canonical source classification and resolve registered complexity adapters
+inside the published runtime. Consumers must only pin the runtime and invoke the
+public CLI; they must not install or select Radon/Lizard adapters themselves.
+The resulting `complexity.cyclomatic.product.maximum` follows the existing
+policy and qualification path. TDE remains Observe-only in consumer workflows.
+
 ## Runtime recovery public contract
 
 `tde assess --capability code_size <repository>` is the public entrypoint for

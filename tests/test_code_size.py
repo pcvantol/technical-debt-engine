@@ -56,6 +56,12 @@ class CodeSizeTests(unittest.TestCase):
         excluded = ("obj/", "bin/", ".release-venv/", "node_modules/", "vendor/", "third_party/", "generated/", "artifacts/")
         self.assertTrue(all(not item["path"].startswith(excluded) for item in result["files"]))
 
+    def test_code_size_excludes_root_coverage_artifacts_without_hiding_coverage_capability_inputs(self) -> None:
+        (self.root / "coverage.xml").write_text("<coverage></coverage>\n", encoding="utf-8")
+        (self.root / "lcov.info").write_text("TN:\n", encoding="utf-8")
+        result = analyze(self.root)
+        self.assertFalse(any(item["path"] in {"coverage.xml", "lcov.info"} for item in result["files"]))
+
     def test_evidence_digest_is_stable_for_same_repository_and_configuration(self) -> None:
         configuration = RuntimeConfiguration.load({"capabilities": {"code_size": {"enabled": True}}})
         first = Runtime().execute(self.root, configuration).evidence["integrity"]["contentDigest"]

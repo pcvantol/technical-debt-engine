@@ -10,13 +10,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def normalize(value: object) -> object:
-    """Remove the documented non-deterministic execution envelope only."""
+    """Remove the documented non-deterministic execution envelope only.
+
+    Analyzer provenance intentionally records the runner platform and absolute
+    executable path. Both remain in each qualification record for audit, but
+    neither is an analytical result and therefore cannot participate in a
+    cross-platform equivalence comparison.
+    """
     if isinstance(value, list):
         return [normalize(item) for item in value]
     if isinstance(value, dict):
-        return {key: normalize(item) for key, item in value.items()
-                if key not in {"executionTiming", "executionId", "qualificationId", "evaluatedAt", "executionDurationMs",
-                               "targetEntityId", "measurementId", "qualificationReference"}}
+        excluded_keys = {
+            "executionTiming", "executionId", "qualificationId", "evaluatedAt", "executionDurationMs",
+            "targetEntityId", "measurementId", "qualificationReference", "executable", "platform",
+        }
+        return {key: normalize(item) for key, item in value.items() if key not in excluded_keys}
     return value
 
 

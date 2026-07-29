@@ -22,3 +22,9 @@ Compatibility is defined as follows:
 The Runtime validates every emitted capability, policy, decision, and assessment
 envelope before persistence. An incompatible or malformed schema is rejected
 fail-closed.
+
+TDE 1.1 preserves schema compatibility: cross-language complexity provenance is
+additive adapter evidence. Existing Radon Python metrics and metric keys remain
+valid; multi-language adapter identity, package/executable and platform fields
+are carried in the existing `adapterResults` contract rather than a
+language-specific top-level schema.
