@@ -103,6 +103,38 @@ class ComplexityTests(unittest.TestCase):
             self.assertEqual("complexity.lizard", result["symbols"][0]["adapterId"])
             self.assertEqual("lizard==1.23.0", result["adapter"]["analyzer"]["package"])
 
+    def test_lizard_ignores_synthetic_csharp_file_statistics(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "Program.cs"
+            target.write_text("class Program {}\n", encoding="utf-8")
+            native = (
+                f'116,1,117,0,1372,"*global*@0-1371@{target}","{target}",*global*,*global*,0,1371\n'
+                f'4,2,20,0,5,"Branch@2-6@{target}","{target}",Branch,Branch(),2,6\n'
+            )
+            with patch("tde_runtime.complexity.discover", return_value={"status": "VALID", "executable": "lizard", "version": "1.23.0"}), \
+                 patch("tde_runtime.complexity.subprocess.run") as run:
+                run.return_value.stdout = native
+                result = _lizard(root, [target], ("C#",), 10)
+            self.assertEqual("VALID", result["status"])
+            self.assertEqual(["Branch"], [symbol["name"] for symbol in result["symbols"]])
+
+    def test_identical_analyzer_symbols_are_normalized_but_conflicts_block(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "Program.cs").write_text("class Program {}\n", encoding="utf-8")
+            base = {"path": "Program.cs", "classification": "PRODUCT_SOURCE", "language": "C#", "name": "Branch", "type": "function", "line": 2, "endLine": 6, "complexity": 2, "adapterId": "complexity.lizard", "toolId": "lizard"}
+            adapter = {"id": "complexity.lizard", "version": "1.1.1", "analyzer": {"id": "lizard", "version": "1.23.0"}, "rawOutput": "", "rawOutputHash": "sha256:test"}
+            with patch("tde_runtime.complexity._lizard", return_value={"status": "VALID", "symbols": [base, dict(base)], "adapter": adapter}):
+                valid = analyze(root)
+            self.assertEqual("VALID", valid["status"])
+            self.assertEqual(1, len(valid["symbols"]))
+            conflicting = dict(base, complexity=3)
+            with patch("tde_runtime.complexity._lizard", return_value={"status": "VALID", "symbols": [base, conflicting], "adapter": adapter}):
+                invalid = analyze(root)
+            self.assertEqual("INVALID_EVIDENCE", invalid["status"])
+            self.assertEqual("complexity.symbol.duplicate", invalid["limitations"][0]["id"])
+
     def test_primary_language_prevents_auxiliary_python_from_qualifying_csharp(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
