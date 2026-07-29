@@ -12,7 +12,7 @@ class CapabilityRegistry:
     def discover(self) -> tuple[object, ...]:
         return (
             {"id": "code_size", "version": "0.1.0", "description": "Canonical physical code-size metrics", "outputContract": "tde.code_size.v1", "analyzerSelection": "highest_priority", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("code_size.cloc",)},
-            {"id": "complexity", "version": "1.1.0", "description": "Canonical cross-language cyclomatic-complexity metrics", "outputContract": "tde.complexity.v1", "analyzerSelection": "repository_primary_language", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("complexity.radon", "complexity.lizard")},
+            {"id": "complexity", "version": "1.1.1", "description": "Canonical cross-language cyclomatic-complexity metrics", "outputContract": "tde.complexity.v1", "analyzerSelection": "repository_primary_language", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("complexity.radon", "complexity.lizard")},
             {"id": "coverage", "version": "0.1.0", "description": "Canonical test coverage metrics from existing artifacts", "outputContract": "tde.coverage.v1", "analyzerSelection": "highest_priority", "qualificationRules": "complete_adapter_evidence", "supportedAnalyzers": ("coverage.artifact",)},
             {"id":"maintainability","version":"0.1.0","status":"VALIDATED"},
             {"id":"dependency_health","version":"1.0.0","description":"Canonical DJConnect dependency-health evidence", "outputContract":"tde.dependency_health.v1", "analyzerSelection":"highest_priority", "qualificationRules":"complete_adapter_evidence", "supportedAnalyzers":("dependency_health.platform",)},
@@ -23,8 +23,8 @@ class AdapterRegistry:
     def discover(self) -> tuple[object, ...]:
         return (
             {"id": "code_size.cloc", "version": "0.1.0", "analyzer": "cloc", "capabilities": ("code_size",), "minimumVersion": "2.10", "platforms": ("any",), "priority": 100},
-            {"id":"complexity.radon","version":"1.1.0","analyzer":"radon", "capabilities": ("complexity",), "minimumVersion": "6.0", "platforms": ("any",), "languages": ("Python",), "priority": 100},
-            {"id":"complexity.lizard","version":"1.1.0","analyzer":"lizard", "capabilities": ("complexity",), "minimumVersion": "1.23", "platforms": ("any",), "languages": ("JavaScript", "TypeScript", "Swift", "C", "C++", "C#"), "priority": 90},
+            {"id":"complexity.radon","version":"1.1.1","analyzer":"radon", "capabilities": ("complexity",), "minimumVersion": "6.0", "platforms": ("any",), "languages": ("Python",), "priority": 100},
+            {"id":"complexity.lizard","version":"1.1.1","analyzer":"lizard", "capabilities": ("complexity",), "minimumVersion": "1.23", "platforms": ("any",), "languages": ("JavaScript", "TypeScript", "Swift", "C", "C++", "C#"), "priority": 90},
             {"id":"coverage.artifact","version":"0.1.0","analyzer":"coverage-artifact", "capabilities": ("coverage",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
             {"id":"dependency_health.platform","version":"1.0.0","analyzer":"consumer-native", "capabilities": ("dependency_health",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
         )

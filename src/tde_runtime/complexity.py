@@ -17,11 +17,11 @@ from .analyzer_discovery import discover
 from .source_classification import classification, language_for, primary_languages
 
 CAPABILITY_ID = "complexity"
-CAPABILITY_VERSION = "1.1.0"
+CAPABILITY_VERSION = "1.1.1"
 RADON_ADAPTER_ID = "complexity.radon"
 LIZARD_ADAPTER_ID = "complexity.lizard"
 ADAPTER_ID = RADON_ADAPTER_ID  # Compatibility import for existing Python consumers.
-ADAPTER_VERSION = "1.1.0"
+ADAPTER_VERSION = "1.1.1"
 MINIMUM_RADON_VERSION = (6, 0)
 MINIMUM_LIZARD_VERSION = (1, 23)
 LIZARD_LANGUAGES = {"JavaScript": "javascript", "TypeScript": "typescript", "Swift": "swift", "C": "cpp", "C++": "cpp", "C#": "csharp"}
@@ -154,6 +154,12 @@ def _lizard(root: Path, paths: list[Path], languages: tuple[str, ...], timeout: 
         except (ValueError, IndexError):
             return {"status": "INVALID_EVIDENCE", "limitations": [{"id": "complexity.lizard.malformed_output", "description": "Lizard CSV contained invalid symbol data.", "cause": "invalid analyzer evidence"}]}
         language = language_for(path)
+        # Lizard emits a file-level ``*global*`` row at source line zero for
+        # some C# files.  It is not a function or method measurement and has
+        # no canonical symbol location, so it must not participate in the
+        # symbol contract.
+        if name == "*global*" and line == 0:
+            continue
         if not name or not path or language not in languages or line < 1:
             return {"status": "INVALID_EVIDENCE", "limitations": [{"id": "complexity.lizard.location_missing", "description": "Lizard omitted a required source location or language.", "cause": "invalid analyzer evidence"}]}
         symbols.append({"path": path, "classification": classification(path), "language": language, "name": name,
@@ -196,10 +202,19 @@ def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | No
         adapters.append(result["adapter"])
     ignored_symbols = set(_items(configuration.get("ignoredSymbols")))
     symbols = [symbol for symbol in symbols if symbol["name"] not in ignored_symbols]
-    identities = [(symbol["path"], symbol["name"], symbol["line"], symbol["adapterId"]) for symbol in symbols]
-    if len(identities) != len(set(identities)):
-        return {"status": "INVALID_EVIDENCE", "symbols": symbols, "adapters": adapters, "thresholds": thresholds,
-                "primaryLanguages": list(primary), "limitations": [{"id": "complexity.symbol.duplicate", "description": "Analyzer results contain duplicate symbol identities.", "cause": "conflicting analyzer evidence"}]}
+    canonical_symbols: dict[tuple[str, str, int, str], dict[str, Any]] = {}
+    for symbol in symbols:
+        identity = (symbol["path"], symbol["name"], symbol["line"], symbol["adapterId"])
+        existing = canonical_symbols.get(identity)
+        if existing is None:
+            canonical_symbols[identity] = symbol
+        elif existing != symbol:
+            return {"status": "INVALID_EVIDENCE", "symbols": symbols, "adapters": adapters, "thresholds": thresholds,
+                    "primaryLanguages": list(primary), "limitations": [{"id": "complexity.symbol.duplicate", "description": "Analyzer results contain conflicting symbol identities.", "cause": "conflicting analyzer evidence"}]}
+    # Some Lizard language readers emit an identical row twice.  Preserve the
+    # raw analyzer output in provenance, while normalising the canonical
+    # symbol set to one measurement per identity.
+    symbols = list(canonical_symbols.values())
     symbols.sort(key=lambda item: (item["language"], item["path"], item["line"], item["name"]))
     return {"status": "VALID", "symbols": symbols, "adapters": adapters, "thresholds": thresholds,
             "primaryLanguages": list(primary), "limitations": limitations}
