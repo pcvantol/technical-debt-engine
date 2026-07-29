@@ -68,7 +68,10 @@ def main() -> int:
         python, tde = executable(venv, "python"), executable(venv, "tde")
         isolated_env = {**os.environ, "PATH": str(Path(tde).parent) + os.pathsep + os.environ.get("PATH", "")}
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "--no-deps", str(wheel)])
-        missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={3}, env={**os.environ, "PATH": str(Path(tde).parent)})
+        # The isolated wheel is intentionally installed with --no-deps. The
+        # public CLI must report the documented ANALYZER_NOT_FOUND exit code,
+        # rather than silently accepting absent analyzer evidence.
+        missing_analyzer = run([tde, "--format", "json", "assess", "--capability", "complexity", str(fixture)], expected={5}, env={**os.environ, "PATH": str(Path(tde).parent)})
         # The negative case must not become the persisted record used by the
         # subsequent Query/report qualification.
         shutil.rmtree(fixture / ".tde", ignore_errors=True)
@@ -110,8 +113,8 @@ def main() -> int:
             "candidateSha": os.environ.get("GITHUB_SHA", "local"), "workflow": os.environ.get("GITHUB_WORKFLOW", "local"),
             "workflowRun": os.environ.get("GITHUB_RUN_ID"), "operatingSystem": platform.platform(),
             "pythonVersion": platform.python_version(), "packageVersion": json.loads(commands["version"]["_raw"])["cliVersion"],
-            "wheelChecksum": digest(wheel), "capability": {"id": "complexity", "version": "0.1.0"},
-            "adapter": {"id": "complexity.radon", "version": "0.1.0"}, "analyzer": analyzer,
+            "wheelChecksum": digest(wheel), "capability": {"id": "complexity", "version": "1.1.0"},
+            "adapter": {"id": "complexity.radon", "version": "1.1.0"}, "analyzer": analyzer,
             "fixture": {"path": "fixtures/complexity-cross-platform", "digest": tree_digest(FIXTURE)},
             "configurationDigest": evidence["configurationDigest"], "evidenceId": assessment["evidenceId"],
             "commands": {name: command_record(command) for name, command in commands.items()},
