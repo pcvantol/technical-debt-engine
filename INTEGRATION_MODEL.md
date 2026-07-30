@@ -1,6 +1,6 @@
 # Integration model
 
-TDE is a standalone product. Consumers—including DJConnect—integrate only through stable public contracts:
+TDE is an operational, standalone engineering-quality platform. Consumers—including DJConnect—integrate only through stable public contracts:
 
 - the `tde` CLI;
 - declared configuration;
@@ -9,6 +9,17 @@ TDE is a standalone product. Consumers—including DJConnect—integrate only th
 - released, immutable contracts or artifacts.
 
 Consumers must never integrate through runtime internals, private adapter APIs, repository layout, or unreleased behavior. Public reusable workflows, if introduced later, are contracts with their own versioning and authorization model; workflow access does not imply artifact or release write access.
+
+## Observe-only governance
+
+Consumer execution is evidence-only and non-blocking. TDE does not create
+required checks, merge blocks, soft-fails, suppressions, or repository-specific
+policy forks. Consumers pin the public runtime and invoke the public CLI; they
+do not install, select, or duplicate analyzers and policies.
+
+Routine product-quality findings are handled by the consumer repository. A TDE
+change is warranted only by a demonstrated platform-maintenance need or an
+approved architectural capability decision.
 
 ## Complexity parity public contract
 
@@ -32,4 +43,6 @@ The stable runtime exit codes are `0` (`SUCCESS`), `2` (`FAILED_CLOSED`), `3`
 (`ANALYZER_NOT_FOUND`). A non-zero result never represents a degraded or
 silently skipped analysis.
 
-The intended future delivery chain is: Verification Runtime → TDE → Privacy Assessment → Security Assessment (future).
+New capability work follows this gated chain: Architectural Assessment →
+Capability Decision → Implementation → Qualification → Public Runtime →
+Consumer Adoption.

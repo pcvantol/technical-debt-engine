@@ -1,45 +1,68 @@
 # Technical Debt Engine
 
-DJConnect is the primary product. Technical Debt Engine (TDE) is its compact,
-supporting engineering tool for producing reliable pipeline assessment
-decisions through public evidence and CLI contracts.
+Technical Debt Engine (TDE) is an operational engineering-quality platform.
+It observes engineering quality through capability-based, evidence-first
+analysis and produces canonical assessment and qualification evidence for
+repository-independent consumers.
 
-TDE 1.1.1 completes the consumer-driven DJConnect enablement program and the
-authorized cross-language primary-product complexity parity increment. It adds
-no new capability and does not change Observe-only governance. See the
-[roadmap](PRODUCT_ROADMAP.md) and [active backlog](PRODUCT_BACKLOG.md).
+The current public runtime is `1.1.1`. Generation 2 delivery is complete; TDE
+now follows a maintenance-first model for bug fixes, analyzer and dependency
+updates, compatibility work, documentation, governance, and public-runtime
+maintenance.
 
-Release `1.1.1` is the current public baseline and is exactly pinned by all
-seven selected DJConnect source consumers.
+## Operating philosophy
 
-## Product contracts
+TDE intentionally remains:
 
-Consumers integrate only through the public `tde` CLI, configuration, evidence
-schema, exit codes, and stable released contracts—not runtime internals. See
+- Observe-only and non-blocking
+- Public: consumers use only the published runtime and public `tde` CLI
+- Capability-driven and evidence-first
+- Repository-independent
+
+Consumer workflows do not use required checks, merge blocking, soft-fails,
+suppressions, internal imports, or repository-specific policy forks.
+
+## Capability model
+
+The public runtime provides four canonical capabilities:
+
+| Capability | Engineering evidence |
+| --- | --- |
+| `code_size` | Classified repository source-size evidence |
+| `complexity` | Primary-product-language cyclomatic-complexity evidence |
+| `coverage` | Canonical consumer CI coverage-artifact evidence |
+| `dependency_health` | Package-manager-native outdated-dependency evidence |
+
+Python uses Radon for complexity; JavaScript/TypeScript, Swift, C/C++, and C#
+use Lizard. All five languages normalize to
+`complexity.cyclomatic.product.maximum` and the same policy and qualification
+route. See the [capability support matrix](CAPABILITY_SUPPORT_MATRIX.md).
+
+## Public integration contract
+
+Consumers integrate only through the public `tde` CLI, declared
+configuration, versioned Evidence Schema, documented exit codes, and released
+immutable contracts or artifacts. They must not depend on runtime internals,
+private adapter APIs, repository layout, or unreleased behaviour. See
 [INTEGRATION_MODEL.md](INTEGRATION_MODEL.md).
 
-The `complexity` capability discovers the dominant canonical product language:
-Python uses Radon; JavaScript/TypeScript, Swift, C/C++ and C# use Lizard. All
-five normalize to `complexity.cyclomatic.product.maximum` and the same policy.
-See the [complexity support matrix](docs/complexity-support-matrix.md).
+## Capability governance
 
-Operational repository assurance is available through `tde assure`; see [SOFTWARE_ASSURANCE.md](SOFTWARE_ASSURANCE.md) for its canonical evidence and candidate-artifact verification contract.
+New capabilities are not roadmap-driven. An approved architectural assessment
+must first prove that a required engineering decision cannot be made using the
+existing capability model. The delivery path is architectural assessment,
+capability decision, implementation, qualification, public runtime, and then
+consumer adoption.
+
+Routine product-quality findings remain owned by consumer repositories.
 
 ## Documentation
 
-- [Product architecture](PRODUCT_ARCHITECTURE.md)
-- [Platform vision](PLATFORM_VISION.md) and [platform strategy](PLATFORM_STRATEGY.md)
-- [Engineering method](ENGINEERING_METHOD.md) and [session bootstrap](BOOTSTRAP.md)
-- [Capability model](CAPABILITY_MODEL.md)
-- [CLI specification](CLI_SPECIFICATION.md)
-- [Code Size Runtime contract](CODE_SIZE_RUNTIME.md)
-- [Cross-language complexity support](docs/complexity-support-matrix.md) and
-  [ADR-0065](architecture/adr/ADR-0065-cross-language-complexity-policy-parity.md)
-- [Evidence schema](EVIDENCE_SCHEMA.md)
-- [Qualification model](QUALIFICATION_MODEL.md)
-- [Roadmap](PRODUCT_ROADMAP.md) and [backlog](PRODUCT_BACKLOG.md)
-- [Versioning](VERSIONING.md) and [release strategy](RELEASE_STRATEGY.md)
-- [Package build reproducibility](PACKAGING.md)
-- [Repository status](REPOSITORY_STATUS.md)
-
-The documentation index is [PROMPT_INDEX.md](PROMPT_INDEX.md).
+- [Product roadmap](PRODUCT_ROADMAP.md) and [operational backlog](PRODUCT_BACKLOG.md)
+- [Current engineering status](ENGINEERING_STATUS.md)
+- [Integration model](INTEGRATION_MODEL.md)
+- [Capability support matrix](CAPABILITY_SUPPORT_MATRIX.md)
+- [Complexity support detail](docs/complexity-support-matrix.md)
+- [Security gap assessment](SECURITY_GAP_ASSESSMENT.md)
+- [Evidence schema](EVIDENCE_SCHEMA.md) and [qualification model](QUALIFICATION_MODEL.md)
+- [Release architecture](RELEASE_ARCHITECTURE.md) and [release qualification](RELEASE_QUALIFICATION.md)
