@@ -1,34 +1,52 @@
 # Product roadmap
 
-## Current product truth
+## Operational product truth
 
-TDE `1.1.1` is the published and qualified public runtime. DJConnect is the
-primary product; TDE is the supporting engineering tool for reliable DJConnect
-pipeline decisions. Generation 1 and the bounded Generation 2 delivery are
-complete. TDE 1.1 is the explicitly authorized, bounded cross-language
-complexity parity increment.
+TDE `1.1.1` is the published public runtime and the platform is now an
+operational engineering-quality service for repository-independent consumers.
+Its mission is to observe engineering quality through capability-based,
+evidence-first analysis.
 
-## Generation 2 active roadmap
+Generation 1 and Generation 2 are complete. TDE remains actively maintained,
+but it is no longer an active consumer-integration delivery program. Normal
+work follows a maintenance-first model.
 
-| Stream | Outcome | Gate before completion |
-| --- | --- | --- |
-| G2-A Coverage Completion | **Complete.** Existing CI artifacts are qualified canonical assessment evidence; TDE never produces them. | Public CLI/schema/policy/differential/qualification proof recorded against DJConnect CI artifacts. |
-| G2-B Minimal Dependency Health | **Complete.** Platform-wide, package-manager-native dependency evidence for the active DJConnect repositories. | Inventory, bounded support, canonical evidence, policy, differential, qualification, and public-CLI proof recorded. |
-| G2-C Security Gap Assessment | **Complete.** Existing GitHub-native and repository-native controls remain the decision owners; no TDE 1.0 security capability is justified. | Eight-repository factual inventory and explicit architecture decision recorded in [Security Gap Assessment](SECURITY_GAP_ASSESSMENT.md). |
-| G2-D Consumer Integration | **Complete.** The exact public `1.1.1` CLI runs in non-blocking Observe mode on `main` for `djconnect`, `djconnect-pi`, `djconnect-api`, `djconnect-app`, `djconnect-esp32`, `djconnect-website`, and `djconnect-windows`. | Every consumer publishes valid, qualified evidence for `code_size`, `complexity`, `coverage`, and `dependency_health`. |
-| G2-E Qualification and Release | **Complete.** Public `1.1.1` is released and qualified for the selected DJConnect consumers. | Public distribution, consumer qualification, retained evidence, and green post-merge Observe runs are recorded. |
+## Completed milestones
 
-Consumer integration remains Observe-only. It does not create required checks,
-merge blocks, soft-fails, or consumer-side analyzer and policy duplication.
+| Milestone | Outcome |
+| --- | --- |
+| Generation 2 — Coverage completion | Existing consumer CI artifacts are canonical coverage evidence; TDE does not generate coverage itself. |
+| Generation 2 — Dependency health | Package-manager-native outdated-dependency evidence is available for every selected DJConnect ecosystem. |
+| Generation 2 — Security gap assessment | Existing GitHub-native and repository-native controls remain security decision owners; no security capability was justified. See [Security Gap Assessment](SECURITY_GAP_ASSESSMENT.md). |
+| Generation 2 — Consumer integration | All seven selected DJConnect source consumers use the exact public `1.1.1` CLI in non-blocking Observe mode and publish qualified evidence for all four capabilities. |
+| Generation 2 — Qualification and release | The public runtime and its selected consumers are qualified with retained canonical evidence. |
+| TDE 1.1 — Cross-language complexity policy parity | One complexity capability evaluates Python, JavaScript/TypeScript, Swift, C/C++, and C# through the same canonical metric, thresholds, policy, and qualification route. |
 
-| TDE 1.1 Cross-language complexity parity | **Complete.** One canonical complexity capability now produces primary-product-language evidence for Python, TypeScript/JavaScript, Swift, C/C++, and C#; all seven consumers now have a non-FAIL standard assessment. | Public 1.1.1 runtime; exact public pin in all seven Observe-only consumers; valid, qualified primary-language evidence and unchanged policy thresholds. The post-remediation Apple, ESP32, and Windows `main` runs report `PASS_WITH_WARNINGS` with product complexity 29, 25, and 25 respectively. |
+## Operational maintenance
 
-## Release and operating model
+Priority is established by a demonstrated consumer or platform-maintenance
+need. Normal work includes bug fixes, analyzer updates, dependency updates,
+compatibility work, documentation, governance, and public-runtime maintenance.
 
-Capabilities and consumer changes continue to merge in independently
-reviewable PRs. A new public release requires an explicit DJConnect operational
-need and qualification evidence; it is not automatic.
+TDE remains public, capability-driven, repository-independent, and
+Observe-only. Consumer integration creates no required checks, merge blocks,
+soft-fails, suppressions, or repository-specific policy forks.
 
-After `1.1.1`, TDE is maintenance-first: critical bug fixes, compatibility and
-security maintenance, and capabilities justified by an explicit DJConnect
-problem statement. No follow-on capability program begins automatically.
+## Future capability planning
+
+New capabilities are not roadmap-driven. They may enter planning only after an
+approved architectural assessment demonstrates that an engineering decision
+cannot be made with the existing capability model.
+
+```text
+Architectural Assessment
+  → Capability Decision
+  → Implementation
+  → Qualification
+  → Public Runtime
+  → Consumer Adoption
+```
+
+Routine product-quality findings remain owned by consumer repositories. They
+do not create TDE roadmap work unless they demonstrate a missing engineering
+decision and pass the architectural-assessment gate.

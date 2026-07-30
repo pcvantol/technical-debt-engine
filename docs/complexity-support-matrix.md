@@ -1,7 +1,12 @@
 # Complexity support matrix
 
-TDE 1.1 exposes one public `complexity` capability. Adapter selection is
+TDE `1.1.1` exposes one public `complexity` capability. Adapter selection is
 repository-discovery-driven; consumers never invoke an adapter themselves.
+
+This matrix is the detailed complexity view of the canonical
+[Capability Support Matrix](../CAPABILITY_SUPPORT_MATRIX.md). The public
+runtime is distributed as `technical-debt-engine-runtime==1.1.1`; consumers
+use its public CLI in Observe-only mode.
 
 | Language | Adapter | Analyzer | Pin | CI support | Evidence |
 | --- | --- | --- | --- | --- | --- |

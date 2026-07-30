@@ -1,53 +1,50 @@
 # Product backlog
 
-## Active — maintenance-first
+TDE is an operational engineering platform. This backlog contains only active
+platform work. Routine product-quality findings, such as Apple UI coverage,
+are owned and scheduled by their consumer repository; they are not TDE backlog
+items.
 
-| Item | Concrete DJConnect value / intended consumer | Acceptance evidence | Explicit non-goals |
-| --- | --- | --- | --- |
-| Apple coverage improvement | Improve the separately reported Apple product coverage baseline from 38.37% through targeted UI and widget tests when the Apple team schedules the work. | A selected Apple test scope produces a reviewed canonical coverage artifact without changing TDE policy or thresholds. | TDE runtime/capability changes; coverage-threshold changes; treating the current 38.37% baseline as an integration failure. |
+## Operational Maintenance
 
-## Completed in Generation 2
+No active items. Qualify bug fixes and public-runtime servicing against a
+demonstrated consumer or operational need.
 
-| Item | Concrete DJConnect value / validated consumers | Acceptance evidence | Explicit non-goals |
-| --- | --- | --- | --- |
-| G2-A Coverage completion | Existing CI coverage artifacts from `djconnect`, `djconnect-pi`, `djconnect-website`, and `djconnect-esp32` become reliable canonical evidence without test execution by TDE. | Public CLI parser, policy, baseline/differential, runtime and repository-qualification proof; fresh post-merge branch-coverage and real CI artifact validation. | Test execution, coverage generation, test-health analysis, consumer-CI integration. |
-| G2-B Minimal dependency health | Every active DJConnect repository receives a package-manager-native outdated-dependency assessment for its actual ecosystem. | Platform inventory; bounded support statement; canonical evidence, policy, differential, qualification, and public-CLI proof. | General supply-chain suite, ecosystems absent from DJConnect, broad SBOM program. |
-| G2-C Security gap assessment | The eight active DJConnect repositories have an evidence-based security architecture decision before TDE scope expands. | [Security Gap Assessment](SECURITY_GAP_ASSESSMENT.md): native controls inventoried; no selected-pilot decision requires TDE security evidence; no 1.0 capability approved. | New analyzer, runtime/schema/policy changes, dependency or security scanning, SBOM, dashboards, and release-engineering changes. |
-| G2-D DJConnect consumer integration | The public, exactly pinned `1.0.5` CLI runs in Observe mode on `main` for all seven selected source consumers: `djconnect`, `djconnect-pi`, `djconnect-api`, `djconnect-app`, `djconnect-esp32`, `djconnect-website`, and `djconnect-windows`. | Every consumer executes `code_size`, `complexity`, `coverage`, and `dependency_health`, publishes `tde-observe-evidence`, and has a green post-merge `main` run. Canonical coverage is recorded for all seven: 88.63%, 75.78%, 89.14%, 38.37%, 88.83%, 96.59%, and 86.49% respectively. | Required checks, merge blocks, soft-fails, local source checkout, internal imports, or consumer-side analyzer/policy duplication. |
-| G2-E 1.0 qualification and release | DJConnect established the qualified public `1.0.5` release through the public CLI; it is now superseded by the compatible `1.1.1` maintenance baseline. | Initial 1.0 qualification is retained; all selected consumers now run the exact public `1.1.1` distribution and retain qualification evidence. | Release-per-capability practice or release-engineering expansion without a demonstrated gap. |
-| TDE 1.1 complexity policy parity | Canonical primary-product-language complexity evidence is available for the seven selected DJConnect source consumers through one capability, policy and qualification route. | Public `1.1.1`, unchanged thresholds, and fresh `main` evidence for all seven consumers are `VALID` and `QUALIFIED` for `code_size`, `complexity`, `coverage`, and `dependency_health`. Website and Windows evidence-normalization defects discovered in `1.1.0` are corrected by `1.1.1`. | Policy forks, threshold increases, consumer-local analyzers, automatic product refactoring, merge blocking, security/SBOM/dashboard work. |
-| Blocking product-complexity remediation | Measured product-source blockers were removed without changing TDE policy: `djconnect-app` is now 29 ([main run 30473879160](https://github.com/pcvantol/djconnect-app/actions/runs/30473879160)), `djconnect-esp32` 25 ([30478582271](https://github.com/pcvantol/djconnect-esp32/actions/runs/30478582271)), and `djconnect-windows` 25 ([30482356905](https://github.com/pcvantol/djconnect-windows/actions/runs/30482356905)). | Each cited post-merge public `tde` 1.1.1 run reports `PASS_WITH_WARNINGS` and `QUALIFIED`; behavior was preserved by consumer tests and builds. | Threshold increases, suppressions, policy forks, consumer-local analyzers, merge blocking, or runtime changes. |
+## Platform Compatibility
 
-## Conditional — only if the pilot proves necessary
+No active items. Compatibility work covers supported toolchains, package
+managers, platforms, and public-contract consumers when evidence shows a
+concrete breakage or pending incompatibility.
 
-- Simple CI usability improvement.
-- Limited cache.
-- One additional language adapter.
-- One additional policy operator.
-- Limited waiver capability.
+## Analyzer Maintenance
 
-Each requires the same DJConnect value, consumer, acceptance-evidence, and
-non-goal record before activation.
+No active items. Analyzer version, parser, and evidence-normalization updates
+require compatibility evidence and unchanged public-contract semantics unless
+an approved architecture decision says otherwise.
 
-## Post-1.0 options
+## Documentation
 
-These are deferred, not removed. Concrete DJConnect practice determines future
-activation and priority:
+No active items. Documentation and governance updates are maintained whenever
+they are needed to keep canonical operational truth accurate.
 
-- Duplicate code; documentation health; generic architecture rules;
-  bounded-context analysis; layering and module-ownership governance.
-- Extended exception and waiver workflows; organization-wide policy inheritance.
-- Dashboards, hosted API, cloud service, and Marketplace positioning.
-- AI remediation adviser; general SARIF aggregation; test-health and flaky-test
-  analysis; repository-health or marketing composite scores.
-- Broad language/ecosystem coverage outside the selected pilot; performance
-  work without a demonstrated bottleneck; parallel execution, caching, and
-  incremental analysis without operational evidence.
-- Strict-PASS warning reduction, only if a product team explicitly chooses to
-  target warning thresholds of product complexity no higher than 15 and product
-  source no higher than 50,000 lines. `PASS_WITH_WARNINGS` is the accepted
-  current outcome and warnings are not an integration defect.
-- Any release-per-capability practice.
-- Security-evidence normalization, Dependency Review evidence, container
-  vulnerability evidence, licence evidence, and native code-scanning expansion
-  without a selected DJConnect consumer and demonstrated missing decision.
+## Future Capability Candidates
+
+No candidate is approved for implementation. A candidate begins only with an
+approved architectural assessment proving that the existing capability model
+cannot support a required engineering decision.
+
+Deferred examples include security-evidence normalization, duplicate code,
+documentation health, test-health analysis, waiver workflows, dashboards,
+hosted services, additional ecosystems, and AI remediation. They are not
+commitments and must not be activated through routine consumer findings.
+
+## Completed milestones
+
+| Item | Completion record |
+| --- | --- |
+| Generation 2 coverage completion | Canonical CI coverage artifacts are assessed through the public CLI without test execution by TDE. |
+| Generation 2 dependency health | All selected consumers have package-manager-native evidence; their latest qualified `main` evidence reports zero outdated dependencies. |
+| Generation 2 security gap assessment | The evidence-based decision retained GitHub-native and repository-native controls as the security decision owners. |
+| Generation 2 consumer integration | Seven selected DJConnect source consumers use exactly pinned public-runtime Observe workflows and publish `tde-observe-evidence`. |
+| Generation 2 qualification and release | Public runtime and selected-consumer qualification evidence are retained. |
+| TDE 1.1 complexity policy parity | Cross-language primary-product complexity evidence is canonical and qualified for all seven consumers. |
