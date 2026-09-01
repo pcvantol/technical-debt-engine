@@ -55,7 +55,7 @@ contract sources.
 
 - Documents reviewed: 12 active development/governance surfaces plus immutable
   prompt history and agent/product references.
-- Semantic sections classified: 22.
+- Semantic sections classified: 21.
 - Unresolved before cleanup: 0.
 - Unresolved after cleanup: 0.
 - Generic standalone sections retired: bootstrap synchronization/preflight and
