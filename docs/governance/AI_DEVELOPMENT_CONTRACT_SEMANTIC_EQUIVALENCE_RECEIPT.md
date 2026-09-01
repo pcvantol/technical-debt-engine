@@ -61,3 +61,23 @@ contract sources.
 - Generic standalone sections retired: bootstrap synchronization/preflight and
   generic hygiene requirements.
 - TDE product documents changed: no.
+
+## Qualification evidence
+
+- Offline projection validation: PASS for source
+  `ec070e399ff4dbd92e760370002995fe4f4d52d6`, profile `tde`, and extension
+  `TDE_DEVELOPMENT_EXTENSION`.
+- Drift canary: PASS untouched; a temporary manual generated-projection change
+  failed validation as required. The local extension remained an ordinary
+  editable tracked file.
+- Offline bootstrap canary: PASS using only TDE-local bootstrap, projection,
+  extension, product architecture, validation and handoff entrypoints.
+- Static validation: `git diff --check` PASS.
+- Full suite: 157 tests ran, one skipped, and two public-policy tests failed.
+  Both failures reproduce unchanged on clean `main`
+  `3add7cb2288a5324fcea2750a915e27d1f5e59d9`; they are recorded as
+  pre-existing non-regressions, not a projection-cleanup result.
+- TDE-on-TDE: isolated `code-size` assessment returned `QUALIFIED` / `PASS`;
+  minimal repository qualification returned exit status 0. Hosted
+  [Policy qualification run 33486034415](https://github.com/pcvantol/technical-debt-engine/actions/runs/33486034415)
+  passed on this adoption branch.
