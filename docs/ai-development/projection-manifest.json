@@ -13,7 +13,8 @@
   "materializer_version": "1",
   "profile": "tde",
   "projection_digest": "34d04daa1668d5ee1288a22d77aa143fecf4e167cb7fdc443d4082cb3ed45d77",
+  "projection_file_digest": "65b00c9a7c97f6d61e6a954b5d100fcea6cb5df9b749976d5d22c563a77750be",
   "schema_version": "1",
-  "source_commit": "ffae0e992e4d31c29a7e81196821e1b466965a21",
+  "source_commit": "ec070e399ff4dbd92e760370002995fe4f4d52d6",
   "source_repo": "pcvantol/ai-development-contracts"
 }
