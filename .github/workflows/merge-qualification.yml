@@ -24,6 +24,9 @@ jobs:
         run: |
           python -m pip wheel . --no-deps --wheel-dir candidate
           python -m pip install candidate/*.whl radon==6.0.1
+          curl --fail --location --silent --show-error https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl --output /usr/local/bin/cloc
+          echo 'bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  /usr/local/bin/cloc' | sha256sum --check
+          chmod +x /usr/local/bin/cloc
       - name: Qualify the current policy and dogfood path
         run: python tools/run_policy_qualification.py
       - name: Verify the proposed change has no whitespace errors
