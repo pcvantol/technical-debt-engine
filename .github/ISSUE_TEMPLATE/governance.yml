@@ -1,0 +1,18 @@
+name: Architecture or governance decision
+description: Propose a TDE architecture, policy, evidence, or governance decision.
+title: "governance: "
+labels: [governance]
+body:
+  - type: textarea
+    attributes:
+      label: Decision or question
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Boundary and compatibility impact
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Evidence and alternatives
