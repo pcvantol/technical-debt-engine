@@ -10,14 +10,14 @@ Read active planning sources in this order:
 4. [Product Backlog](PRODUCT_BACKLOG.md)
 5. [Engineering Status](ENGINEERING_STATUS.md)
 
-Generation 2 is the **TDE 1.0 DJConnect Enablement Program**. `0.2.0` is
-published and qualified; `1.0.0` is the next planned public release. G2-A
-Coverage Completion, G2-B Minimal Dependency Health, and G2-C Security Gap
-Assessment are complete. The remaining active work is one immutable candidate,
-qualification with the selected `djconnect-pi` consumer, and integrated public
-release. The binding classification is in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
+TDE `1.1.1` is the published public runtime. Generations 1 and 2 are complete,
+and TDE operates in maintenance mode. There is no scheduled public release, no
+active backlog item, and no approved new capability. Work is prioritised when
+there is a demonstrated consumer or platform-maintenance need, then qualified
+against the public contracts. See [Product Roadmap](PRODUCT_ROADMAP.md),
+[Product Backlog](PRODUCT_BACKLOG.md), and [Engineering Status](ENGINEERING_STATUS.md)
+for the current decision.
 
-The former three-program roadmap, platform-evolution backlog, and product
-definition expansion documents are historical planning context. They are not
-active commitments unless explicitly promoted through the current backlog and
-the Generation 2 investment test.
+[TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md), the former three-program roadmap,
+platform-evolution backlog, and product-definition expansion documents record
+historical decisions. They do not schedule new work or a release.

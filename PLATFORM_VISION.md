@@ -1,19 +1,19 @@
 # Platform vision
 
-DJConnect is the primary product. Technical Debt Engine (TDE) is its supporting
-engineering tool: a small, reliable assessment runtime used to make safe and
-repeatable DJConnect pipeline decisions.
+Technical Debt Engine (TDE) is a public, repository-independent engineering
+quality runtime. It observes engineering quality through capability-based,
+evidence-first analysis. DJConnect is the primary product and a qualified
+consumer of TDE, while the public contracts remain usable by other consumers.
 
-For Generation 2, TDE does not pursue a general technical-debt platform. Its
-mission is to provide only the assessment capability that a selected DJConnect
-pipeline demonstrably needs, through stable public CLI, evidence, policy,
-qualification, baseline, differential, and distribution contracts.
+The published `1.1.1` runtime provides a stable CLI, versioned evidence,
+policy, qualification, baseline, differential, and distribution contracts.
+Its four capabilities are Code Size, Complexity, Coverage, and Dependency
+Health. Selected consumers use them in non-blocking Observe mode.
 
-The next planned public release is `1.0.0`. It is released only after the
-selected DJConnect pilot pipelines and the certified distribution artifacts are
-qualified. After `1.0.0`, TDE is maintenance-first; new work requires a
-demonstrated DJConnect problem.
+Generations 1 and 2 are complete. TDE is maintained for demonstrated consumer
+and operational needs. A new capability requires an approved architectural
+assessment showing that the existing model cannot support a required
+engineering decision. No public release or capability expansion is scheduled.
 
-The former independent-platform vision is preserved as historical context but
-is superseded for active prioritisation by this consumer-driven vision and
+The Generation 2 DJConnect enablement decision is preserved in
 [ADR-0064](architecture/adr/ADR-0064-djconnect-enablement-program.md).

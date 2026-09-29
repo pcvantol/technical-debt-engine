@@ -1,49 +1,45 @@
 # Platform strategy
 
-## Generation 2 — TDE 1.0 DJConnect Enablement Program
+## Operational mode
 
-Generation 1 is complete and its foundations remain in force. Release `0.2.0`
-is published and qualified. Generation 2 is a compact program that prepares
-TDE for genuine use as a DJConnect pipeline decision-maker; it is not a general
-platform-expansion program.
+Generations 1 and 2 are complete. TDE `1.1.1` is the published public runtime.
+The platform is maintained for repository-independent, evidence-first quality
+assessment. Seven selected DJConnect consumers use the four public capabilities
+in non-blocking Observe mode. There is no active delivery program or scheduled
+public release.
 
-Every proposed increment must answer:
+## Investment test
 
-1. Which concrete DJConnect risk or manual process does it address?
-2. Which DJConnect repository or pipeline consumes it?
-3. Which public evidence or pipeline decision does it produce?
-4. Why are existing tooling and TDE functionality insufficient?
-5. Is it required for `1.0.0`, or post-1.0 work?
+Prioritise a proposed increment only when it identifies:
 
-An increment without convincing answers is not active 1.0 work.
+1. A concrete consumer or operational problem and the affected repository,
+   pipeline, or public contract.
+2. The engineering decision or evidence that is currently unavailable or
+   incorrect.
+3. Why existing TDE capabilities and other tooling do not resolve the problem.
+4. The smallest change, acceptance evidence, compatibility impact, and known
+   limitations.
+5. Whether a maintenance release is needed and how its artifacts and consumers
+   will be qualified.
 
-## Active workstreams
+Bug fixes, analyzer and dependency updates, compatibility work, and
+documentation are normal maintenance when this test demonstrates a need.
+Consumer quality findings remain with the consumer unless they expose a TDE
+platform problem.
 
-- **G2-A — Coverage Completion.** **Complete.** Existing CI artifacts from
-  `djconnect`, `djconnect-website`, and `djconnect-esp32` are qualified through
-  public contracts. TDE consumes them only and never runs tests or generates
-  coverage.
-- **G2-B — Minimal Dependency Health.** Select only ecosystems used by the
-  chosen pilot and produce the canonical evidence and policy decisions it
-  needs. Unsupported ecosystems are explicit.
-- **G2-C — Security Gap Assessment.** **Complete.** Existing GitHub-native and
-  repository-native controls remain decision owners; no TDE 1.0 security
-  capability is justified.
-- **G2-D — DJConnect Consumer Integration.** `djconnect-pi` is the sole
-  selected, thin, pinned public-CLI consumer and remains non-blocking in
-  Observe. Wider rollout or phase promotion is post-1.0 work.
-- **G2-E — TDE 1.0 Qualification and Release.** Create one immutable candidate,
-  qualify its real artifacts and selected consumer, record limitations, and
-  publish `1.0.0` once. The binding sequence is in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
+## Capability and release boundaries
 
-## Boundaries
+New capabilities require an approved architectural assessment before they enter
+the backlog. Implementation then follows a capability decision, qualification,
+public runtime delivery, and consumer adoption. TDE remains public,
+capability-driven, repository-independent, and Observe-only; consumer
+integration adds no required checks, merge blocks, soft-fails, suppressions, or
+repository-specific policy forks by default.
 
-Generation 2 adds no cloud or dashboard product, Marketplace objective,
-organization/multi-tenant governance, broad AI adviser, architecture suite, or
-replacement for security, dependency, or quality platforms. The complete
-deferred option set is retained in [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md).
+Merging an engineering increment does not trigger publication. A maintenance
+release requires a demonstrated need, compatible public contracts, and
+qualified immutable artifacts. Deferred product ideas in
+[Product Backlog](PRODUCT_BACKLOG.md) are not scheduled commitments.
 
-Engineering increments merge independently when ready, but a merge is not a
-release trigger. The normal next public release is `1.0.0`; any interim public
-release needs an explicit operational-necessity decision. Existing release
-engineering is reused unless it demonstrably fails this program.
+The completed Generation 2 program and its release decisions remain in
+[TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md) as historical context.

@@ -4,10 +4,11 @@ DJConnect owns product priority. TDE governance owns the integrity of TDE's
 public contracts and prioritises direct, demonstrated consumer or operational
 platform value.
 
-An active backlog item documents its concrete DJConnect value, intended
-consumer, acceptance evidence, and non-goals. It must also satisfy the five
-investment questions in [PLATFORM_STRATEGY.md](PLATFORM_STRATEGY.md). Items
-that do not qualify remain post-1.0 options rather than implicit commitments.
+An active backlog item documents its concrete consumer or operational value,
+affected public contract, acceptance evidence, and non-goals. It must also
+satisfy the five investment questions in
+[Platform Strategy](PLATFORM_STRATEGY.md). Items that do not qualify remain
+deferred options rather than implicit commitments.
 
 New capabilities are not roadmap-driven. They require an approved
 architectural assessment that demonstrates an engineering decision cannot be
