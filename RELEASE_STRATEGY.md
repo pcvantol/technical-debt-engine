@@ -1,14 +1,13 @@
 # Release strategy
 
-Release `0.2.0` is published and qualified. Generation 2 merges independently
-reviewable increments, but merge is not a public-release trigger. The next
-planned public release is `1.0.0`; an interim release requires an explicit
-operational-necessity decision.
+TDE `1.1.1` is the current published public runtime. No next public release is
+scheduled. Engineering increments may merge for maintenance, but a merge is
+not a publication trigger.
 
-Delivery proceeds through these stages:
-
-- **Current:** qualified `0.2.0` public runtime.
-- **Enablement:** compact consumer-driven capability and pilot completion.
-- **Stable:** qualified `1.0.0` after selected DJConnect consumer proof.
+A maintenance release requires a demonstrated consumer or operational need,
+qualified immutable package and distribution artifacts, compatibility evidence
+for the public contracts, and a deliberate publication decision. The completed
+Generation 2 release path is retained in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md)
+as historical evidence.
 
 CLI and package releases are versioned artifacts. Evidence-schema compatibility is declared in every release; incompatible schema changes require a new schema version and a clear consumer migration path. Released artifacts and evidence are immutable.

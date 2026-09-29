@@ -9,7 +9,8 @@ evidence-first analysis.
 
 Generation 1 and Generation 2 are complete. TDE remains actively maintained,
 but it is no longer an active consumer-integration delivery program. Normal
-work follows a maintenance-first model.
+work follows a maintenance-first model. No next public release or active
+delivery milestone is scheduled.
 
 ## Completed milestones
 

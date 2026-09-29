@@ -2,8 +2,8 @@
 
 TDE uses Semantic Versioning for public CLI, evidence-schema, configuration, and contract releases.
 
-Generation 1 established the foundation and `0.2.0` is the published qualified
-runtime. The first planned stable CLI release is `1.0.0`; Generation 2 does not
-normally publish a new `0.x` release for each capability increment.
+Generations 1 and 2 are complete, and `1.1.1` is the current published public
+runtime. No subsequent release is scheduled. A maintenance release is versioned
+only after its operational need and compatibility have been qualified.
 
 Breaking changes to stable contracts require a major version. Evidence and configuration compatibility must be declared independently where their lifecycle differs from the CLI.

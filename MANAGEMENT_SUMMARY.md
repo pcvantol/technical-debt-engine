@@ -2,25 +2,18 @@
 
 ## Current management decision — supersedes earlier active roadmap direction
 
-`0.2.0` is published and qualified. Generation 1 is complete. DJConnect is the
-primary product and TDE supplies a small, reproducible pipeline-assessment
-function. The failed `1.0.0rc1` candidates are preserved as NO-GO evidence:
-PR #130 repaired release qualification selection and merged with green CI.
-Reviewable PR #131 prepares the new immutable RC2; after that merge, the locked
-1.0 scope is qualification with the selected
-`djconnect-pi` consumer, and one integrated public `1.0.0` release. No
-per-capability public release is planned; post-1.0 is maintenance-first. The
-binding decision and its release sequence are in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md).
+TDE `1.1.1` is the published public runtime. Generations 1 and 2 are complete;
+the operational mode is maintenance. Seven selected DJConnect consumers run the
+four public capabilities in non-blocking Observe mode with qualified evidence.
+There is no scheduled public release, active backlog item, or approved new
+capability. Maintenance is prioritised by demonstrated consumer or platform
+need, and a new capability requires an approved architectural assessment.
+Current planning authority is [Product Roadmap](PRODUCT_ROADMAP.md),
+[Product Backlog](PRODUCT_BACKLOG.md), and [Engineering Status](ENGINEERING_STATUS.md).
 
-G2-A Coverage Completion, G2-B Minimal Dependency Health, and G2-C Security
-Gap Assessment are complete. Security remains owned by GitHub-native and
-repository-native controls; no TDE security capability is in 1.0.
-`djconnect-pi` is the sole selected consumer and has three retained successful
-non-blocking Observe runs using the public `0.2.0` CLI. The exact immutable
-1.0 candidate—not the source tree or the prior `0.2.0` observation—is the next
-consumer-qualification subject. The candidate preparation aligns the existing
-four-capability standard profile; it does not add functionality. WARN, soft-fail, required checks, and broader
-consumer rollout are not part of this release.
+The failed `1.0.0rc1` candidates and the completed Generation 2 release path
+remain historical evidence in [TDE 1.0 Scope Lock](TDE_1_0_SCOPE_LOCK.md) and
+the release records. They do not define the next increment.
 
 The remainder of this document is preserved historical management context and
 does not override the current decision above.
