@@ -196,8 +196,9 @@ def analyze(root: Path, timeout: int = 60, configuration: Mapping[str, Any] | No
             return {"status": result["status"], "symbols": symbols, "adapters": adapters, "thresholds": thresholds,
                     "primaryLanguages": list(primary), "limitations": result["limitations"]}
         if not result["symbols"]:
-            return {"status": "INVALID_EVIDENCE", "symbols": symbols, "adapters": adapters, "thresholds": thresholds,
-                    "primaryLanguages": list(primary), "limitations": [{"id": "complexity.analyzer.empty_output", "description": f"{result['adapter']['analyzer']['id']} emitted no symbols for applicable product source.", "cause": "invalid analyzer evidence"}]}
+            limitations.append({"id": "complexity.analyzer.no_symbols",
+                                "description": f"{result['adapter']['analyzer']['id']} found no supported symbols in applicable product source.",
+                                "cause": "no supported symbols"})
         symbols.extend(result["symbols"])
         adapters.append(result["adapter"])
     ignored_symbols = set(_items(configuration.get("ignoredSymbols")))
