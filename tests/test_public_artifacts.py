@@ -147,6 +147,9 @@ class PublicArtifactIntegrationTests(unittest.TestCase):
             self.assertEqual("tde.assessment-evidence", response["evidence"]["assessment"]["schema"]["name"])
             self.assertEqual("1", response["evidence"]["assessmentDecision"]["schema"]["compatibilityVersion"])
             self.assertTrue(next(evidence.glob("evidence/*.json")))
-            coverage = subprocess.run(["docker", "run", "--rm", "--volume", f"{self._coverage_repository(root)}:/workspace/repository:ro", image, "--format", "json", "assess", "--capability", "coverage", "/workspace/repository"], capture_output=True, text=True, check=False)
+            coverage = subprocess.run(["docker", "run", "--rm", "--volume", f"{self._coverage_repository(root)}:/workspace/repository:ro",
+                                      "--volume", f"{evidence}:/workspace/evidence", image, "--format", "json",
+                                      "--store-location", "/workspace/evidence", "assess", "--capability", "coverage",
+                                      "/workspace/repository"], capture_output=True, text=True, check=False)
             self.assertEqual(0, coverage.returncode, coverage.stderr)
             self.assertEqual("cobertura-xml", json.loads(coverage.stdout)["evidence"]["adapterResults"][0]["evidence"]["parser"])

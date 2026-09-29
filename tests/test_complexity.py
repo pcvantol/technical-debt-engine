@@ -24,6 +24,24 @@ class ComplexityTests(unittest.TestCase):
             self.assertEqual("complexity",evidence["capabilityResults"][0]["capabilityId"])
             self.assertTrue(evidence["measurements"])
 
+    def test_python_source_without_symbols_retains_valid_analyzer_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "sample.py").write_text("value = 1\n", encoding="utf-8")
+            result = analyze(root)
+            self.assertEqual("VALID", result["status"])
+            self.assertEqual([], result["symbols"])
+            self.assertEqual("complexity.analyzer.no_symbols", result["limitations"][0]["id"])
+            self.assertEqual("radon", result["adapters"][0]["analyzer"]["id"])
+
+            config = RuntimeConfiguration.load({"capabilities": {"complexity": {"enabled": True}}})
+            evidence = Runtime().execute(root, config).evidence
+            self.assertEqual("VALID", evidence["validation"]["status"])
+            self.assertEqual("VALID", evidence["capabilityResults"][0]["status"])
+            self.assertEqual(0, next(item["value"] for item in evidence["measurements"]
+                                     if item["metricKey"] == "complexity.cyclomatic.product.symbol_count"))
+            self.assertTrue(any(item["ruleId"] == "complexity.missing" for item in evidence["findings"]))
+
     def test_normalizes_repository_language_file_and_symbol_metrics(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory); (root/"sample.py").write_text("def branch(value):\n    if value:\n        return 1\n    return 0\n",encoding="utf-8")
