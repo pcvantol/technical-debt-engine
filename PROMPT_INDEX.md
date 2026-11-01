@@ -2,7 +2,7 @@
 
 This is navigation only. Current engineering state is in [ENGINEERING_STATUS.md](ENGINEERING_STATUS.md); immutable archives are in [docs/history/prompts](docs/history/prompts). Prompt archives apply prospectively from `G2-GOV-1`; earlier rows remain preserved historical navigation until separately archived.
 
-| [M-SWIFT-20261101](docs/history/prompts/M-SWIFT-20261101.md) | Swift analyzer declaration-boundary maintenance | Active — validation complete, source review pending |
+| [M-SWIFT-20261101](docs/history/prompts/M-SWIFT-20261101.md) | Swift analyzer declaration-boundary maintenance | [Draft — #164](https://github.com/pcvantol/technical-debt-engine/pull/164); qualified local candidate, hosted review pending |
 | [G2-E-4](docs/history/prompts/G2-E-4-rc2-candidate-preparation.md) | RC2 Candidate Preparation | [Reviewable — #131](https://github.com/pcvantol/technical-debt-engine/pull/131) |
 | [G2-E-3](docs/history/prompts/G2-E-3-release-capability-selection-repair.md) | RC1 Release-Capability Selection Repair | [Merged — #130](https://github.com/pcvantol/technical-debt-engine/pull/130) |
 | [G2-E-2](docs/history/prompts/G2-E-2-rc1-build-tool-pin-repair.md) | RC1 Build-Tool Pin Repair | [Merged — #129](https://github.com/pcvantol/technical-debt-engine/pull/129) |

@@ -39,6 +39,11 @@ canonical evidence: all four capabilities are VALID; runtime is QUALIFIED;
 assessment is FAIL and repository qualification FAILED. There are 354 findings,
 including seven policy-blocking critical product findings. Source lines 95,401
 exceed the existing 75,000 threshold and product CCN maximum 62 exceeds 30.
+The existing installed-wheel complexity matrix now runs the four Swift/discovery
+regressions on each Linux/macOS/Windows and Python 3.11/3.13 target, after
+resolving the exact same wheel's declared dependencies. Its missing-analyzer
+negative case remains unchanged.
+
 These are consumer debt findings, not analyzer-invalid evidence. No finding was
 removed, threshold changed or original evidence overwritten.
 
