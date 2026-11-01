@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 
-def discover(executable_name: str, minimum_version: tuple[int, int], timeout: int) -> dict[str, Any]:
+def discover(executable_name: str, minimum_version: tuple[int, ...], timeout: int) -> dict[str, Any]:
     executable = shutil.which(executable_name)
     # A public wheel installs analyzer console scripts into the active Python
     # environment. Invoking `tde` by absolute path does not necessarily prepend
@@ -27,7 +27,11 @@ def discover(executable_name: str, minimum_version: tuple[int, int], timeout: in
         version = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
         return {"status": "FAILED_CLOSED", "limitation": {"id": f"analyzer.{executable_name}.discovery_failed", "description": str(error), "cause": "analyzer discovery failed"}}
-    match = re.search(r"(\d+)\.(\d+)", version)
-    if not match or tuple(map(int, match.groups())) < minimum_version:
-        return {"status": "ANALYZER_NOT_FOUND", "limitation": {"id": f"analyzer.{executable_name}.unsupported_version", "description": f"{executable_name} {minimum_version[0]}.{minimum_version[1]}+ is required; found {version or 'unknown'}.", "cause": "unsupported analyzer version"}}
+    match = re.search(r"(\d+(?:\.\d+)+)", version)
+    parsed = tuple(map(int, match.group(1).split("."))) if match else ()
+    width = max(len(parsed), len(minimum_version))
+    actual = parsed + (0,) * (width - len(parsed))
+    required = minimum_version + (0,) * (width - len(minimum_version))
+    if not match or actual < required:
+        return {"status": "ANALYZER_NOT_FOUND", "limitation": {"id": f"analyzer.{executable_name}.unsupported_version", "description": f"{executable_name} {'.'.join(map(str, minimum_version))}+ is required; found {version or 'unknown'}.", "cause": "unsupported analyzer version"}}
     return {"status": "VALID", "executable": executable, "version": version}

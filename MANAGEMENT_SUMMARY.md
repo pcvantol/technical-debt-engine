@@ -1,12 +1,22 @@
 # Management summary
 
-## Current management decision — supersedes earlier active roadmap direction
+## Current maintenance decision — M-SWIFT-20261101
+
+Prepare candidate 1.1.2 using the published Lizard 1.24.3 Swift parser repair.
+Two causal regression cases fail on the old parser and pass on the candidate;
+162 tests complete successfully (one opt-in Docker test skipped). Apple main
+73d114a now yields valid evidence for all four capabilities and QUALIFIED
+runtime evidence. Its policy still FAILs on real findings; thresholds and
+fail-closed duplicate validation remain unchanged. Source review, human merge,
+mainline certification, publication and consumer adoption remain separate.
+
+## Earlier maintenance baseline
 
 TDE `1.1.1` is the published public runtime. Generations 1 and 2 are complete;
 the operational mode is maintenance. Seven selected DJConnect consumers run the
 four public capabilities in non-blocking Observe mode with qualified evidence.
-There is no scheduled public release, active backlog item, or approved new
-capability. Maintenance is prioritised by demonstrated consumer or platform
+This historical baseline predates the demonstrated Swift parser servicing need;
+no new capability is approved. Maintenance is prioritised by demonstrated consumer or platform
 need, and a new capability requires an approved architectural assessment.
 Current planning authority is [Product Roadmap](PRODUCT_ROADMAP.md),
 [Product Backlog](PRODUCT_BACKLOG.md), and [Engineering Status](ENGINEERING_STATUS.md).

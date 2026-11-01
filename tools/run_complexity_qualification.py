@@ -75,7 +75,12 @@ def main() -> int:
         # The negative case must not become the persisted record used by the
         # subsequent Query/report qualification.
         shutil.rmtree(fixture / ".tde", ignore_errors=True)
-        run([python, "-m", "pip", "install", "--disable-pip-version-check", "radon==6.0.1"])
+        # Resolve the exact dependencies declared by this same wheel, including
+        # the qualified Swift parser; the missing-analyzer check above stays intact.
+        run([python, "-m", "pip", "install", "--disable-pip-version-check", str(wheel)])
+        swift_boundaries = run([python, "-m", "unittest",
+                                "tests.test_swift_analyzer_boundaries",
+                                "tests.test_analyzer_patch_discovery", "-v"], env=isolated_env)
         commands = {
             "version": run([tde, "--format", "json", "--version"], env=isolated_env),
             "inspect": run([tde, "--format", "json", "inspect", str(fixture)], expected={0, 3}, env=isolated_env),
@@ -122,6 +127,7 @@ def main() -> int:
                             "policyDecision": dogfood_policy,
                             "note": "A policy warning or failure is product debt, not analyzer qualification failure."},
             "persistence": {"result": "PASS", "evidencePath": ".tde/evidence/evidence/<digest>.json"},
+            "swiftDeclarationBoundaries": {"result": "PASS", "command": command_record(swift_boundaries)},
             "missingAnalyzer": {"result": "PASS", "command": command_record(missing_analyzer)},
             "persistedEvidenceValidation": command_record(validation),
             "tamperDetection": {"result": "PASS", "command": command_record(tamper)},

@@ -29,7 +29,7 @@ from tde_runtime.repository_qualification import (QualificationRegistry,
 from tde_runtime.differential import AssessmentBaselineRegistry, DifferentialEngine, DifferentialError
 
 
-CLI_VERSION = "1.1.1"
+CLI_VERSION = "1.1.2"
 GENERATION = "1"
 
 
