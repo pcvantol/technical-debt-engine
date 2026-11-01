@@ -23,7 +23,7 @@ LIZARD_ADAPTER_ID = "complexity.lizard"
 ADAPTER_ID = RADON_ADAPTER_ID  # Compatibility import for existing Python consumers.
 ADAPTER_VERSION = "1.1.1"
 MINIMUM_RADON_VERSION = (6, 0)
-MINIMUM_LIZARD_VERSION = (1, 23)
+MINIMUM_LIZARD_VERSION = (1, 24, 3)
 LIZARD_LANGUAGES = {"JavaScript": "javascript", "TypeScript": "typescript", "Swift": "swift", "C": "cpp", "C++": "cpp", "C#": "csharp"}
 
 
