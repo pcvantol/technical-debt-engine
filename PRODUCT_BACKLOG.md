@@ -18,7 +18,9 @@ concrete breakage or pending incompatibility.
 
 ## Analyzer Maintenance
 
-No active items. Analyzer version, parser, and evidence-normalization updates
+`M-SWIFT-20261101`: repair Swift declaration-boundary attribution through the
+qualified upstream Lizard 1.24.3 dependency. Source servicing candidate only;
+release and consumer adoption remain pending. Analyzer version, parser, and evidence-normalization updates
 require compatibility evidence and unchanged public-contract semantics unless
 an approved architecture decision says otherwise.
 

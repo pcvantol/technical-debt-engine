@@ -24,7 +24,7 @@ class AdapterRegistry:
         return (
             {"id": "code_size.cloc", "version": "0.1.0", "analyzer": "cloc", "capabilities": ("code_size",), "minimumVersion": "2.10", "platforms": ("any",), "priority": 100},
             {"id":"complexity.radon","version":"1.1.1","analyzer":"radon", "capabilities": ("complexity",), "minimumVersion": "6.0", "platforms": ("any",), "languages": ("Python",), "priority": 100},
-            {"id":"complexity.lizard","version":"1.1.1","analyzer":"lizard", "capabilities": ("complexity",), "minimumVersion": "1.23", "platforms": ("any",), "languages": ("JavaScript", "TypeScript", "Swift", "C", "C++", "C#"), "priority": 90},
+            {"id":"complexity.lizard","version":"1.1.1","analyzer":"lizard", "capabilities": ("complexity",), "minimumVersion": "1.24.3", "platforms": ("any",), "languages": ("JavaScript", "TypeScript", "Swift", "C", "C++", "C#"), "priority": 90},
             {"id":"coverage.artifact","version":"0.1.0","analyzer":"coverage-artifact", "capabilities": ("coverage",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
             {"id":"dependency_health.platform","version":"1.0.0","analyzer":"consumer-native", "capabilities": ("dependency_health",), "minimumVersion": "1.0", "platforms": ("any",), "priority": 100},
         )

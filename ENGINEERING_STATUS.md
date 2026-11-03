@@ -4,29 +4,15 @@
 | --- | --- |
 | Generation 2 | `COMPLETE` |
 | Operational mode | `MAINTENANCE` |
-| Current branch | `main` |
-| Current runtime | Public `1.1.x` baseline; `1.1.1` is the current published runtime. |
-| Current mission | Operational engineering quality platform: observe engineering quality through capability-based, evidence-first analysis. |
-| Public contract | Public `tde` CLI, declared configuration, versioned evidence schema, documented exit codes, canonical evidence, and qualification. |
-| Capabilities | `code_size`, `complexity`, `coverage`, and `dependency_health`. |
-| Consumer posture | Observe-only, non-blocking, public-runtime-only, capability-driven, and repository-independent. |
-| Consumer baseline | Seven selected DJConnect consumers execute all four capabilities on `main`, publish evidence artifacts, and are `PASS_WITH_WARNINGS` / `QUALIFIED`. |
-| Policy posture | No required checks, merge blocking, soft-fails, suppressions, or repository-specific policy forks. |
-| Dependency-health baseline | Latest qualified `main` evidence reports zero outdated dependencies for all seven selected consumers. |
-| Next public release | None scheduled. A maintenance release requires a demonstrated operational or consumer need and qualification evidence. |
-| Capability governance | A new capability requires an approved architectural assessment showing that an engineering decision cannot be made with the existing capability model. |
+| Published runtime | `1.1.1`; unchanged by this increment. |
+| Active increment | `M-SWIFT-20261101`: qualify the upstream Swift declaration-boundary repair. |
+| Candidate | `1.1.2`, with exactly pinned Lizard `1.24.3`. Not released or adopted by consumers. |
+| Scope | Analyzer dependency, patch-level discovery, regression tests and candidate version metadata. No schema, policy threshold, suppression or required-capability change. |
+| Validation | 162 tests completed successfully, one existing opt-in Docker integration test skipped. Both real-analyzer Swift regressions fail on Lizard 1.23.0 and pass on 1.24.3. |
+| Consumer proof | Exact Apple main `73d114a`: all four capabilities VALID, runtime QUALIFIED, canonical evidence persisted. Assessment FAIL / repository FAILED from actual findings, not analyzer BLOCKED. |
+| Next decision | Independent source review and human merge; then mainline candidate certification and separately authorized publication, followed by pinned consumer adoption. |
 
-## Normal responsibilities
-
-- Bug fixes and public runtime maintenance
-- Analyzer and dependency updates
-- Compatibility work
-- Documentation and governance
-- Evidence and qualification compatibility
-
-Routine product findings are handled by consumer repositories. TDE changes are
-made only when the platform itself has a demonstrated maintenance need or an
-approved capability decision.
-
-Generation 2 history remains preserved in the completed milestones, ADRs,
-release records, and `docs/history/prompts/`.
+Existing canonical-checkout staged/unstaged work is preserved. This increment
+uses an isolated clean worktree based on accepted main `c9e78f8`.
+No package publication, tag, consumer workflow change, native operation or
+policy waiver was performed.
